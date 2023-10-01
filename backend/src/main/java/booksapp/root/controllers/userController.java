@@ -35,7 +35,10 @@ public class userController {
         }
         System.out.println("in controller");
         System.out.println(user);
-        UserService.saveUser(user);
+        if(!UserService.saveUser(user)) {
+            System.out.println("Email or password NOK");
+            return ResponseEntity.badRequest().body("Email or password not OK");
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
     }
 }

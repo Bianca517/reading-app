@@ -5,15 +5,15 @@ import com.google.cloud.firestore.Firestore;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.io.File;
 
 @Service
-public class FirebaseInitialization {
+public class FirebaseInitializer {
     @PostConstruct //because you want this to run as soon as the app is running
     private void initDB() {
         InputStream serviceAccount = null;
@@ -35,8 +35,8 @@ public class FirebaseInitialization {
             e.printStackTrace();
         }
     }
-
-    public Firestore getFirebase() {
+    @Bean
+    public Firestore firestore() {
         return FirestoreClient.getFirestore();
     }
 }
