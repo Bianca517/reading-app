@@ -14,12 +14,12 @@ import java.util.concurrent.ExecutionException;
 
 //business logic
 @Service
-public class userService {
+public class userRegisterService {
     private Firestore DB;
     private final CollectionReference userCollectionDB;
 
     @Autowired //this is how dependency injection works
-    public userService(Firestore firestore) {
+    public userRegisterService(Firestore firestore) {
         this.DB = firestore;
         userCollectionDB = DB.collection(GlobalConstants.USERS_COLLECTION_NAME);
     }

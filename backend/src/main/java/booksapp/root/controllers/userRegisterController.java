@@ -2,7 +2,7 @@ package booksapp.root.controllers;
 
 import booksapp.root.models.GlobalConstants;
 import booksapp.root.models.User;
-import booksapp.root.services.userService;
+import booksapp.root.services.userRegisterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -13,17 +13,17 @@ import org.springframework.web.bind.annotation.*;
 //API
 @RestController
 @RequestMapping
-public class userController {
-    private final userService UserService;
+public class userRegisterController {
+    private final userRegisterService userRegisterService;
 
     @Autowired // Inject the userService dependency
-    public userController(userService userService) {
-        this.UserService = userService;
+    public userRegisterController(userRegisterService userRegisterService) {
+        this.userRegisterService = userRegisterService;
     }
 
     @GetMapping("hello")
     public String hello() {
-      return UserService.hello();
+      return userRegisterService.hello();
     }
 
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -36,7 +36,7 @@ public class userController {
         System.out.println("in controller");
         System.out.println(user);
 
-        return switch (UserService.saveUser(user)) {
+        return switch (userRegisterService.saveUser(user)) {
             case GlobalConstants.EMAIL_NOT_MEETING_CRITERIA_ERROR_CODE ->
                     ResponseEntity.status(HttpStatus.CREATED).body("Email has wrong format!");
             case GlobalConstants.PASSWORD_NOT_MEETING_CRITERIA_ERROR_CODE ->
