@@ -12,9 +12,7 @@ public class User {
     private String userName;
     private String emailAddress;
     private String password;
-
     private String salt;
-
 
     public User() {
     }
@@ -81,10 +79,10 @@ public class User {
 
     public Map<String, Object> toHashMap() {
         Map<String, Object> dictionary = new HashMap<>();
-        dictionary.put("userName", this.userName);
-        dictionary.put("emailAddress", this.emailAddress);
-        dictionary.put("password", this.password);
-        dictionary.put("salt", this.salt);
+        dictionary.put(GlobalConstants.USERNAME_FIELD_NAME, this.userName);
+        dictionary.put(GlobalConstants.EMAIL_ADDRESS_FIELD_NAME, this.emailAddress);
+        dictionary.put(GlobalConstants.PASSWORD_FIELD_NAME, this.password);
+        dictionary.put(GlobalConstants.SALT_FIELD_NAME, this.salt);
         return dictionary;
     }
 }

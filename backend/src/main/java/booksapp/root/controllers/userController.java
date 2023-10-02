@@ -1,15 +1,13 @@
 package booksapp.root.controllers;
 
+import booksapp.root.models.GlobalConstants;
 import booksapp.root.models.User;
 import booksapp.root.services.userService;
-import com.google.firebase.auth.hash.Bcrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.concurrent.ExecutionException;
 
 //this class has all User Resources for the application
 //API
@@ -38,9 +36,14 @@ public class userController {
         System.out.println("in controller");
         System.out.println(user);
 
-        if(!UserService.saveUser(user)) {
-            return ResponseEntity.badRequest().body("Email or password not OK");
-        }
-        return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
+        return switch (UserService.saveUser(user)) {
+            case GlobalConstants.EMAIL_NOT_MEETING_CRITERIA_ERROR_CODE ->
+                    ResponseEntity.status(HttpStatus.CREATED).body("Email has wrong format!");
+            case GlobalConstants.PASSWORD_NOT_MEETING_CRITERIA_ERROR_CODE ->
+                    ResponseEntity.status(HttpStatus.CREATED).body("Password does not meet criteria!");
+            case GlobalConstants.EMAIL_ALREADY_USED_ERROR_CODE ->
+                    ResponseEntity.status(HttpStatus.CREATED).body("Email already exists!");
+            default -> ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully! :)");
+        };
     }
 }

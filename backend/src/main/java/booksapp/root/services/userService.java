@@ -1,48 +1,57 @@
 package booksapp.root.services;
 
+import booksapp.root.models.GlobalConstants;
 import booksapp.root.models.User;
 import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.CollectionReference;
-import com.google.cloud.firestore.DocumentReference;
-import com.google.cloud.firestore.Firestore;
-import com.google.firebase.auth.FirebaseAuth;
+import com.google.cloud.firestore.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 //business logic
 @Service
 public class userService {
-
     private Firestore DB;
-    private CollectionReference userCollectionDB;
-    private FirebaseAuth authenticator;
+    private final CollectionReference userCollectionDB;
+
     @Autowired //this is how dependency injection works
     public userService(Firestore firestore) {
         this.DB = firestore;
-        userCollectionDB = DB.collection("users");
-        authenticator = FirebaseAuth.getInstance();
+        userCollectionDB = DB.collection(GlobalConstants.USERS_COLLECTION_NAME);
     }
     public String hello(){
         return "hello bee";
     }
 
-    public boolean saveUser(User user) {
+    public int saveUser(User user) {
         final String salt = BCrypt.gensalt();
         user.setSalt(salt);
         Map<String, Object> userMap = user.toHashMap();
 
-        if(this.isUserEmailOK(user.getEmailAddress()) && this.isUserPasswordOK(user.getPassword())) {
+        if(!this.isUserEmailOK(user.getEmailAddress()))
+        {
+            return GlobalConstants.EMAIL_NOT_MEETING_CRITERIA_ERROR_CODE;
+        }
+        else if (!this.isUserPasswordOK(user.getPassword()))
+        {
+            return GlobalConstants.PASSWORD_NOT_MEETING_CRITERIA_ERROR_CODE;
+        }
+        else if (this.emailAlreadyExistsInDB(user.getEmailAddress()))
+        {
+            return GlobalConstants.EMAIL_ALREADY_USED_ERROR_CODE;
+        }
+        else {
             user.setPassword(BCrypt.hashpw(user.getPassword(), salt));
 
-            userMap.put("password", user.getPassword());
-          
+            userMap.put(GlobalConstants.PASSWORD_FIELD_NAME, user.getPassword());
+
             ApiFuture<DocumentReference> addedDocRef = userCollectionDB.add(userMap);
-            return true;
+            return 0;
         }
-        return false;
     }
 
     public boolean isUserEmailOK(String userEmail) {
@@ -76,6 +85,21 @@ public class userService {
             }
         }
         return false;
+    }
+
+    private boolean emailAlreadyExistsInDB(String userEmail) {
+        // asynchronously retrieve multiple documents
+        ApiFuture<QuerySnapshot> usersWithSameEmailQuery = userCollectionDB.whereEqualTo(GlobalConstants.EMAIL_ADDRESS_FIELD_NAME, userEmail).get();
+
+        try {
+            List<QueryDocumentSnapshot> usersWithSameEmailQueryResult = usersWithSameEmailQuery.get().getDocuments();
+            if(usersWithSameEmailQueryResult.isEmpty()) {
+                return false;
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+        return true;
     }
 
 }
