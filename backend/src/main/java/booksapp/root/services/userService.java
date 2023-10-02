@@ -102,4 +102,19 @@ public class userService {
         return true;
     }
 
+    private boolean userNameAlreadyExistsInDB(String userName) {
+        // asynchronously retrieve multiple documents
+        ApiFuture<QuerySnapshot> usersWithSameUsernameQuery = userCollectionDB.whereEqualTo(GlobalConstants.USERNAME_FIELD_NAME, userName).get();
+
+        try {
+            List<QueryDocumentSnapshot> usersWithSameUsernameQueryResult = usersWithSameUsernameQuery.get().getDocuments();
+            if(usersWithSameUsernameQueryResult.isEmpty()) {
+                return false;
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+        return true;
+    }
+
 }
