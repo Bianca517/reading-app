@@ -13,6 +13,9 @@ public class User {
     private String emailAddress;
     private String password;
 
+    private String salt;
+
+
     public User() {
     }
 
@@ -61,6 +64,11 @@ public class User {
         this.password = password;
     }
 
+    public String getSalt() { return salt; }
+
+    public void setSalt(String salt) { this.salt = salt; }
+
+
     @Override
     public String toString() {
         return "user{" +
@@ -76,6 +84,7 @@ public class User {
         dictionary.put("userName", this.userName);
         dictionary.put("emailAddress", this.emailAddress);
         dictionary.put("password", this.password);
+        dictionary.put("salt", this.salt);
         return dictionary;
     }
 }

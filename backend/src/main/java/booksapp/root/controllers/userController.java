@@ -2,6 +2,7 @@ package booksapp.root.controllers;
 
 import booksapp.root.models.User;
 import booksapp.root.services.userService;
+import com.google.firebase.auth.hash.Bcrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,10 +34,11 @@ public class userController {
         if(user.getUserName() == null || user.getEmailAddress() == null || user.getPassword() == null) {
             return ResponseEntity.badRequest().body("Incomplete user data");
         }
+
         System.out.println("in controller");
         System.out.println(user);
+
         if(!UserService.saveUser(user)) {
-            System.out.println("Email or password NOK");
             return ResponseEntity.badRequest().body("Email or password not OK");
         }
         return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
