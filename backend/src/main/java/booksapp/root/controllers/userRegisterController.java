@@ -29,7 +29,7 @@ public class userRegisterController {
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> registerUser(@RequestBody User user) {
         // Check if all required fields are present in the user object
-        if(user.getUserName() == null || user.getEmailAddress() == null || user.getPassword() == null) {
+        if((user.getUserName() == null) || (user.getEmailAddress() == null) || (user.getPassword() == null)) {
             return ResponseEntity.badRequest().body("Incomplete user data");
         }
 
