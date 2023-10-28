@@ -50,6 +50,7 @@ public class userRegisterService {
             userMap.put(GlobalConstants.PASSWORD_FIELD_NAME, user.getPassword());
 
             ApiFuture<DocumentReference> addedDocRef = userCollectionDB.add(userMap);
+            
             return 0;
         }
     }

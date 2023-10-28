@@ -7,11 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.api.client.json.Json;
+@CrossOrigin(origins = "http://192.168.1.236:8080")
 @RestController
 @RequestMapping
 public class userLoginController {
@@ -28,12 +32,21 @@ public class userLoginController {
         int loginStatus = this.userLoginService.loginUserWithEmail(emailAddress, password);
         System.out.println("aici");
         System.out.println(emailAddress + " " + password);
-        return switch (loginStatus) {
-            case GlobalConstants.EMAIL_DOES_NOT_EXIST ->
-                    ResponseEntity.status(HttpStatus.CREATED).body("Cannot find user with given email!");
-            case GlobalConstants.PASSWORDS_DO_NOT_MATCH ->
-                    ResponseEntity.status(HttpStatus.CREATED).body("Passwords do not match!");
-            default -> ResponseEntity.status(HttpStatus.CREATED).body("User successfully logged in! :)");
-        };
+       
+        JsonObject response = new JsonObject();
+        switch (loginStatus) {
+            case GlobalConstants.EMAIL_DOES_NOT_EXIST :
+                response.addProperty("message", "Cannot find user with given email!");
+                System.out.println("raspuns " + response);
+                return new ResponseEntity<String>(response.toString(), HttpStatus.NOT_FOUND);
+            case GlobalConstants.PASSWORDS_DO_NOT_MATCH :
+                response.addProperty("message", "Passwords do not match!");
+                System.out.println("raspuns " + response);
+                return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
+            default :
+                response.addProperty("message", "User successfully logged in! :)");
+                System.out.println("raspuns " + response);
+                return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+        }        
     }
 }

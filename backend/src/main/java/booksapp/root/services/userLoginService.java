@@ -23,7 +23,7 @@ public class userLoginService {
 
     public int loginUserWithEmail(String userEmail, String userPassword) {
         DocumentSnapshot userStoredInDB = searchForExistingUserWithEmailInDB(userEmail);
-
+        System.out.println("hello");
         if(null != userStoredInDB) {
             String userPasswordInDB = (String) userStoredInDB.get(GlobalConstants.PASSWORD_FIELD_NAME);
             String userSalt = (String) userStoredInDB.get(GlobalConstants.SALT_FIELD_NAME);
@@ -33,6 +33,7 @@ public class userLoginService {
             boolean match = BCrypt.checkpw(userPassword, userPasswordInDB);
 
             if (match) {
+                System.out.println("user logged in");
                 return GlobalConstants.USER_LOGGED_IN;
             }
             else {

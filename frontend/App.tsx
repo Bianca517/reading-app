@@ -1,6 +1,6 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import LoginPageUI from "./login/login-ui"
+import LoginPageUI from "./UI/login/login-ui"
 
 const Stack = createNativeStackNavigator();
 
