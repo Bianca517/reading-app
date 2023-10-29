@@ -9,6 +9,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.google.gson.JsonObject;
+
 //this class has all User Resources for the application
 //API
 @RestController
@@ -35,15 +37,27 @@ public class userRegisterController {
 
         System.out.println("in controller");
         System.out.println(user);
+        
+        int registerStatus = userRegisterService.saveUser(user);
+        JsonObject response = new JsonObject();
+        
+        switch (registerStatus) 
+        {
+            case GlobalConstants.EMAIL_NOT_MEETING_CRITERIA_ERROR_CODE:
+                response.addProperty("message", "Email has wrong format!");
+                return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
+        
+            case GlobalConstants.PASSWORD_NOT_MEETING_CRITERIA_ERROR_CODE:
+                response.addProperty("message", "Password does not meet criteria!");
+                return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
+            
+            case GlobalConstants.EMAIL_ALREADY_USED_ERROR_CODE:
+                response.addProperty("message", "An account with this email already exists!");
+                return new ResponseEntity<String>(response.toString(), HttpStatus.IM_USED);
 
-        return switch (userRegisterService.saveUser(user)) {
-            case GlobalConstants.EMAIL_NOT_MEETING_CRITERIA_ERROR_CODE ->
-                    ResponseEntity.status(HttpStatus.CREATED).body("Email has wrong format!");
-            case GlobalConstants.PASSWORD_NOT_MEETING_CRITERIA_ERROR_CODE ->
-                    ResponseEntity.status(HttpStatus.CREATED).body("Password does not meet criteria!");
-            case GlobalConstants.EMAIL_ALREADY_USED_ERROR_CODE ->
-                    ResponseEntity.status(HttpStatus.CREATED).body("Email already exists!");
-            default -> ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully! :)");
-        };
+            default:
+                response.addProperty("message", "User registered successfully! :)");
+                return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+        }
     }
 }
