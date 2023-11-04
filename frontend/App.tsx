@@ -1,6 +1,7 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginPageUI from "./UI/login/login-ui"
+import HomePageUI from "./UI/home/home-ui"
 
 const Stack = createNativeStackNavigator();
 
@@ -11,7 +12,7 @@ export default function App() {
          screenOptions={{
           headerShown: false
         }}>
-        <Stack.Screen name="Login" component={LoginPageUI} />
+        <Stack.Screen name="Login" component={HomePageUI} />
       </Stack.Navigator>
     </NavigationContainer>
   );
