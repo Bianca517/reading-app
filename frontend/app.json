@@ -17,16 +17,17 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-          "NSAppTransportSecurity": {
-            "NSExceptionDomains": {
-              "localhost": {
-                "NSIncludesSubdomains": true,
-                "NSTemporaryExceptionAllowsInsecureHTTPLoads": true,
-                "NSTemporaryExceptionMinimumTLSVersion": "TLSv1.1"
-              }
+        "NSAppTransportSecurity": {
+          "NSExceptionDomains": {
+            "localhost": {
+              "NSIncludesSubdomains": true,
+              "NSTemporaryExceptionAllowsInsecureHTTPLoads": true,
+              "NSTemporaryExceptionMinimumTLSVersion": "TLSv1.1"
             }
           }
         }
+      },
+      "bundleIdentifier": "com.biancateregan.frontend"
     },
     "android": {
       "adaptiveIcon": {
