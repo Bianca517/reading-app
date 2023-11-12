@@ -13,7 +13,7 @@ export default function App() {
         screenOptions={{
           headerShown: false
         }}>
-        <Stack.Screen name="Login" component={FaceDetector} />
+        <Stack.Screen name="Login" component={HomePageUI} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -1,78 +1,88 @@
-import React, {useState} from 'react';
-import { StyleSheet, Text, View, SafeAreaView, ScrollView} from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, SafeAreaView, ScrollView, Image } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import Footer from '../components/footer';
+import Book from '../components/book';
 
 export default function HomePageUI() {
     return (
-        <SafeAreaView style = {styles.fullscreen_container}>
-            <View style = {styles.header_view_container}>
-                <Text style={styles.debug_text}>Home page header</Text>
-            </View>
+        <LinearGradient
+            // Background Linear Gradient
+            colors={['#2d2d2d', '#4b3c51', '#9762aa', '#d58df0']}
+            style={styles.fullscreen_container}
+        >
+            <SafeAreaView style={styles.fullscreen_container}>
 
-            <View style = {styles.body_view_container}>
-                <View style = {styles.body_last_readings_container}>
-                    <View style = {styles.section_title_container}>
-                        <View style = {styles.left_line_through}></View>
-
-                        <View style = {styles.section_text}>
-                            <Text style = {styles.section_text}>
-                                Your last readings
-                            </Text>
-                        </View>
-
-                        <View style = {[styles.right_line_through, {marginLeft: 1}]}></View>
-                    </View>
-
-                    <View style = {styles.books_container}>
-
+                <View style={styles.header_view_container}>
+                    <View style={[styles.navbar_container, { marginTop: 10 }]}>
+                        <Text style={styles.home_title}> Home </Text>
                     </View>
                 </View>
 
-                <View style = {styles.body_for_you_container}>
-                <View style = {styles.section_title_container}>
-                        <View style = {styles.left_line_through}></View>
+                <View style={styles.body_view_container}>
+                    <View style={styles.body_last_readings_container}>
+                        <View style={styles.section_title_container}>
+                            <View style={styles.left_line_through}></View>
 
-                        <View style = {styles.section_text}>
-                            <Text style = {styles.section_text}>
-                                For you
-                            </Text>
-                        </View>
-
-                        <View style = {[styles.right_line_through, {marginLeft: -119}]}></View>
-                    </View>
-
-                    <View style = {styles.books_container}>
-
-                    </View>
-                </View>
-
-                <View style = {styles.body_popular_container}>
-                    <View style = {styles.section_title_container}>
-                            <View style = {styles.left_line_through}></View>
-
-                            <View style = {styles.section_text}>
-                            <Text style = {styles.section_text}>
-                                Popular right now
-                            </Text>
+                            <View style={styles.section_text}>
+                                <Text style={styles.section_text}>
+                                    Your last readings
+                                </Text>
                             </View>
-                            
-                            <View style = {[styles.right_line_through, {marginLeft: 0}]}></View>
+
+                            <View style={[styles.right_line_through, { marginLeft: 1 }]}></View>
+                        </View>
+
+                        <View style={[styles.books_container, { backgroundColor: '#81179b' }]}>
+
+                        </View>
                     </View>
 
-                    <View style = {styles.books_container}>
-                        <ScrollView horizontal={true}>
-                            <Text style = {styles.debug_text}>lkjdlsdjf</Text>
-                            <Text style = {styles.debug_text}>lkjdlsdjf</Text>
-                            <Text style = {styles.debug_text}>lkjdlsdjf</Text>
-                        </ScrollView>
+                    <View style={styles.body_for_you_container}>
+                        <View style={styles.section_title_container}>
+                            <View style={styles.left_line_through}></View>
+
+                            <View style={styles.section_text}>
+                                <Text style={styles.section_text}>
+                                    For you
+                                </Text>
+                            </View>
+
+                            <View style={[styles.right_line_through, { marginLeft: -119 }]}></View>
+                        </View>
+
+                        <View style={[styles.books_container, { backgroundColor: '#aa78cf' }]}>
+
+                        </View>
+                    </View>
+
+                    <View style={styles.body_popular_container}>
+                        <View style={styles.section_title_container}>
+                            <View style={styles.left_line_through}></View>
+
+                            <View style={styles.section_text}>
+                                <Text style={styles.section_text}>
+                                    Popular right now
+                                </Text>
+                            </View>
+
+                            <View style={[styles.right_line_through, { marginLeft: 0 }]}></View>
+                        </View>
+
+                        <View style={[styles.books_container, { backgroundColor: '#b9bff3' }]}>
+                            <ScrollView horizontal={true}>
+                                <Book />
+                                <Book />
+                                <Book />
+                                <Book />
+                            </ScrollView>
+                        </View>
                     </View>
                 </View>
-            </View>
 
-            <View style = {styles.footer_view_container}>
-            <Text style={styles.debug_text}>Home page footer</Text>
-            </View>
-            
-        </SafeAreaView>
+                <Footer />
+            </SafeAreaView>
+        </LinearGradient>
     )
 }
 
@@ -83,56 +93,57 @@ const styles = StyleSheet.create({
     fullscreen_container: {
         flex: 1,
         flexDirection: 'column',
-        backgroundColor: 'purple',
+        //backgroundColor: 'purple',
     },
     header_view_container: {
         flex: 1,
-        backgroundColor: 'pink'
-    },    
+        paddingHorizontal: 15
+        //backgroundColor: 'pink'
+    },
     body_view_container: {
-        flex: 8,
-        backgroundColor: 'blue',
+        flex: 11,
+        //backgroundColor: 'blue',
         flexDirection: 'column',
         padding: 15
     },
     footer_view_container: {
         flex: 1,
-        backgroundColor: 'yellow'
+        //backgroundColor: 'yellow'
     },
     body_last_readings_container: {
         flex: 1,
-        backgroundColor: 'magenta',
+        //backgroundColor: 'magenta',
         flexDirection: 'column',
         paddingHorizontal: 7,
     },
     body_for_you_container: {
         flex: 1,
-        backgroundColor: 'aquamarine',
+        //backgroundColor: 'aquamarine',
         flexDirection: 'column',
         paddingHorizontal: 7,
     },
     body_popular_container: {
         flex: 1,
-        backgroundColor: 'brown',
+        //backgroundColor: 'brown',
         flexDirection: 'column',
         paddingHorizontal: 7,
     },
     section_title_container: {
         flex: 1,
-        backgroundColor: 'black',
+        //backgroundColor: 'black',
         flexDirection: 'row',
     },
     right_line_through: {
         flex: 4,
         backgroundColor: 'white',
-        height: 2.5,
+        height: 2,
         marginTop: 15,
         marginLeft: -5
     },
     left_line_through: {
         flex: 1,
         backgroundColor: 'white',
-        height: 2.5,
+        height: 2,
         marginTop: 15,
         marginRight: 0
     },
@@ -145,9 +156,26 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start'
     },
     books_container: {
-        flex: 5,
-        backgroundColor: 'green',
+        flex: 7,
+        //backgroundColor: 'green',
         borderRadius: 15,
-    }
+        paddingHorizontal: 15
+    },
+    navbar_container: {
+        display: 'flex',
+        flexDirection: 'row',
+        backgroundColor: '#3c3a3b',
+        height: 35,
+        borderRadius: 15,
+        marginHorizontal: 25,
+    },
+    home_title: {
+        color: '#eb00ff',
+        fontStyle: 'normal',
+        fontWeight: "500",
+        fontSize: 30,
+        marginLeft: 15,
+        fontFamily: ''
+    },
 })
 
