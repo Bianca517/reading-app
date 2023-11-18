@@ -1,0 +1,181 @@
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, SafeAreaView, ScrollView, Image } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import Footer from '../components/footer';
+import Book from '../components/book';
+
+export default function HomePageUI() {
+    return (
+        <LinearGradient
+            // Background Linear Gradient
+            colors={['#2d2d2d', '#4b3c51', '#9762aa', '#d58df0']}
+            style={styles.fullscreen_container}
+        >
+            <SafeAreaView style={styles.fullscreen_container}>
+
+                <View style={styles.header_view_container}>
+                    <View style={[styles.navbar_container, { marginTop: 10 }]}>
+                        <Text style={styles.home_title}> Home </Text>
+                    </View>
+                </View>
+
+                <View style={styles.body_view_container}>
+                    <View style={styles.body_last_readings_container}>
+                        <View style={styles.section_title_container}>
+                            <View style={styles.left_line_through}></View>
+
+                            <View style={styles.section_text}>
+                                <Text style={styles.section_text}>
+                                    Your last readings
+                                </Text>
+                            </View>
+
+                            <View style={[styles.right_line_through, { marginLeft: 1 }]}></View>
+                        </View>
+
+                        <View style={[styles.books_container, { backgroundColor: '#81179b' }]}>
+
+                        </View>
+                    </View>
+
+                    <View style={styles.body_for_you_container}>
+                        <View style={styles.section_title_container}>
+                            <View style={styles.left_line_through}></View>
+
+                            <View style={styles.section_text}>
+                                <Text style={styles.section_text}>
+                                    For you
+                                </Text>
+                            </View>
+
+                            <View style={[styles.right_line_through, { marginLeft: -119 }]}></View>
+                        </View>
+
+                        <View style={[styles.books_container, { backgroundColor: '#aa78cf' }]}>
+
+                        </View>
+                    </View>
+
+                    <View style={styles.body_popular_container}>
+                        <View style={styles.section_title_container}>
+                            <View style={styles.left_line_through}></View>
+
+                            <View style={styles.section_text}>
+                                <Text style={styles.section_text}>
+                                    Popular right now
+                                </Text>
+                            </View>
+
+                            <View style={[styles.right_line_through, { marginLeft: 0 }]}></View>
+                        </View>
+
+                        <View style={[styles.books_container, { backgroundColor: '#b9bff3' }]}>
+                            <ScrollView horizontal={true}>
+                                <Book />
+                                <Book />
+                                <Book />
+                                <Book />
+                            </ScrollView>
+                        </View>
+                    </View>
+                </View>
+
+                <Footer />
+            </SafeAreaView>
+        </LinearGradient>
+    )
+}
+
+const styles = StyleSheet.create({
+    debug_text: {
+        color: "black",
+    },
+    fullscreen_container: {
+        flex: 1,
+        flexDirection: 'column',
+        //backgroundColor: 'purple',
+    },
+    header_view_container: {
+        flex: 1,
+        paddingHorizontal: 15
+        //backgroundColor: 'pink'
+    },
+    body_view_container: {
+        flex: 11,
+        //backgroundColor: 'blue',
+        flexDirection: 'column',
+        padding: 15
+    },
+    footer_view_container: {
+        flex: 1,
+        //backgroundColor: 'yellow'
+    },
+    body_last_readings_container: {
+        flex: 1,
+        //backgroundColor: 'magenta',
+        flexDirection: 'column',
+        paddingHorizontal: 7,
+    },
+    body_for_you_container: {
+        flex: 1,
+        //backgroundColor: 'aquamarine',
+        flexDirection: 'column',
+        paddingHorizontal: 7,
+    },
+    body_popular_container: {
+        flex: 1,
+        //backgroundColor: 'brown',
+        flexDirection: 'column',
+        paddingHorizontal: 7,
+    },
+    section_title_container: {
+        flex: 1,
+        //backgroundColor: 'black',
+        flexDirection: 'row',
+    },
+    right_line_through: {
+        flex: 4,
+        backgroundColor: 'white',
+        height: 2,
+        marginTop: 15,
+        marginLeft: -5
+    },
+    left_line_through: {
+        flex: 1,
+        backgroundColor: 'white',
+        height: 2,
+        marginTop: 15,
+        marginRight: 0
+    },
+    section_text: {
+        flex: 3,
+        marginTop: 3,
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 15,
+        justifyContent: 'flex-start'
+    },
+    books_container: {
+        flex: 7,
+        //backgroundColor: 'green',
+        borderRadius: 15,
+        paddingHorizontal: 15
+    },
+    navbar_container: {
+        display: 'flex',
+        flexDirection: 'row',
+        backgroundColor: '#3c3a3b',
+        height: 35,
+        borderRadius: 15,
+        marginHorizontal: 25,
+    },
+    home_title: {
+        color: '#eb00ff',
+        fontStyle: 'normal',
+        fontWeight: "500",
+        fontSize: 30,
+        marginLeft: 15,
+        fontFamily: ''
+    },
+})
+
