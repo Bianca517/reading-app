@@ -15,7 +15,7 @@ public class userLoginService {
     private Firestore DB;
     private final CollectionReference userCollectionDB;
 
-    @Autowired //this is how dependency injection works
+    @Autowired // this is how dependency injection works
     public userLoginService(Firestore firestore) {
         this.DB = firestore;
         userCollectionDB = DB.collection(GlobalConstants.USERS_COLLECTION_NAME);
@@ -24,19 +24,18 @@ public class userLoginService {
     public int loginUserWithEmail(String userEmail, String userPassword) {
         DocumentSnapshot userStoredInDB = searchForExistingUserWithEmailInDB(userEmail);
         System.out.println("hello");
-        if(null != userStoredInDB) {
-            String userPasswordInDB = (String) userStoredInDB.get(GlobalConstants.PASSWORD_FIELD_NAME);
+        if (null != userStoredInDB) {
+            String userPasswordInDB = (String) userStoredInDB.get(GlobalConstants.USERS_COLLECTION_FIELDS[1]);
             String userSalt = (String) userStoredInDB.get(GlobalConstants.SALT_FIELD_NAME);
 
-            //check if passwords match
+            // check if passwords match
             assert userPasswordInDB != null;
             boolean match = BCrypt.checkpw(userPassword, userPasswordInDB);
 
             if (match) {
                 System.out.println("user logged in");
                 return GlobalConstants.USER_LOGGED_IN;
-            }
-            else {
+            } else {
                 return GlobalConstants.PASSWORDS_DO_NOT_MATCH;
             }
         }
@@ -45,13 +44,14 @@ public class userLoginService {
 
     public DocumentSnapshot searchForExistingUserWithEmailInDB(String userEmail) {
         // asynchronously retrieve multiple documents
-        ApiFuture<QuerySnapshot> usersWithSameEmailQuery = userCollectionDB.whereEqualTo(GlobalConstants.EMAIL_ADDRESS_FIELD_NAME, userEmail).get();
+        ApiFuture<QuerySnapshot> usersWithSameEmailQuery = userCollectionDB
+                .whereEqualTo(GlobalConstants.EMAIL_ADDRESS_FIELD_NAME, userEmail).get();
 
         try {
             List<QueryDocumentSnapshot> usersWithSameEmailQueryResult = usersWithSameEmailQuery.get().getDocuments();
 
             for (DocumentSnapshot userDocument : usersWithSameEmailQueryResult) {
-                return userDocument; //should be only one
+                return userDocument; // should be only one
             }
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);

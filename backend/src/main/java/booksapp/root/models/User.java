@@ -67,10 +67,13 @@ public class User {
         this.password = password;
     }
 
-    public String getSalt() { return salt; }
+    public String getSalt() {
+        return salt;
+    }
 
-    public void setSalt(String salt) { this.salt = salt; }
-
+    public void setSalt(String salt) {
+        this.salt = salt;
+    }
 
     @Override
     public String toString() {
@@ -84,10 +87,10 @@ public class User {
 
     public Map<String, Object> toHashMap() {
         Map<String, Object> dictionary = new HashMap<>();
-        dictionary.put(GlobalConstants.USERNAME_FIELD_NAME, this.userName);
-        dictionary.put(GlobalConstants.EMAIL_ADDRESS_FIELD_NAME, this.emailAddress);
-        dictionary.put(GlobalConstants.PASSWORD_FIELD_NAME, this.password);
-        dictionary.put(GlobalConstants.SALT_FIELD_NAME, this.salt);
+        dictionary.put(GlobalConstants.USERS_COLLECTION_FIELDS[0], this.userName);
+        dictionary.put(GlobalConstants.USERS_COLLECTION_FIELDS[3], this.emailAddress);
+        dictionary.put(GlobalConstants.USERS_COLLECTION_FIELDS[1], this.password);
+        dictionary.put(GlobalConstants.USERS_COLLECTION_FIELDS[2], this.salt);
         return dictionary;
     }
 }
