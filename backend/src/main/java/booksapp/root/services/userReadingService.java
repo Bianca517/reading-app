@@ -89,7 +89,7 @@ public class userReadingService {
             String coverRefference = bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[3]).toString();
             coverRefference = new booksService(DB).makeCompleteRefferenceToBook(bookName, author,
                     coverRefference);
-            coverRefference = getDownloadURL(coverRefference);
+            // coverRefference = getDownloadURL(coverRefference);
             book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[3], coverRefference);
 
             booksToReturn.add(book);
