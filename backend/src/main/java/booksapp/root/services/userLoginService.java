@@ -26,7 +26,7 @@ public class userLoginService {
         System.out.println("hello");
         if (null != userStoredInDB) {
             String userPasswordInDB = (String) userStoredInDB.get(GlobalConstants.USERS_COLLECTION_FIELDS[1]);
-            String userSalt = (String) userStoredInDB.get(GlobalConstants.SALT_FIELD_NAME);
+            String userSalt = (String) userStoredInDB.get(GlobalConstants.USERS_COLLECTION_FIELDS[2]);
 
             // check if passwords match
             assert userPasswordInDB != null;
@@ -45,7 +45,7 @@ public class userLoginService {
     public DocumentSnapshot searchForExistingUserWithEmailInDB(String userEmail) {
         // asynchronously retrieve multiple documents
         ApiFuture<QuerySnapshot> usersWithSameEmailQuery = userCollectionDB
-                .whereEqualTo(GlobalConstants.EMAIL_ADDRESS_FIELD_NAME, userEmail).get();
+                .whereEqualTo(GlobalConstants.USERS_COLLECTION_FIELDS[3], userEmail).get();
 
         try {
             List<QueryDocumentSnapshot> usersWithSameEmailQueryResult = usersWithSameEmailQuery.get().getDocuments();

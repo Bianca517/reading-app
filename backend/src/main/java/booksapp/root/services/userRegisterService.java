@@ -86,7 +86,7 @@ public class userRegisterService {
     private boolean emailAlreadyExistsInDB(String userEmail) {
         // asynchronously retrieve multiple documents
         ApiFuture<QuerySnapshot> usersWithSameEmailQuery = userCollectionDB
-                .whereEqualTo(GlobalConstants.EMAIL_ADDRESS_FIELD_NAME, userEmail).get();
+                .whereEqualTo(GlobalConstants.USERS_COLLECTION_FIELDS[3], userEmail).get();
 
         try {
             List<QueryDocumentSnapshot> usersWithSameEmailQueryResult = usersWithSameEmailQuery.get().getDocuments();
@@ -102,7 +102,7 @@ public class userRegisterService {
     private boolean userNameAlreadyExistsInDB(String userName) {
         // asynchronously retrieve multiple documents
         ApiFuture<QuerySnapshot> usersWithSameUsernameQuery = userCollectionDB
-                .whereEqualTo(GlobalConstants.USERNAME_FIELD_NAME, userName).get();
+                .whereEqualTo(GlobalConstants.USERS_COLLECTION_FIELDS[0], userName).get();
 
         try {
             List<QueryDocumentSnapshot> usersWithSameUsernameQueryResult = usersWithSameUsernameQuery.get()

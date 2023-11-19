@@ -9,16 +9,21 @@ import org.springframework.stereotype.Service;
 
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.Firestore;
+import com.google.firebase.cloud.StorageClient;
+import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.Blob;
 
 import booksapp.root.models.GlobalConstants;
 
 @Service
 public class userReadingService {
     private Firestore DB;
+    private Bucket FirebaseStorage;
     private final CollectionReference userCollectionDB;
 
     public userReadingService(Firestore firestore) {
         DB = firestore;
+        FirebaseStorage = StorageClient.getInstance().bucket();
         this.userCollectionDB = DB.collection(GlobalConstants.USERS_COLLECTION_NAME);
     }
 
@@ -82,13 +87,23 @@ public class userReadingService {
             book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[1], author);
 
             String coverRefference = bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[3]).toString();
-            // book.add(new booksService(DB).makeCompleteRefferenceToBook(bookName, author,
-            // coverRefference));
+            coverRefference = new booksService(DB).makeCompleteRefferenceToBook(bookName, author,
+                    coverRefference);
+            coverRefference = getDownloadURL(coverRefference);
             book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[3], coverRefference);
 
             booksToReturn.add(book);
         }
         ;
         return booksToReturn;
+    }
+
+    public String getDownloadURL(String imagePath) {
+        Blob blob = this.FirebaseStorage.get(imagePath);
+        if (blob != null) {
+            return blob.getMediaLink();
+        } else {
+            throw new RuntimeException("Book cover with url: " + imagePath + " not found");
+        }
     }
 }
