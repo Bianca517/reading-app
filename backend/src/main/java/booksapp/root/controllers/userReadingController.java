@@ -10,6 +10,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 import booksapp.root.services.booksService;
 import booksapp.root.services.userReadingService;
 
@@ -32,15 +36,19 @@ public class userReadingController {
 
     @GetMapping(value = "/getusercurrentreadings")
     public String getUserCurrentReadings() throws ExecutionException, InterruptedException {
-        HashMap<String, ArrayList<String>> books = this.userReadingService
+        ArrayList<HashMap<String, String>> books = this.userReadingService
                 .getUserCurrentReadings("4zgcWtT9c3RSy5FpFI18");
-        return books.toString();
+        Gson gson = new Gson();
+        String gsonData = gson.toJson(books);
+        return gsonData;
     }
 
     @GetMapping(value = "/getusersfinalizedreadings")
     public String getUserFinalizedReadings() throws ExecutionException, InterruptedException {
-        HashMap<String, ArrayList<String>> books = this.userReadingService
+        ArrayList<HashMap<String, String>> books = this.userReadingService
                 .getUserFinalizedReadings("4zgcWtT9c3RSy5FpFI18");
-        return books.toString();
+        Gson gson = new Gson();
+        String gsonData = gson.toJson(books);
+        return gsonData;
     }
 }

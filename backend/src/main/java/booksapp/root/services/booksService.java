@@ -138,4 +138,9 @@ public class booksService {
         }
         return null;
     }
+
+    public String makeCompleteRefferenceToBook(String bookName, String authorUsername, String refference) {
+        return refference + GlobalConstants.FIREBASE_STORAGE_COVERS_FOLDER + "/" + bookName.toLowerCase() + "_"
+                + authorUsername.toLowerCase() + ".png";
+    }
 }

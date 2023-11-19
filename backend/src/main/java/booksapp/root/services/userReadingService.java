@@ -33,7 +33,7 @@ public class userReadingService {
         return userInterests;
     }
 
-    public HashMap<String, ArrayList<String>> getUserCurrentReadings(String userID)
+    public ArrayList<HashMap<String, String>> getUserCurrentReadings(String userID)
             throws InterruptedException, ExecutionException {
         ArrayList<String> userCurrentReadings = new ArrayList<String>();
         booksService localBookService = new booksService(DB);
@@ -41,24 +41,26 @@ public class userReadingService {
         userCurrentReadings = (ArrayList<String>) userCollectionDB.document(userID).get().get()
                 .get(GlobalConstants.USERS_COLLECTION_FIELDS[5]);
 
-        HashMap<String, ArrayList<String>> booksToReturn = new HashMap<String, ArrayList<String>>();
+        ArrayList<HashMap<String, String>> booksToReturn = new ArrayList<HashMap<String, String>>();
 
         for (String bookID : userCurrentReadings) {
-            ArrayList<String> book = new ArrayList<String>();
+            HashMap<String, String> book = new HashMap<String, String>();
 
             Map<String, Object> bookfields = localBookService.getBookByID(bookID);
             // retrieve only relevant fields: book name, author, cover
-            book.add(bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[0]).toString());
-            book.add(bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[1]).toString());
+            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[0],
+                    bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[0]).toString());
+            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[1],
+                    bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[1]).toString());
             // book.add(bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[3]).toString());
 
-            booksToReturn.put(bookID, book);
+            booksToReturn.add(book);
         }
         ;
         return booksToReturn;
     }
 
-    public HashMap<String, ArrayList<String>> getUserFinalizedReadings(String userID)
+    public ArrayList<HashMap<String, String>> getUserFinalizedReadings(String userID)
             throws InterruptedException, ExecutionException {
         ArrayList<String> userCurrentReadings = new ArrayList<String>();
         booksService localBookService = new booksService(DB);
@@ -66,18 +68,25 @@ public class userReadingService {
         userCurrentReadings = (ArrayList<String>) userCollectionDB.document(userID).get().get()
                 .get(GlobalConstants.USERS_COLLECTION_FIELDS[6]);
 
-        HashMap<String, ArrayList<String>> booksToReturn = new HashMap<String, ArrayList<String>>();
+        ArrayList<HashMap<String, String>> booksToReturn = new ArrayList<HashMap<String, String>>();
 
         for (String bookID : userCurrentReadings) {
-            ArrayList<String> book = new ArrayList<String>();
+            HashMap<String, String> book = new HashMap<String, String>();
 
             Map<String, Object> bookfields = localBookService.getBookByID(bookID);
             // retrieve only relevant fields: book name, author, cover
-            book.add(bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[0]).toString());
-            book.add(bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[1]).toString());
-            // book.add(bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[3]).toString());
+            String bookName = bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[0]).toString();
+            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[0], bookName);
 
-            booksToReturn.put(bookID, book);
+            String author = bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[1]).toString();
+            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[1], author);
+
+            String coverRefference = bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[3]).toString();
+            // book.add(new booksService(DB).makeCompleteRefferenceToBook(bookName, author,
+            // coverRefference));
+            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[3], coverRefference);
+
+            booksToReturn.add(book);
         }
         ;
         return booksToReturn;
