@@ -14,20 +14,20 @@ import java.io.InputStream;
 
 @Service
 public class FirebaseInitializer {
-    @PostConstruct //because you want this to run as soon as the app is running
+    @PostConstruct // because you want this to run as soon as the app is running
     private void initDB() {
         InputStream serviceAccount = null;
 
         try {
-             //System.out.println(new File(".").getAbsolutePath());
-             serviceAccount =
-                    new FileInputStream("backend/src/main/resources/serviceAccountKey.json");
+            // System.out.println(new File(".").getAbsolutePath());
+            serviceAccount = new FileInputStream("backend/src/main/resources/serviceAccountKey.json");
 
             FirebaseOptions options = new FirebaseOptions.Builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .setStorageBucket("reading-app-d23dc.appspot.com")
                     .build();
 
-            if(FirebaseApp.getApps().isEmpty()) {
+            if (FirebaseApp.getApps().isEmpty()) {
                 FirebaseApp.initializeApp(options);
             }
 
@@ -35,6 +35,7 @@ public class FirebaseInitializer {
             e.printStackTrace();
         }
     }
+
     @Bean
     public Firestore firestore() {
         return FirestoreClient.getFirestore();

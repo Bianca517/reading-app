@@ -4,9 +4,8 @@ import * as React from 'react';
 import { useState, useEffect, setState } from 'react';
 import { View, Text, Button, StyleSheet, Alert } from 'react-native';
 import { Camera, CameraOrientation, CameraType } from 'expo-camera';
-import { RNCamera } from 'react-native-camera';
+//import { RNCamera } from 'react-native-camera';
 import * as FileSystem from 'expo-file-system';
-import BackgroundTimer from 'react-native-background-timer';
 
 const FaceDetector = () => {
   const [webcamEnabled, setWebcamEnabled] = useState(false);
@@ -22,9 +21,10 @@ const FaceDetector = () => {
 
   setInterval(async () => {
     this.setCurrentTime(new Date());
-    console.log('Current time ' + currentTime.getMinutes() + "m : " + currentTime.getSeconds() + "s" + " : " + currentTime.getMilliseconds() + "ms");
+    takePictureWithCamera();
+    //console.log('Current time ' + currentTime.getMinutes() + "m : " + currentTime.getSeconds() + "s" + " : " + currentTime.getMilliseconds() + "ms");
     //console.log("in time st interval\n");
-  }, 500);
+  }, 1000);
 
   const removePreviousPicture = async (previousPictureURI) => {
     try {
@@ -36,23 +36,21 @@ const FaceDetector = () => {
   }
 
   const takePictureWithCamera = () => {
-    BackgroundTimer.runBackgroundTimer(() => {
-      if (webcamEnabled && cameraReference.current) {
-        cameraReference.current.takePictureAsync({
-          quality: 0.1,
-          skipProcessing: true,
-          base64: true
+    if (webcamEnabled && cameraReference.current) {
+      cameraReference.current.takePictureAsync({
+        quality: 0.1,
+        skipProcessing: true,
+        base64: true
+      })
+        .then(photo => {
+          // Process the photo if needed
+          removePreviousPicture(photo.uri); // You can use your remove function here
+          console.log('Took Picture:', new Date());
         })
-          .then(photo => {
-            // Process the photo if needed
-            removePreviousPicture(photo.uri); // You can use your remove function here
-            console.log('Took Picture:', new Date());
-          })
-          .catch(error => {
-            console.error('Failed to take picture:', error);
-          });
-      }
-    }, 1000); // Interval time in milliseconds
+        .catch(error => {
+          console.error('Failed to take picture:', error);
+        });
+    }
   };
 
   function getUserCameraPermission() {

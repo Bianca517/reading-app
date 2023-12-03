@@ -1,10 +1,36 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, SafeAreaView, ScrollView, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, SafeAreaView, ScrollView, Image, FlatList } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Footer from '../components/footer';
 import Book from '../components/book';
+import { retrieve_finalized_readings, retrieve_current_readings } from '../../services/retrieve-books-service';
 
 export default function HomePageUI() {
+    const [popularBooks, setPopularBooks] = useState([]);
+    const [currentReadingBooks, setCurrentReadingBooks] = useState([]);
+
+    async function loadPopularBooks() {
+        const fetchResponse = await retrieve_finalized_readings().then();
+
+        if(fetchResponse.success) {
+            setPopularBooks(JSON.parse(fetchResponse.responseData));
+        }
+    }
+
+    async function loadCurrentReadingBooks() {
+        const fetchResponse = await retrieve_current_readings().then();
+
+        if(fetchResponse.success) {
+            setCurrentReadingBooks(JSON.parse(fetchResponse.responseData));
+        }
+    }
+
+    //this executes on page load
+    useEffect(() => {
+        loadPopularBooks();
+        loadCurrentReadingBooks();
+    }, []);
+
     return (
         <LinearGradient
             // Background Linear Gradient
@@ -52,7 +78,14 @@ export default function HomePageUI() {
                         </View>
 
                         <View style={[styles.books_container, { backgroundColor: '#aa78cf' }]}>
-
+                        <ScrollView horizontal={true}> 
+                            {
+                                /*Warning: Each child in a list should have a unique "key" prop.*/
+                                currentReadingBooks.map((book, index) => (
+                                    <Book key={index} bookFields={JSON.stringify(book)} />
+                                ))
+                            }
+                            </ScrollView>
                         </View>
                     </View>
 
@@ -70,11 +103,13 @@ export default function HomePageUI() {
                         </View>
 
                         <View style={[styles.books_container, { backgroundColor: '#b9bff3' }]}>
-                            <ScrollView horizontal={true}>
-                                <Book />
-                                <Book />
-                                <Book />
-                                <Book />
+                            <ScrollView horizontal={true}> 
+                            {
+                                /*Warning: Each child in a list should have a unique "key" prop.*/
+                                popularBooks.map((book, index) => (
+                                    <Book key={index} bookFields={JSON.stringify(book)} />
+                                ))
+                            }
                             </ScrollView>
                         </View>
                     </View>

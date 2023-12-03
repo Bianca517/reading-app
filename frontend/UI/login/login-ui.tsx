@@ -1,7 +1,8 @@
 //import { StatusBar } from 'expo-status-bar';
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View, Alert, SafeAreaView, StatusBar, TextInput, TouchableOpacity, Image } from 'react-native';
 import { login_user_service } from '../../services/login-service';
+import { useNavigation } from '@react-navigation/native';
 
 const PAGE_SECTIONS: string[] = ["Login", "Register"]
 
@@ -17,34 +18,36 @@ function setUserPassword(text: string) {
   userPassword = text;
 }
 
-function Section({naviagtionButtonPressed}: {naviagtionButtonPressed: string}) {
-  if(PAGE_SECTIONS[0] == naviagtionButtonPressed) {
-    return (
-      <View style = {styles.content_part}>
+function Section({ naviagtionButtonPressed }: { naviagtionButtonPressed: string }) {
+  const navigation = useNavigation();
 
-        <View style = {styles.email_password_part}>
-          <Text style = {styles.email_password_text}>Email address</Text>
-          <TextInput 
-            style = {styles.email_password_text_input} 
-            placeholder='email@abc.com' 
+  if (PAGE_SECTIONS[0] == naviagtionButtonPressed) {
+    return (
+      <View style={styles.content_part}>
+
+        <View style={styles.email_password_part}>
+          <Text style={styles.email_password_text}>Email address</Text>
+          <TextInput
+            style={styles.email_password_text_input}
+            placeholder='email@abc.com'
             placeholderTextColor='#8e8c8d'
             onChangeText={(text) => setUserEmail(text)}
             value={userEmail}
-            >
+          >
           </TextInput>
         </View>
 
-        <View style = {styles.email_password_part}>
-          <Text style = {styles.email_password_text}>Password</Text>
-          <TextInput  
-            style = {styles.email_password_text_input} 
-            placeholder='Your Password' 
+        <View style={styles.email_password_part}>
+          <Text style={styles.email_password_text}>Password</Text>
+          <TextInput
+            style={styles.email_password_text_input}
+            placeholder='Your Password'
             placeholderTextColor='#8e8c8d'
             secureTextEntry
             onChangeText={(text) => setUserPassword(text)}
             value={userPassword}
-            //</View>right={<TextInput.Icon name="eye" />}
-            >
+          //</View>right={<TextInput.Icon name="eye" />}
+          >
           </TextInput>
         </View>
 
@@ -52,56 +55,58 @@ function Section({naviagtionButtonPressed}: {naviagtionButtonPressed: string}) {
           <TouchableOpacity
             onPress={() => {
               console.log("apasat " + userEmail);
-              login_user_service(userEmail, userPassword)}}>
+              {/* login_user_service(userEmail, userPassword) */ }
+              navigation.navigate('Home' as never);
+            }}>
             <View style={styles.sign_in_button}>
               <Text style={styles.login_signup_signin_text}>Sign In</Text>
             </View>
-        </TouchableOpacity>
-        <Text style={[
-            styles.login_signup_signin_text, {color:"#cc00ff"}]}>Forgot Password?</Text>
+          </TouchableOpacity>
+          <Text style={[
+            styles.login_signup_signin_text, { color: "#cc00ff" }]}>Forgot Password?</Text>
         </View>
-      
+
       </View>
-      )
+    )
   }
   else {
     return (
-      <View style = {styles.content_part}>
-        
-        <View style = {styles.email_password_part}>
-          <Text style = {styles.email_password_text}>User name</Text>
-          <TextInput style = {[styles.email_password_text_input, {height: '50%'}]} placeholder='Your User name' placeholderTextColor='#8e8c8d'>
+      <View style={styles.content_part}>
+
+        <View style={styles.email_password_part}>
+          <Text style={styles.email_password_text}>User name</Text>
+          <TextInput style={[styles.email_password_text_input, { height: '50%' }]} placeholder='Your User name' placeholderTextColor='#8e8c8d'>
           </TextInput>
         </View>
 
-        <View style = {styles.email_password_part}>
-          <Text style = {styles.email_password_text}>Email address</Text>
-          <TextInput style = {[styles.email_password_text_input, {height: '50%'}]} placeholder='email@abc.com' placeholderTextColor='#8e8c8d'>
+        <View style={styles.email_password_part}>
+          <Text style={styles.email_password_text}>Email address</Text>
+          <TextInput style={[styles.email_password_text_input, { height: '50%' }]} placeholder='email@abc.com' placeholderTextColor='#8e8c8d'>
           </TextInput>
         </View>
 
-        <View style = {styles.email_password_part}>
-          <Text style = {styles.email_password_text}>Password</Text>
-          <TextInput  
-            style = {[styles.email_password_text_input, {height: '50%'}]} 
-            placeholder='Your Password' 
+        <View style={styles.email_password_part}>
+          <Text style={styles.email_password_text}>Password</Text>
+          <TextInput
+            style={[styles.email_password_text_input, { height: '50%' }]}
+            placeholder='Your Password'
             placeholderTextColor='#8e8c8d'
             secureTextEntry
-            //</View>right={<TextInput.Icon name="eye" />}
-            >
+          //</View>right={<TextInput.Icon name="eye" />}
+          >
           </TextInput>
         </View>
 
         <View style={styles.sign_in_button_part}>
           <TouchableOpacity>
-            <View style={[styles.sign_in_button, {marginTop: 15}]}>
+            <View style={[styles.sign_in_button, { marginTop: 15 }]}>
               <Text style={styles.login_signup_signin_text}>Register Now</Text>
             </View>
-        </TouchableOpacity>
+          </TouchableOpacity>
         </View>
-      
+
       </View>
-      )
+    )
   }
 }
 
@@ -109,10 +114,10 @@ export default function LoginPageUI() {
   const [pageSection, setPageSection] = useState(PAGE_SECTIONS[0]);
   //const [userEmail, setUserEmail] = useState("");
   //const [userPassword, setUserPassword] = useState("");
-  
-  function onPressNavigationButton(buttonText: string) :void {
+
+  function onPressNavigationButton(buttonText: string): void {
     //Alert.alert('You pressed the button ' + buttonText + ' !');
-    if(PAGE_SECTIONS[0] == buttonText) {
+    if (PAGE_SECTIONS[0] == buttonText) {
       setPageSection(PAGE_SECTIONS[0])
     }
     else {
@@ -126,61 +131,61 @@ export default function LoginPageUI() {
   StatusBar.setBarStyle('light-content', true);
   return (
 
-    <SafeAreaView  style={styles.fullscreen_container}>
+    <SafeAreaView style={styles.fullscreen_container}>
 
-      <View style = {styles.header}>
-        <Text style = {styles.email_password_text}>Logo</Text>
-        <Image 
-        style={styles.logo_image} 
-        source={require('../../assets/logo.png')}/>
+      <View style={styles.header}>
+        <Text style={styles.email_password_text}>Logo</Text>
+        <Image
+          style={styles.logo_image}
+          source={require('../../assets/logo.png')} />
       </View>
 
-      <View style = {styles.navigator_part_view}>
-          <View style = {styles.navigator_buttons_container}>
+      <View style={styles.navigator_part_view}>
+        <View style={styles.navigator_buttons_container}>
 
-            {/* wrap the calling function with wrapper function () => to avoid function execution before onPress and type error. */}
-            <TouchableOpacity 
-              onPress={() => onPressNavigationButton(PAGE_SECTIONS[0])}
-              style = {[styles.login_signup_buttons, {backgroundColor: PAGE_SECTIONS[0] == pageSection ? '#6b6b6b' : 'transparent'}]}>
-              <Text 
-                style = {styles.login_signup_signin_text}>{PAGE_SECTIONS[0]}</Text>
-            </TouchableOpacity>
+          {/* wrap the calling function with wrapper function () => to avoid function execution before onPress and type error. */}
+          <TouchableOpacity
+            onPress={() => onPressNavigationButton(PAGE_SECTIONS[0])}
+            style={[styles.login_signup_buttons, { backgroundColor: PAGE_SECTIONS[0] == pageSection ? '#6b6b6b' : 'transparent' }]}>
+            <Text
+              style={styles.login_signup_signin_text}>{PAGE_SECTIONS[0]}</Text>
+          </TouchableOpacity>
 
-            <TouchableOpacity 
-              onPress={() => onPressNavigationButton(PAGE_SECTIONS[1])}
-              style = {[styles.login_signup_buttons, {backgroundColor: PAGE_SECTIONS[1] == pageSection ? '#6b6b6b' : 'transparent'}]}>
-              <Text style = {styles.login_signup_signin_text}>{PAGE_SECTIONS[1]}</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            onPress={() => onPressNavigationButton(PAGE_SECTIONS[1])}
+            style={[styles.login_signup_buttons, { backgroundColor: PAGE_SECTIONS[1] == pageSection ? '#6b6b6b' : 'transparent' }]}>
+            <Text style={styles.login_signup_signin_text}>{PAGE_SECTIONS[1]}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <Section
         naviagtionButtonPressed={pageSection}></Section>
 
-      <View style = {styles.footer}>
-        <Text style = {[styles.email_password_text, {color: "white"}]}>{pageSection} with</Text>
+      <View style={styles.footer}>
+        <Text style={[styles.email_password_text, { color: "white" }]}>{pageSection} with</Text>
 
-        <View style = {styles.sign_in_options_container}>
-        <TouchableOpacity>
-          <View style = {styles.sign_in_option}>
-            <Image style={styles.sign_in_option_image_apple} source={require('../../assets/apple-icon.png')}/>
-          </View>
-        </TouchableOpacity>
+        <View style={styles.sign_in_options_container}>
+          <TouchableOpacity>
+            <View style={styles.sign_in_option}>
+              <Image style={styles.sign_in_option_image_apple} source={require('../../assets/apple-icon.png')} />
+            </View>
+          </TouchableOpacity>
 
-        <TouchableOpacity>
-          <View style = {styles.sign_in_option}>
-          <Image style={styles.sign_in_option_image_google} source={require('../../assets/google-icon.png')}/>
-          </View>
-        </TouchableOpacity>
+          <TouchableOpacity>
+            <View style={styles.sign_in_option}>
+              <Image style={styles.sign_in_option_image_google} source={require('../../assets/google-icon.png')} />
+            </View>
+          </TouchableOpacity>
 
-        <TouchableOpacity>
-          <View style = {styles.sign_in_option}>
-          <Image style={styles.sign_in_option_image_facebook} source={require('../../assets/facebook-icon.png')}/>
-          </View>
-        </TouchableOpacity>
+          <TouchableOpacity>
+            <View style={styles.sign_in_option}>
+              <Image style={styles.sign_in_option_image_facebook} source={require('../../assets/facebook-icon.png')} />
+            </View>
+          </TouchableOpacity>
         </View>
       </View>
-  
+
     </SafeAreaView >
   );
 }
@@ -264,7 +269,6 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     width: '100%',
     height: '39%',
-    placeholderTextColor: 'white',
     paddingHorizontal: '5%'
   },
   email_password_text: {
@@ -301,20 +305,20 @@ const styles = StyleSheet.create({
     height: 40
   },
   sign_in_option: {
-    flex:1,
+    flex: 1,
   },
-  sign_in_option_image_apple:{
+  sign_in_option_image_apple: {
     width: 33,
     height: 33,
     marginHorizontal: 7,
   },
-  sign_in_option_image_google:{
+  sign_in_option_image_google: {
     width: 30,
     height: 30,
     marginHorizontal: 7,
     marginTop: 3,
   },
-  sign_in_option_image_facebook:{
+  sign_in_option_image_facebook: {
     width: 38,
     height: 38,
     marginHorizontal: 7,
@@ -324,5 +328,5 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 15,
   }
-  
+
 });
