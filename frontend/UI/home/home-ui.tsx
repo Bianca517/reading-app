@@ -4,7 +4,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Footer from '../components/footer';
 import Book from '../components/book';
 import { retrieve_finalized_readings, retrieve_current_readings } from '../../services/retrieve-books-service';
-import Header from '../components/header';
 
 export default function HomePageUI() {
     const [popularBooks, setPopularBooks] = useState([]);
