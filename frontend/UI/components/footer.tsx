@@ -1,8 +1,10 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useNavigation } from '@react-navigation/native';
 
 export default function Footer() {
+    const navigation = useNavigation();
     return (
         <View style={
             [styles.navbar_container,

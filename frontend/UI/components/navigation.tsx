@@ -6,8 +6,6 @@ import FaceDetector from '../test/face-detector';
 
 const Stack = createNativeStackNavigator();
 
-//<Stack.Screen name="Test" component={FaceDetector} />
-
 export default function Navigation() {
   return (
     <NavigationContainer>
@@ -19,7 +17,7 @@ export default function Navigation() {
       >
         <Stack.Screen name="Login" component={LoginPageUI} />
         <Stack.Screen name="Home" component={HomePageUI} />
-
+        <Stack.Screen name="Test" component={FaceDetector} />
       </Stack.Navigator>
     </NavigationContainer>
   );
