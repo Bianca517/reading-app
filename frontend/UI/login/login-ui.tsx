@@ -20,6 +20,9 @@ function setUserPassword(text: string) {
 
 function Section({ naviagtionButtonPressed }: { naviagtionButtonPressed: string }) {
   const navigation = useNavigation();
+  navigation.setOptions({
+    headerShown: false,
+  })
 
   if (PAGE_SECTIONS[0] == naviagtionButtonPressed) {
     return (
