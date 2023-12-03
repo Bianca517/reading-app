@@ -1,23 +1,27 @@
-import React, {useState , useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Image, Text } from 'react-native';
+import Globals from '../_globals/Globals';
 
-export default function Book(bookFields: String) {
-    const BOOK_COLLECTION_FIELDS = [ "name", "authorUsername", "chapters", "cover",
-                        "readers",
-                        "genre" ];
-    const BOOK_COVER_URI_TEMPLATE = 'https://firebasestorage.googleapis.com/v0/b/reading-app-d23dc.appspot.com/o/book_covers%2FNAME_AUTHOR.png?alt=media';               
-    
-    bookFields = JSON.parse(bookFields.bookFields);
-    const bookTitle = bookFields[BOOK_COLLECTION_FIELDS[0]];
-    const bookAuthor = bookFields[BOOK_COLLECTION_FIELDS[1]];
-    
-    var constructURIForBookCover = BOOK_COVER_URI_TEMPLATE.replace('NAME', bookTitle.toLowerCase());
+type BookProps = {
+    bookFields: string,
+    bookCoverWidth: number,
+    bookCoverHeight: number,
+}
+
+export default function Book(props: BookProps) {
+
+    let bookFieldsJSON = JSON.parse(props.bookFields);
+    const bookTitle = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[0]];
+    const bookAuthor = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[1]];
+
+    var constructURIForBookCover = Globals.BOOK_COVER_URI_TEMPLATE.replace('NAME', bookTitle.toLowerCase());
     constructURIForBookCover = constructURIForBookCover.replace('AUTHOR', bookAuthor.toLowerCase());
     const bookCover = constructURIForBookCover;
- 
+
     return (
-        <View style={styles.book_container}>
-            <Image style={styles.book_cover} source={{ uri: bookCover }}></Image>
+        <View style={[styles.book_container, { width: props.bookCoverWidth, height: props.bookCoverHeight }]}>
+            <Image style={styles.book_cover}
+                source={{ uri: bookCover }}></Image>
             <Text style={styles.book_title}>{bookTitle}</Text>
             <Text style={styles.book_author}>{bookAuthor}</Text>
         </View>
@@ -26,7 +30,7 @@ export default function Book(bookFields: String) {
 
 const styles = StyleSheet.create({
     book_container: {
-        flex: 1,
+        alignSelf: 'flex-start',
         backgroundColor: 'transparent',
         flexDirection: 'column',
         justifyContent: 'center',
@@ -36,9 +40,8 @@ const styles = StyleSheet.create({
     },
     book_cover: {
         flex: 6.8,
-        width: 110,
-        height: '100%',
         borderRadius: 3,
+        width: '100%'
     },
     book_title: {
         flex: 0.6,

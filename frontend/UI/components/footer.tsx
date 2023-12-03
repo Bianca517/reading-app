@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
+import Globals from '../_globals/Globals';
 
 export default function Footer() {
     const navigation = useNavigation();
@@ -31,6 +32,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#3c3a3b',
         width: 80,
         height: 30,
-        paddingHorizontal: 27
+        paddingHorizontal: 27,
+        color: Globals.COLORS.PURPLE
     }
 })

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, SafeAreaView, ScrollView, Image, FlatList } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import Footer from '../components/footer';
-import Book from '../components/book';
-import { retrieve_finalized_readings, retrieve_current_readings } from '../../services/retrieve-books-service';
+import Footer from '../../components/footer';
+import Book from '../../components/book';
+import { retrieve_finalized_readings, retrieve_current_readings } from '../../../services/retrieve-books-service';
 
 export default function HomePageUI() {
     const [popularBooks, setPopularBooks] = useState([]);
@@ -76,7 +76,7 @@ export default function HomePageUI() {
                                 {
                                     /*Warning: Each child in a list should have a unique "key" prop.*/
                                     currentReadingBooks.map((book, index) => (
-                                        <Book key={index} bookFields={JSON.stringify(book)} />
+                                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={180} />
                                     ))
                                 }
                             </ScrollView>
@@ -101,7 +101,7 @@ export default function HomePageUI() {
                                 {
                                     /*Warning: Each child in a list should have a unique "key" prop.*/
                                     popularBooks.map((book, index) => (
-                                        <Book key={index} bookFields={JSON.stringify(book)} />
+                                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={180} />
                                     ))
                                 }
                             </ScrollView>

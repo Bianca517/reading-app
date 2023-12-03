@@ -1,9 +1,11 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import LoginPageUI from "../login/login-ui"
-import HomePageUI from "../home/home-ui"
+import LoginPageUI from "../screens/login/login-ui"
+import HomePageUI from "../screens/home/home-ui"
 import FaceDetector from '../test/face-detector';
-import LibraryPageUI from '../library/library-ui';
+import LibraryPageCurrentReadingsUI from '../screens/library/library-current-readings-ui';
+import LibraryPageFinalizedReadingsUI from '../screens/library/library-finalized-reaginds-ui';
+import Globals from '../_globals/Globals';
 
 const Stack = createNativeStackNavigator();
 
@@ -13,11 +15,11 @@ export default function Navigation() {
       <Stack.Navigator
         screenOptions={{
           headerStyle: {
-            backgroundColor: '#2d2d2d',
+            backgroundColor: '#262626',
           },
-          headerTintColor: '#eb00ff',
+          headerTintColor: Globals.COLORS.PURPLE,
           headerTitleStyle: {
-            color: '#eb00ff',
+            color: Globals.COLORS.PURPLE,
             fontWeight: "bold",
             fontFamily: '',
             fontSize: 20
@@ -30,7 +32,8 @@ export default function Navigation() {
       >
         <Stack.Screen name="Login" component={LoginPageUI} />
         <Stack.Screen name="Home" component={HomePageUI} />
-        <Stack.Screen name="Library" component={LibraryPageUI} />
+        <Stack.Screen name="Library" component={LibraryPageCurrentReadingsUI} />
+        <Stack.Screen name="Library2" component={LibraryPageFinalizedReadingsUI} />
         <Stack.Screen name="Test" component={FaceDetector} />
       </Stack.Navigator>
     </NavigationContainer>
