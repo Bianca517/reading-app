@@ -1,7 +1,7 @@
 //import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, Alert, SafeAreaView, StatusBar, TextInput, TouchableOpacity, Image } from 'react-native';
-import { login_user_service } from '../../services/login-service';
+import { login_user_service } from '../../../services/login-service';
 import { useNavigation } from '@react-navigation/native';
 
 const PAGE_SECTIONS: string[] = ["Login", "Register"]
@@ -20,6 +20,9 @@ function setUserPassword(text: string) {
 
 function Section({ naviagtionButtonPressed }: { naviagtionButtonPressed: string }) {
   const navigation = useNavigation();
+  navigation.setOptions({
+    headerShown: false,
+  })
 
   if (PAGE_SECTIONS[0] == naviagtionButtonPressed) {
     return (
@@ -137,7 +140,7 @@ export default function LoginPageUI() {
         <Text style={styles.email_password_text}>Logo</Text>
         <Image
           style={styles.logo_image}
-          source={require('../../assets/logo.png')} />
+          source={require('../../../assets/logo.png')} />
       </View>
 
       <View style={styles.navigator_part_view}>
@@ -168,19 +171,19 @@ export default function LoginPageUI() {
         <View style={styles.sign_in_options_container}>
           <TouchableOpacity>
             <View style={styles.sign_in_option}>
-              <Image style={styles.sign_in_option_image_apple} source={require('../../assets/apple-icon.png')} />
+              <Image style={styles.sign_in_option_image_apple} source={require('../../../assets/apple-icon.png')} />
             </View>
           </TouchableOpacity>
 
           <TouchableOpacity>
             <View style={styles.sign_in_option}>
-              <Image style={styles.sign_in_option_image_google} source={require('../../assets/google-icon.png')} />
+              <Image style={styles.sign_in_option_image_google} source={require('../../../assets/google-icon.png')} />
             </View>
           </TouchableOpacity>
 
           <TouchableOpacity>
             <View style={styles.sign_in_option}>
-              <Image style={styles.sign_in_option_image_facebook} source={require('../../assets/facebook-icon.png')} />
+              <Image style={styles.sign_in_option_image_facebook} source={require('../../../assets/facebook-icon.png')} />
             </View>
           </TouchableOpacity>
         </View>
