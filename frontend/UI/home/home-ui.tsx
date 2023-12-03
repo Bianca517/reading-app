@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Footer from '../components/footer';
 import Book from '../components/book';
 import { retrieve_finalized_readings, retrieve_current_readings } from '../../services/retrieve-books-service';
+import Header from '../components/header';
 
 export default function HomePageUI() {
     const [popularBooks, setPopularBooks] = useState([]);
@@ -12,7 +13,7 @@ export default function HomePageUI() {
     async function loadPopularBooks() {
         const fetchResponse = await retrieve_finalized_readings().then();
 
-        if(fetchResponse.success) {
+        if (fetchResponse.success) {
             setPopularBooks(JSON.parse(fetchResponse.responseData));
         }
     }
@@ -20,7 +21,7 @@ export default function HomePageUI() {
     async function loadCurrentReadingBooks() {
         const fetchResponse = await retrieve_current_readings().then();
 
-        if(fetchResponse.success) {
+        if (fetchResponse.success) {
             setCurrentReadingBooks(JSON.parse(fetchResponse.responseData));
         }
     }
@@ -38,12 +39,6 @@ export default function HomePageUI() {
             style={styles.fullscreen_container}
         >
             <SafeAreaView style={styles.fullscreen_container}>
-
-                <View style={styles.header_view_container}>
-                    <View style={[styles.navbar_container, { marginTop: 10 }]}>
-                        <Text style={styles.home_title}> Home </Text>
-                    </View>
-                </View>
 
                 <View style={styles.body_view_container}>
                     <View style={styles.body_last_readings_container}>
@@ -78,13 +73,13 @@ export default function HomePageUI() {
                         </View>
 
                         <View style={[styles.books_container, { backgroundColor: '#aa78cf' }]}>
-                        <ScrollView horizontal={true}> 
-                            {
-                                /*Warning: Each child in a list should have a unique "key" prop.*/
-                                currentReadingBooks.map((book, index) => (
-                                    <Book key={index} bookFields={JSON.stringify(book)} />
-                                ))
-                            }
+                            <ScrollView horizontal={true}>
+                                {
+                                    /*Warning: Each child in a list should have a unique "key" prop.*/
+                                    currentReadingBooks.map((book, index) => (
+                                        <Book key={index} bookFields={JSON.stringify(book)} />
+                                    ))
+                                }
                             </ScrollView>
                         </View>
                     </View>
@@ -103,13 +98,13 @@ export default function HomePageUI() {
                         </View>
 
                         <View style={[styles.books_container, { backgroundColor: '#b9bff3' }]}>
-                            <ScrollView horizontal={true}> 
-                            {
-                                /*Warning: Each child in a list should have a unique "key" prop.*/
-                                popularBooks.map((book, index) => (
-                                    <Book key={index} bookFields={JSON.stringify(book)} />
-                                ))
-                            }
+                            <ScrollView horizontal={true}>
+                                {
+                                    /*Warning: Each child in a list should have a unique "key" prop.*/
+                                    popularBooks.map((book, index) => (
+                                        <Book key={index} bookFields={JSON.stringify(book)} />
+                                    ))
+                                }
                             </ScrollView>
                         </View>
                     </View>
@@ -196,21 +191,6 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         paddingHorizontal: 15
     },
-    navbar_container: {
-        display: 'flex',
-        flexDirection: 'row',
-        backgroundColor: '#3c3a3b',
-        height: 35,
-        borderRadius: 15,
-        marginHorizontal: 25,
-    },
-    home_title: {
-        color: '#eb00ff',
-        fontStyle: 'normal',
-        fontWeight: "500",
-        fontSize: 30,
-        marginLeft: 15,
-        fontFamily: ''
-    },
+
 })
 
