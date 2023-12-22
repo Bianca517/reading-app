@@ -10,7 +10,7 @@ import { retrieve_finalized_readings } from '../../../services/retrieve-books-se
 export default function LibraryPageFinalizedReadingsUI() {
     const [finalizedBooks, setFinalizedBooks] = useState([]);
 
-    async function loadCurrentReadingBooks() {
+    async function loadFinalizedReadingBooks() {
         const fetchResponse = await retrieve_finalized_readings().then();
 
         if (fetchResponse.success) {
@@ -20,7 +20,7 @@ export default function LibraryPageFinalizedReadingsUI() {
 
     //this executes on page load
     useEffect(() => {
-        loadCurrentReadingBooks();
+        loadFinalizedReadingBooks();
     }, []);
 
     return (

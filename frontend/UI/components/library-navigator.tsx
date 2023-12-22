@@ -31,7 +31,7 @@ export default function LibraryPageNavigator(props: libraryPageSection) {
             </TouchableOpacity>
 
             <TouchableOpacity
-                onPress={() => { console.log(2) }}
+                onPress={() => { navigation.navigate('Reading Tracker' as never) }}
                 style={[styles.library_sections_buttons, { backgroundColor: Globals.LIBRARY_SECTIONS['READING_TRACKER'] == props.librarySection ? '#6b6b6b' : 'transparent' }]}
             >
                 <Text style={styles.library_sections_buttons_text}> Reading </Text>

@@ -1,4 +1,4 @@
-const BACKEND_HTTPS: string = "http://192.168.1.236:8080"
+const BACKEND_HTTPS: string = "http://172.20.10.3:8080"
 const GET_FINALIZED_READINGS_ENDPOINT: string = "/getusersfinalizedreadings"
 const GET_CURRENT_READINGS_ENDPOINT: string = "/getusercurrentreadings"
 
@@ -16,15 +16,15 @@ export async function retrieve_finalized_readings() {
     })
         .then((response) => response.json())
         .then((responseData) => {
-            console.log("sosaj");
+            console.log("got it");
             console.log(JSON.stringify(responseData));
             responseData = JSON.stringify(responseData);
-            return { success: true, responseData};
+            return { success: true, responseData };
         })
         .catch(async (e) => {
             console.log("intra pe catch");
             console.log(e);
-            return { success: false, e};
+            return { success: false, e };
         });
     return returnedFinalizedBooks
 }
@@ -47,12 +47,12 @@ export async function retrieve_current_readings() {
             console.log("sosaj");
             console.log(JSON.stringify(responseData));
             responseData = JSON.stringify(responseData);
-            return { success: true, responseData};
+            return { success: true, responseData };
         })
         .catch(async (e) => {
             console.log("intra pe catch");
             console.log(e);
-            return { success: false, e};
+            return { success: false, e };
         });
     return returnedCurrentBooks
 }
