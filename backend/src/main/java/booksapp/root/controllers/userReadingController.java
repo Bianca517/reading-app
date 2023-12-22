@@ -17,7 +17,7 @@ import com.google.gson.JsonObject;
 import booksapp.root.services.booksService;
 import booksapp.root.services.userReadingService;
 
-@CrossOrigin(origins = "http://192.168.1.236:8080")
+@CrossOrigin(origins = "http://localhost:8080")
 @RestController
 @RequestMapping
 public class userReadingController {
@@ -45,6 +45,7 @@ public class userReadingController {
 
     @GetMapping(value = "/getusersfinalizedreadings")
     public String getUserFinalizedReadings() throws ExecutionException, InterruptedException {
+        System.out.println("in backend");
         ArrayList<HashMap<String, String>> books = this.userReadingService
                 .getUserFinalizedReadings("4zgcWtT9c3RSy5FpFI18");
         Gson gson = new Gson();
