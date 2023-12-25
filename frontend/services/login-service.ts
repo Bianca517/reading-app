@@ -1,8 +1,8 @@
-const BACKEND_HTTPS: string = "http://192.168.88.18:8080"
+import Globals from "../UI/_globals/Globals"
 const LOGIN_ENDPOINT: string = "/"
 
 export async function login_user_service(userEmail: string, userPassword: string) {
-    const HTTPS_REQUEST = BACKEND_HTTPS + LOGIN_ENDPOINT
+    const HTTPS_REQUEST = Globals.BACKEND_HTTP + LOGIN_ENDPOINT
     console.log("aici " + userEmail + " " + userPassword + " " + HTTPS_REQUEST)
     var body = ""
     await fetch(HTTPS_REQUEST, {
