@@ -6,19 +6,14 @@ import Footer from '../../components/footer';
 import LibraryPageNavigator from '../../components/library-navigator';
 import MonthContainer from '../../components/month-container';
 import { retrieve_current_readings } from '../../../services/retrieve-books-service';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const windowWidth = Dimensions.get('window').width;
 
-interface editingProps {
-    route: {
-        params: {
-            monthIndex: number;
-        };
-    };
-}
-
-export default function LibraryPageReadingTrackerEdit(props: editingProps) {
+export default function LibraryPageReadingTrackerEdit({route: routeProps}) {
     const [currentReadingBooks, setCurrentReadingBooks] = useState([]);
+    const currentMonthIndex = routeProps.params['monthIndex'];
+    console.log("in month " + routeProps.params['monthIndex'] + " editing");
 
     async function loadCurrentReadingBooks() {
         const fetchResponse = await retrieve_current_readings().then();
@@ -42,8 +37,21 @@ export default function LibraryPageReadingTrackerEdit(props: editingProps) {
 
             <View style={styles.whiteLine}></View>
 
-            <View style={styles.monthsListContainer}>
-                <MonthContainer index={props.monthIndex}></MonthContainer>
+            <View style={styles.bodyContentContainer}>
+
+                <MonthContainer index={currentMonthIndex} height={Globals.MONTH_CONTAINER_HEIGHT_IN_EDIT_READING_TRACKER}></MonthContainer> 
+
+                <LinearGradient colors={['#626261', '#494948', '#3a3a39']} style={styles.currentReadingsContainer}>
+                    <ScrollView horizontal={true}>
+                        {
+                            /*Warning: Each child in a list should have a unique "key" prop.*/
+                            currentReadingBooks.map((book, index) => (
+                                <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={180} />
+                            ))
+                        }
+                    </ScrollView>
+                </LinearGradient>
+            
             </View>
 
             <Footer />
@@ -70,12 +78,20 @@ const styles = StyleSheet.create({
         marginTop: 10,
         marginBottom: 20,
     },
-    monthsListContainer: {
+    bodyContentContainer: {
         flex: 6,
-        flexDirection: 'row',
+        flexDirection: 'column',
         paddingHorizontal: 25,
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         alignItems: 'center',
+        backgroundColor: Globals.COLORS.BACKGROUND_GRAY,
     },
+    currentReadingsContainer: {
+        width: windowWidth - 50,
+        borderRadius: 20,
+        marginTop: 5,
+        height: 160,
+    }   
+
 })
 

@@ -39,7 +39,7 @@ export default function LibraryPageReadingTrackerUI() {
                 <ScrollView>
                     {
                         Globals.MONTHS_LIST.map((month, index) => (
-                            <MonthContainer index={index}></MonthContainer>
+                            <MonthContainer index={index} height={Globals.MONTH_CONTAINER_HEIGHT_IN_MAIN_READING_TRACKER}></MonthContainer>
                         ))
                     }
                 </ScrollView>

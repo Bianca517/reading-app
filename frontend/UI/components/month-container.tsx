@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Dimensions, ImageBackground, TouchableHighlight } from 'react-native';
 import Globals from '../_globals/Globals';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import LibraryPageReadingTrackerEdit from '../screens/library/library-reading-tracker-edit'; // Update the path accordingly
 
 const windowWidth = Dimensions.get('window').width;
 
-type monthIndex = {
-    index: number
+type Props = {
+    index: number,
+    height: number
 };
-type YourComponentNavigationProp = NavigationProp<typeof LibraryPageReadingTrackerEdit, 'Edit Reading Tracker' as never >;
 
-export default function MonthContainer(props: monthIndex) {
+export default function MonthContainer(props: Props) {
     const navigation = useNavigation();
     const [imageModule, setImageModule] = useState<any>(null);
 
@@ -23,8 +23,8 @@ export default function MonthContainer(props: monthIndex) {
     const monthImagePath = Globals.MONTHS_BACKGROUND_IMAGES.replace('MONTH', currentMonthName.toLowerCase());
 
     return (
-        <View style={styles.monthContainer}>
-            <ImageBackground source={{ uri: monthImagePath }} style={styles.monthBackground} imageStyle={{ borderRadius: 20 }}>
+        <View style={[styles.monthContainer, { height: props.height}]}>
+            <ImageBackground source={{ uri: monthImagePath }} style={[styles.monthBackground, { height: props.height}]} imageStyle={{ borderRadius: 20 }}>
                 <View style={styles.headerMonthContainer}>
 
                     <View style={[styles.monthTextContainer]}>
@@ -33,7 +33,10 @@ export default function MonthContainer(props: monthIndex) {
 
                     <TouchableHighlight style={[styles.monthTextContainer, { marginLeft: 145, width: 70 }]}
                         underlayColor="blue"
-                        onPress={() => navigation.navigate('Edit Reading Tracker', { props.monthIndex })}>
+                        onPress={() => {
+                            navigation.navigate('Edit Reading Tracker', { 'monthIndex' : props.index });
+                            console.log("aici am trimis " + props.index);}
+                        }>
                         <Text style={[styles.monthNameAndEditText]}> Edit </Text>
                     </TouchableHighlight>
 
@@ -46,11 +49,10 @@ export default function MonthContainer(props: monthIndex) {
 
 const styles = StyleSheet.create({
     monthContainer: {
-        width: windowWidth - 50,
-        height: 400,
+        width: windowWidth - 40,
         paddingVertical: 10,
         paddingHorizontal: 5,
-        marginBottom: 10
+        marginBottom: 25,
     },
     headerMonthContainer: {
         flex: 1,
@@ -77,7 +79,6 @@ const styles = StyleSheet.create({
     },
     monthBackground: {
         flex: 1,
-        height: 370,
         paddingVertical: 20,
     }
 })

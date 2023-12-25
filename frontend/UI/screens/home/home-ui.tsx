@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Footer from '../../components/footer';
 import Book from '../../components/book';
 import { retrieve_finalized_readings, retrieve_current_readings } from '../../../services/retrieve-books-service';
+import Globals from '../../_globals/Globals';
 
 export default function HomePageUI() {
     const [popularBooks, setPopularBooks] = useState([]);
@@ -71,7 +72,7 @@ export default function HomePageUI() {
                             <View style={[styles.right_line_through, { marginLeft: -119 }]}></View>
                         </View>
 
-                        <View style={[styles.books_container, { backgroundColor: '#aa78cf' }]}>
+                        <View style={[styles.books_container, { backgroundColor: Globals.COLORS.FOR_YOU_SECTION }]}>
                             <ScrollView horizontal={true}>
                                 {
                                     /*Warning: Each child in a list should have a unique "key" prop.*/
