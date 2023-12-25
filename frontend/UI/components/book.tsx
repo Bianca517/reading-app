@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Image, Text } from 'react-native';
 import Globals from '../_globals/Globals';
 
+
 type BookProps = {
     bookFields: string,
     bookCoverWidth: number,
@@ -19,9 +20,13 @@ export default function Book(props: BookProps) {
     const bookCover = constructURIForBookCover;
 
     return (
-        <View style={[styles.book_container, { width: props.bookCoverWidth, height: props.bookCoverHeight }]}>
-            <Image style={styles.book_cover}
-                source={{ uri: bookCover }}></Image>
+        <View 
+            style={[
+                styles.book_container, 
+                { width: props.bookCoverWidth, height: props.bookCoverHeight }
+            ]}
+        >
+            <Image style={styles.book_cover} source={{ uri: bookCover }}></Image>
             <Text style={styles.book_title}>{bookTitle}</Text>
             <Text style={styles.book_author}>{bookAuthor}</Text>
         </View>

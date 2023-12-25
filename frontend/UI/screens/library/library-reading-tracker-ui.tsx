@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, ScrollView, View, SafeAreaView, Dimensions } from 'react-native';
 import Globals from '../../_globals/Globals';
-import Book from '../../components/book';
 import Footer from '../../components/footer';
 import LibraryPageNavigator from '../../components/library-navigator';
 import MonthContainer from '../../components/month-container';

@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, ScrollView, View, SafeAreaView, Dimensions } from 'react-native';
 import Globals from '../../_globals/Globals';
-import Book from '../../components/book';
+import BookDraggable from '../../components/book-draggable';
 import Footer from '../../components/footer';
 import LibraryPageNavigator from '../../components/library-navigator';
 import MonthContainer from '../../components/month-container';
 import { retrieve_current_readings } from '../../../services/retrieve-books-service';
 import { LinearGradient } from 'expo-linear-gradient';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -28,40 +29,42 @@ export default function LibraryPageReadingTrackerEdit({route: routeProps}) {
     }, []);
 
     return (
-        <SafeAreaView style={styles.fullscreen_view}>
+        <GestureHandlerRootView style={styles.fullscreen_view}>
+            <SafeAreaView style={styles.fullscreen_view}>
 
-            <View style={styles.navigation_view}>
-                <LibraryPageNavigator librarySection={Globals.LIBRARY_SECTIONS['READING_TRACKER']} />
-            </View>
+                <View style={styles.navigation_view}>
+                    <LibraryPageNavigator librarySection={Globals.LIBRARY_SECTIONS['READING_TRACKER']} />
+                </View>
 
-            <View style={styles.whiteLine}></View>
+                <View style={styles.whiteLine}></View>
 
-            <View style={styles.bodyContentContainer}>
+                <View style={styles.bodyContentContainer}>
 
-                <MonthContainer 
-                    index={currentMonthIndex} 
-                    height={Globals.MONTH_CONTAINER_HEIGHT_IN_EDIT_READING_TRACKER}
-                    inEditMode={true}
-                ></MonthContainer> 
+                    <MonthContainer 
+                        index={currentMonthIndex} 
+                        height={Globals.MONTH_CONTAINER_HEIGHT_IN_EDIT_READING_TRACKER}
+                        inEditMode={true}
+                    ></MonthContainer> 
 
-                <LinearGradient colors={['#626261', '#494948', '#3a3a39']} style={styles.currentReadingsContainer}>
-                    <View style={styles.yourLibraryInfo}>
-                        <Text style={styles.yourLibraryInfoText}> Your Library </Text>
-                    </View>
-                    <ScrollView horizontal={true}>
-                        {
-                            /*Warning: Each child in a list should have a unique "key" prop.*/
-                            currentReadingBooks.map((book, index) => (
-                                <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={100} bookCoverHeight={160} />
-                            ))
-                        }
-                    </ScrollView>
-                </LinearGradient>
-            
-            </View>
+                    <LinearGradient colors={['#626261', '#494948', '#3a3a39']} style={styles.currentReadingsContainer}>
+                        <View style={styles.yourLibraryInfo}>
+                            <Text style={styles.yourLibraryInfoText}> Your Library </Text>
+                        </View>
+                        <ScrollView horizontal={true}>
+                            {
+                                /*Warning: Each child in a list should have a unique "key" prop.*/
+                                currentReadingBooks.map((book, index) => (
+                                    <BookDraggable key={index} bookFields={JSON.stringify(book)} bookCoverWidth={100} bookCoverHeight={160} />
+                                ))
+                            }
+                        </ScrollView>
+                    </LinearGradient>
+                
+                </View>
 
-            <Footer />
-        </SafeAreaView>
+                <Footer />
+            </SafeAreaView>
+        </GestureHandlerRootView>
     )
 }
 
