@@ -8,6 +8,7 @@ type BookProps = {
     bookFields: string,
     bookCoverWidth: number,
     bookCoverHeight: number,
+    bookAddedCallback: () => void, // Optional callback prop
 }
 
 type ContextInterface = {
@@ -19,6 +20,7 @@ export default function BookDraggable(props: BookProps) {
     let bookFieldsJSON = JSON.parse(props.bookFields);
     const bookTitle = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[0]];
     const bookAuthor = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[1]];
+    const bookID = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[6]];
 
     var constructURIForBookCover = Globals.BOOK_COVER_URI_TEMPLATE.replace('NAME', bookTitle.toLowerCase());
     constructURIForBookCover = constructURIForBookCover.replace('AUTHOR', bookAuthor.toLowerCase());
@@ -38,17 +40,22 @@ export default function BookDraggable(props: BookProps) {
             if(isLongPressed.value == true) {
                 translateX.value = event.translationX + context.translateX;
                 translateY.value = event.translationY + context.translateY;
-                
-                console.log("x: " + translateX.value);
-                console.log("y: " + translateY.value);
+
+                //console.log("x:", translateX.value);
+                //console.log("y:", translateY.value);
             }
         },
         onEnd: () => {
             const distance = Math.sqrt(translateX.value ** 2 + translateY.value ** 2); //pythagoras
-            if(distance < 200 || distance === 0) {
+            if(translateY.value > Globals.Y_INDEX_OF_BEGINNING_MONTH_CONTAINER) {
                 translateX.value = withSpring(0);
                 translateY.value = withSpring(0);
             }
+            else {
+                console.log("asda");
+                //props.bookAddedCallback(); //let edit screen know that another book was planned for current month
+            }
+
             isPressed.value = false;
             isLongPressed.value = false;
         },
@@ -98,9 +105,7 @@ export default function BookDraggable(props: BookProps) {
                     ]}
                 >
                     
-                        <Image style={[styles.book_cover, {opacity: isLongPressed.value ? 0.8 : 1}]} source={{ uri: bookCover }}></Image>
-                        <Text style={styles.book_title}>{bookTitle}</Text>
-                        <Text style={styles.book_author}>{bookAuthor}</Text>
+                    <Image style={[styles.book_cover, {opacity: isLongPressed.value ? 0.8 : 1, zIndex: isLongPressed.value ? 1 : 99}]} source={{ uri: bookCover }}></Image>
                 
                 </Animated.View>
         </PanGestureHandler>
@@ -114,7 +119,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 5,
+        marginTop: 2,
         marginHorizontal: 10,
     },
     book_cover: {

@@ -54,9 +54,11 @@ public class userReadingService {
             Map<String, Object> bookfields = localBookService.getBookByID(bookID);
             // retrieve only relevant fields: book name, author, cover
             book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[0],
-                    bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[0]).toString());
+                    bookID);
             book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[1],
                     bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[1]).toString());
+            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[2],
+                    bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[2]).toString());
             // book.add(bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[3]).toString());
 
             booksToReturn.add(book);
@@ -80,17 +82,17 @@ public class userReadingService {
 
             Map<String, Object> bookfields = localBookService.getBookByID(bookID);
             // retrieve only relevant fields: book name, author, cover
-            String bookName = bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[0]).toString();
-            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[0], bookName);
+            String bookName = bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[1]).toString();
+            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[1], bookName);
 
-            String author = bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[1]).toString();
-            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[1], author);
+            String author = bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[2]).toString();
+            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[2], author);
 
-            String coverRefference = bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[3]).toString();
+            String coverRefference = bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[4]).toString();
             coverRefference = new booksService(DB).makeCompleteRefferenceToBook(bookName, author,
                     coverRefference);
             // coverRefference = getDownloadURL(coverRefference);
-            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[3], coverRefference);
+            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[4], coverRefference);
 
             booksToReturn.add(book);
         }

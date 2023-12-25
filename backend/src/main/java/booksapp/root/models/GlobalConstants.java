@@ -6,7 +6,7 @@ import java.util.ArrayList;
 public class GlobalConstants {
         public final static String USERS_COLLECTION_NAME = "users";
         public final static String BOOKS_COLLECTION_NAME = "books";
-        public final static String[] BOOK_COLLECTION_FIELDS = { "name", "authorUsername", "chapters", "cover",
+        public final static String[] BOOK_COLLECTION_FIELDS = { "id", "name", "authorUsername", "chapters", "cover",
                         "readers",
                         "genre" };
         public final static String[] USERS_COLLECTION_FIELDS = { "userName", "password", "salt", "emailAddress",
