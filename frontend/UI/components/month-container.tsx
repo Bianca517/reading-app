@@ -8,7 +8,8 @@ const windowWidth = Dimensions.get('window').width;
 
 type Props = {
     index: number,
-    height: number
+    height: number,
+    inEditMode: boolean,
 };
 
 export default function MonthContainer(props: Props) {
@@ -22,6 +23,18 @@ export default function MonthContainer(props: Props) {
     //build firebase storage uri
     const monthImagePath = Globals.MONTHS_BACKGROUND_IMAGES.replace('MONTH', currentMonthName.toLowerCase());
 
+    let rightButtonText = props.inEditMode === true ? 'Done' : 'Edit';
+
+    function checkNavigationOfRightButton() {
+        if(true == props.inEditMode) {
+            navigation.navigate('Reading Tracker' as never);
+            //TODO: save configurations here
+        }
+        else {
+            navigation.navigate('Edit Reading Tracker', { 'monthIndex' : props.index });
+        }
+    }
+
     return (
         <View style={[styles.monthContainer, { height: props.height}]}>
             <ImageBackground source={{ uri: monthImagePath }} style={[styles.monthBackground, { height: props.height}]} imageStyle={{ borderRadius: 20 }}>
@@ -32,12 +45,10 @@ export default function MonthContainer(props: Props) {
                     </View>
 
                     <TouchableHighlight style={[styles.monthTextContainer, { marginLeft: 145, width: 70 }]}
-                        underlayColor="blue"
-                        onPress={() => {
-                            navigation.navigate('Edit Reading Tracker', { 'monthIndex' : props.index });
-                            console.log("aici am trimis " + props.index);}
+                        underlayColor={Globals.COLORS.PURPLE}
+                        onPress={() => {checkNavigationOfRightButton()}
                         }>
-                        <Text style={[styles.monthNameAndEditText]}> Edit </Text>
+                        <Text style={[styles.monthNameAndEditText]}> {rightButtonText} </Text>
                     </TouchableHighlight>
 
                 </View>

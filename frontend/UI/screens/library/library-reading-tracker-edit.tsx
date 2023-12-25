@@ -13,7 +13,6 @@ const windowWidth = Dimensions.get('window').width;
 export default function LibraryPageReadingTrackerEdit({route: routeProps}) {
     const [currentReadingBooks, setCurrentReadingBooks] = useState([]);
     const currentMonthIndex = routeProps.params['monthIndex'];
-    console.log("in month " + routeProps.params['monthIndex'] + " editing");
 
     async function loadCurrentReadingBooks() {
         const fetchResponse = await retrieve_current_readings().then();
@@ -39,14 +38,21 @@ export default function LibraryPageReadingTrackerEdit({route: routeProps}) {
 
             <View style={styles.bodyContentContainer}>
 
-                <MonthContainer index={currentMonthIndex} height={Globals.MONTH_CONTAINER_HEIGHT_IN_EDIT_READING_TRACKER}></MonthContainer> 
+                <MonthContainer 
+                    index={currentMonthIndex} 
+                    height={Globals.MONTH_CONTAINER_HEIGHT_IN_EDIT_READING_TRACKER}
+                    inEditMode={true}
+                ></MonthContainer> 
 
                 <LinearGradient colors={['#626261', '#494948', '#3a3a39']} style={styles.currentReadingsContainer}>
+                    <View style={styles.yourLibraryInfo}>
+                        <Text style={styles.yourLibraryInfoText}> Your Library </Text>
+                    </View>
                     <ScrollView horizontal={true}>
                         {
                             /*Warning: Each child in a list should have a unique "key" prop.*/
                             currentReadingBooks.map((book, index) => (
-                                <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={180} />
+                                <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={100} bookCoverHeight={160} />
                             ))
                         }
                     </ScrollView>
@@ -89,9 +95,25 @@ const styles = StyleSheet.create({
     currentReadingsContainer: {
         width: windowWidth - 50,
         borderRadius: 20,
-        marginTop: 5,
-        height: 160,
-    }   
-
+        marginTop: 0,
+        height: 170,
+        paddingHorizontal: 15,
+    },   
+    yourLibraryInfo: {
+        width: 130,
+        height: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'white',
+        marginTop: 7,
+        marginLeft: -5,
+        borderRadius: 10,
+        marginBottom: 3,
+    },
+    yourLibraryInfoText: {
+        fontSize: 17,
+        fontWeight: 'bold',
+        color: Globals.COLORS.PURPLE,
+    },
 })
 
