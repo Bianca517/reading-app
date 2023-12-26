@@ -4,14 +4,14 @@ import Globals from '../../_globals/Globals';
 import Book from '../../components/book';
 import Footer from '../../components/footer';
 import LibraryPageNavigator from '../../components/library-navigator';
-import { retrieve_finalized_readings } from '../../../services/retrieve-books-service';
+import { get_finalized_readings } from '../../../services/retrieve-books-service';
 
 
 export default function LibraryPageFinalizedReadingsUI() {
     const [finalizedBooks, setFinalizedBooks] = useState([]);
 
     async function loadFinalizedReadingBooks() {
-        const fetchResponse = await retrieve_finalized_readings().then();
+        const fetchResponse = await get_finalized_readings().then();
 
         if (fetchResponse.success) {
             setFinalizedBooks(JSON.parse(fetchResponse.responseData));

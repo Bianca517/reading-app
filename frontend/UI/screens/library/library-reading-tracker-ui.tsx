@@ -4,7 +4,7 @@ import Globals from '../../_globals/Globals';
 import Footer from '../../components/footer';
 import LibraryPageNavigator from '../../components/library-navigator';
 import MonthContainer from '../../components/month-container';
-import { retrieve_current_readings } from '../../../services/retrieve-books-service';
+import { get_current_readings } from '../../../services/retrieve-books-service';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -13,7 +13,7 @@ export default function LibraryPageReadingTrackerUI() {
 
 
     async function loadCurrentReadingBooks() {
-        const fetchResponse = await retrieve_current_readings().then();
+        const fetchResponse = await get_current_readings().then();
 
         if (fetchResponse.success) {
             setCurrentReadingBooks(JSON.parse(fetchResponse.responseData));

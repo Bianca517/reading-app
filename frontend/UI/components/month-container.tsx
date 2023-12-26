@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Dimensions, ImageBackground, TouchableHighlight } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, ImageBackground, TouchableHighlight, ScrollView } from 'react-native';
 import Globals from '../_globals/Globals';
 import { useNavigation } from '@react-navigation/native';
-import LibraryPageReadingTrackerEdit from '../screens/library/library-reading-tracker-edit'; // Update the path accordingly
+import { get_readings_planned_for_month} from "../../services/reading-planner-service";
+import Book from './book';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -14,7 +15,7 @@ type Props = {
 
 export default function MonthContainer(props: Props) {
     const navigation = useNavigation();
-    const [imageModule, setImageModule] = useState<any>(null);
+    const [plannedBookList, setPlannedBookList] = useState([]);
 
     //fetch image background path based on received index
     //get name from index 
@@ -25,13 +26,28 @@ export default function MonthContainer(props: Props) {
 
     let rightButtonText = props.inEditMode === true ? 'Done' : 'Edit';
 
+    async function loadCurrentReadingBooks() {
+        let fetchResponse = await get_readings_planned_for_month(currentMonthName).then();
+        if (fetchResponse.success) {
+            console.log("planned books");
+            console.log("FR "+ fetchResponse.responseData);
+            setPlannedBookList(JSON.parse(fetchResponse.responseData));
+            console.log(plannedBookList);
+        }
+    }
+
+    //this executes on page load
+    useEffect(() => {
+        loadCurrentReadingBooks();
+    }, []);
+
     function checkNavigationOfRightButton() {
         if(true == props.inEditMode) {
             navigation.navigate('Reading Tracker' as never);
             //TODO: save configurations here
         }
         else {
-            navigation.navigate('Edit Reading Tracker', { 'monthIndex' : props.index });
+            navigation.navigate('Edit Reading Tracker', { 'monthIndex' : props.index, "plannedBookList" : plannedBookList});
         }
     }
 
@@ -52,8 +68,15 @@ export default function MonthContainer(props: Props) {
                     </TouchableHighlight>
 
                 </View>
+                <View style={styles.booksGridContainer}>
+                    {
+                        /*Warning: Each child in a list should have a unique "key" prop.*/
+                        plannedBookList.map((book, index) => (
+                            <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={180} />
+                        ))
+                    }
+                </View>
             </ImageBackground>
-            <View style={styles.bookContainerInMonth}></View>
         </View>
     )
 }
@@ -61,7 +84,7 @@ export default function MonthContainer(props: Props) {
 const styles = StyleSheet.create({
     monthContainer: {
         width: windowWidth - 40,
-        paddingVertical: 10,
+        paddingTop: 10,
         paddingHorizontal: 5,
         marginBottom: 25,
     },
@@ -71,10 +94,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'nowrap',
         paddingHorizontal: 10,
-    },
-    bookContainerInMonth: {
-        flex: 15,
-        flexDirection: 'row',
+        marginBottom: 0,
     },
     monthTextContainer: {
         borderRadius: 10,
@@ -90,7 +110,17 @@ const styles = StyleSheet.create({
     },
     monthBackground: {
         flex: 1,
-        paddingVertical: 20,
-    }
+        paddingTop: 15,
+    },
+    booksGridContainer: {
+        flex: 15,
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'flex-start',
+        alignItems: 'flex-end',
+        paddingHorizontal: 10,
+        height: 500,
+        width: '100%',
+    },
 })
 

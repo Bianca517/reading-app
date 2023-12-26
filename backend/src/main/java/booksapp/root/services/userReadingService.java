@@ -157,8 +157,6 @@ public class userReadingService {
 
     public int addBookAsPlannedForMonth(String userID, String monthName, String bookID) throws InterruptedException, ExecutionException {
         DocumentReference userDocument = userCollectionDB.document(userID);
-        System.out.println(userDocument);
-        System.out.println("aici\n");
         String planningFieldName = GlobalConstants.USERS_COLLECTION_FIELDS[7]; 
         String formattedUpdateString = "" + planningFieldName + "." + monthName + "";
         ApiFuture<WriteResult> updateResult = userDocument.update(formattedUpdateString, FieldValue.arrayUnion(bookID));

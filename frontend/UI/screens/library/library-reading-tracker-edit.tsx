@@ -12,10 +12,10 @@ import BookDraggable from "../../components/book-draggable";
 import Footer from "../../components/footer";
 import LibraryPageNavigator from "../../components/library-navigator";
 import MonthContainer from "../../components/month-container";
-import { retrieve_current_readings } from "../../../services/retrieve-books-service";
+import { get_current_readings } from "../../../services/retrieve-books-service";
+import {plan_book_for_month} from "../../../services/reading-planner-service";
 import { LinearGradient } from "expo-linear-gradient";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import EditableBook from "../../components/book-editable";
 import Book from "../../components/book";
 
 const windowWidth = Dimensions.get("window").width;
@@ -23,16 +23,32 @@ const windowHeight = Dimensions.get("window").height;
 
 export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
   const [currentReadingBooks, setCurrentReadingBooks] = useState([]);
+  const [currentReadingFilteredBooks, setCurrentReadingFilteredBooks] = useState([]);
   const currentMonthIndex = routeProps.params["monthIndex"];
-  const [plannedBooksForCurrentMonth, setPlannedBooksForCurrentMonth] =
-    useState([]);
+  const plannedBookList = routeProps.params["plannedBookList"];
+
+  //get month name as string because it is needed for the backend GET request
+  let currentMonthName: string = Globals.MONTHS_LIST[currentMonthIndex].toLowerCase();
+  currentMonthName = currentMonthName[0].toUpperCase() + currentMonthName.substring(1);
 
   async function loadCurrentReadingBooks() {
-    const fetchResponse = await retrieve_current_readings().then();
+    let fetchResponse = await get_current_readings().then();
 
     if (fetchResponse.success) {
-      setCurrentReadingBooks(JSON.parse(fetchResponse.responseData));
+        const parsedData = JSON.parse(fetchResponse.responseData);
+        console.log(parsedData);
+        filterCurrentReadingBooks(parsedData); //used parsedData because if I used setCurrentReadingFilteredBooks it would take too long to filer
+        //and the filter function would use an empty array
     }
+  }
+
+  function filterCurrentReadingBooks(parsedData: any) {
+    // Extract unique identifiers from the second array
+    const plannedBookIDs: Set<string> = new Set(plannedBookList.map((book: { [x: string]: any; }) => book[Globals.BOOK_COLLECTION_FIELDS[6]]));
+    // Filter elements from the first array that are not in the second array
+    const result: string[] = parsedData.filter((book: { id: string; }) => !plannedBookIDs.has(book.id));
+     
+    setCurrentReadingFilteredBooks(result);
   }
 
   //this executes on page load
@@ -40,8 +56,10 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
     loadCurrentReadingBooks();
   }, []);
 
-  function onAddedBook() {
-    console.log("haidi");
+  async function onAddedBook(bookId: string) {
+    //if book was dropped => add it as planned for the current month
+    await plan_book_for_month(currentMonthName, bookId);
+    console.log("teoretic added");
   }
 
   return (
@@ -76,7 +94,7 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
               <View style={styles.currentReadingsContainer}>
                 {
                   /*Warning: Each child in a list should have a unique "key" prop.*/
-                  currentReadingBooks.map((book, index) => (
+                  currentReadingFilteredBooks.map((book, index) => (
                       <BookDraggable
                         key={index}
                         bookFields={JSON.stringify(book)}

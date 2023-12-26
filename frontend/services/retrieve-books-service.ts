@@ -2,10 +2,10 @@ import Globals from "../UI/_globals/Globals"
 const GET_FINALIZED_READINGS_ENDPOINT: string = "/getusersfinalizedreadings"
 const GET_CURRENT_READINGS_ENDPOINT: string = "/getusercurrentreadings"
 
-export async function retrieve_finalized_readings() {
+export async function get_finalized_readings() {
     const HTTPS_REQUEST = Globals.BACKEND_HTTP + GET_FINALIZED_READINGS_ENDPOINT
     var body = ""
-    console.log("in retrieve finalized readings");
+    //console.log("in retrieve finalized readings");
 
     var returnedFinalizedBooks = await fetch(HTTPS_REQUEST, {
         method: "GET",
@@ -16,8 +16,8 @@ export async function retrieve_finalized_readings() {
     })
         .then((response) => response.json())
         .then((responseData) => {
-            console.log("got it");
-            console.log(JSON.stringify(responseData));
+            //console.log("got it");
+            //console.log(JSON.stringify(responseData));
             responseData = JSON.stringify(responseData);
             return { success: true, responseData };
         })
@@ -30,10 +30,9 @@ export async function retrieve_finalized_readings() {
 }
 
 
-export async function retrieve_current_readings() {
+export async function get_current_readings() {
     const HTTPS_REQUEST = Globals.BACKEND_HTTP + GET_CURRENT_READINGS_ENDPOINT
     var body = ""
-    console.log("in retrieve current readings");
 
     var returnedCurrentBooks = await fetch(HTTPS_REQUEST, {
         method: "GET",
@@ -44,8 +43,8 @@ export async function retrieve_current_readings() {
     })
         .then((response) => response.json())
         .then((responseData) => {
-            console.log("sosaj");
-            console.log(JSON.stringify(responseData));
+            //console.log("sosaj");
+            //console.log(JSON.stringify(responseData));
             responseData = JSON.stringify(responseData);
             return { success: true, responseData };
         })
@@ -56,3 +55,5 @@ export async function retrieve_current_readings() {
         });
     return returnedCurrentBooks
 }
+
+

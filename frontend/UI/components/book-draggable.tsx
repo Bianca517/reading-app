@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Image, Text } from 'react-native';
 import Globals from '../_globals/Globals';
-import  Animated, { useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import  Animated, { runOnJS, useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { PanGestureHandler, PanGestureHandlerGestureEvent, State } from 'react-native-gesture-handler';
 
 type BookProps = {
     bookFields: string,
     bookCoverWidth: number,
     bookCoverHeight: number,
-    bookAddedCallback: () => void, // Optional callback prop
+    bookAddedCallback: (bookId: string) => void,
 }
 
 type ContextInterface = {
@@ -16,8 +16,8 @@ type ContextInterface = {
     translateY: number,
 }
 
-export default function BookDraggable(props: BookProps) {
-    let bookFieldsJSON = JSON.parse(props.bookFields);
+export default function BookDraggable({ bookFields, bookCoverWidth, bookCoverHeight, bookAddedCallback }: BookProps) {
+    let bookFieldsJSON = JSON.parse(bookFields);
     const bookTitle = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[0]];
     const bookAuthor = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[1]];
     const bookID = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[6]];
@@ -52,8 +52,8 @@ export default function BookDraggable(props: BookProps) {
                 translateY.value = withSpring(0);
             }
             else {
-                console.log("asda");
-                //props.bookAddedCallback(); //let edit screen know that another book was planned for current month
+                runOnJS(bookAddedCallback)(bookID); //run on JS needed because otherwise the app would crash
+                //By using runOnJS, you ensure that the function is executed on the JavaScript thread rather than the UI thread
             }
 
             isPressed.value = false;
@@ -101,7 +101,7 @@ export default function BookDraggable(props: BookProps) {
                     style={[
                         styles.book_container, 
                         reanimatedStyle,
-                        { width: props.bookCoverWidth, height: props.bookCoverHeight }
+                        { width: bookCoverWidth, height: bookCoverHeight }
                     ]}
                 >
                     

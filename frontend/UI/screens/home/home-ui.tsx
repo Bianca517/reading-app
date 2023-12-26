@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, SafeAreaView, ScrollView, Image, FlatList } fro
 import { LinearGradient } from 'expo-linear-gradient';
 import Footer from '../../components/footer';
 import Book from '../../components/book';
-import { retrieve_finalized_readings, retrieve_current_readings } from '../../../services/retrieve-books-service';
+import { get_finalized_readings, get_current_readings } from '../../../services/retrieve-books-service';
 import Globals from '../../_globals/Globals';
 
 export default function HomePageUI() {
@@ -11,7 +11,7 @@ export default function HomePageUI() {
     const [currentReadingBooks, setCurrentReadingBooks] = useState([]);
 
     async function loadPopularBooks() {
-        const fetchResponse = await retrieve_finalized_readings().then();
+        const fetchResponse = await get_finalized_readings().then();
 
         if (fetchResponse.success) {
             setPopularBooks(JSON.parse(fetchResponse.responseData));
@@ -19,7 +19,7 @@ export default function HomePageUI() {
     }
 
     async function loadCurrentReadingBooks() {
-        const fetchResponse = await retrieve_current_readings().then();
+        const fetchResponse = await get_current_readings().then();
 
         if (fetchResponse.success) {
             setCurrentReadingBooks(JSON.parse(fetchResponse.responseData));
