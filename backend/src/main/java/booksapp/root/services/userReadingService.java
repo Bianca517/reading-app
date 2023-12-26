@@ -52,7 +52,7 @@ public class userReadingService {
             HashMap<String, String> book = new HashMap<String, String>();
 
             Map<String, Object> bookfields = localBookService.getBookByID(bookID);
-            // retrieve only relevant fields: book name, author, cover
+            // retrieve only relevant fields: book id, book name, author
             book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[0],
                     bookID);
             book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[1],
@@ -108,4 +108,47 @@ public class userReadingService {
             throw new RuntimeException("Book cover with url: " + imagePath + " not found");
         }
     }
+
+
+      public ArrayList<HashMap<String, String>> getUserPlannedReadingsForMonth(String userID, String monthName) throws InterruptedException, ExecutionException {
+        HashMap<String, ArrayList<String>> userPlannedReadingsForCurrentMonth = new HashMap<String, ArrayList<String>>();
+
+        userPlannedReadingsForCurrentMonth = (HashMap<String, ArrayList<String>>) userCollectionDB.document(userID).get().get()
+                .get(GlobalConstants.USERS_COLLECTION_FIELDS[7]);
+
+        System.out.println(userCollectionDB.document(userID).get().get()
+                .get(GlobalConstants.USERS_COLLECTION_FIELDS[7]).toString());
+
+        System.out.println(userPlannedReadingsForCurrentMonth.get(monthName));
+
+        ArrayList<String> bookIDsPlannedForCurrentMonth = userPlannedReadingsForCurrentMonth.get(monthName);
+        ArrayList<HashMap<String, String>> booksToReturn = new ArrayList<HashMap<String, String>>();
+        
+        for (String bookID : bookIDsPlannedForCurrentMonth) {
+            booksToReturn.add(getBookJSONfromBookID(bookID));
+        };
+      
+        return booksToReturn;
+    }
+
+
+    public HashMap<String, String> getBookJSONfromBookID(String bookID) throws InterruptedException, ExecutionException {
+        HashMap<String, String> book = new HashMap<String, String>();
+        booksService localBookService = new booksService(DB);
+
+        Map<String, Object> bookfields = localBookService.getBookByID(bookID);
+        // retrieve only relevant fields: book name, author, cover
+        if(bookfields != null) {
+            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[0], bookID);
+            
+            String bookName = bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[1]).toString();
+            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[1], bookName);
+            
+            String author = bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[2]).toString();
+            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[2], author);
+        }
+
+        return book;
+    }
+
 }
