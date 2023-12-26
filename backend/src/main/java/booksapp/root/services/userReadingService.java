@@ -7,10 +7,12 @@ import java.util.concurrent.ExecutionException;
 
 import org.springframework.stereotype.Service;
 
+import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.WriteResult;
 import com.google.firebase.cloud.StorageClient;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Blob;
@@ -159,7 +161,10 @@ public class userReadingService {
         System.out.println("aici\n");
         String planningFieldName = GlobalConstants.USERS_COLLECTION_FIELDS[7]; 
         String formattedUpdateString = "" + planningFieldName + "." + monthName + "";
-        userDocument.update(formattedUpdateString, FieldValue.arrayUnion(bookID));
+        ApiFuture<WriteResult> updateResult = userDocument.update(formattedUpdateString, FieldValue.arrayUnion(bookID));
+
+        //System.out.println(updateResult.toString());
+        //i wanted to test the value of updateResult but it does not containt the update status as expected
         return 0;
     }   
 
