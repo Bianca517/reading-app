@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -68,6 +69,17 @@ public class userReadingController {
     @PostMapping(value = "/planbookformonth")
     public String planBookForMonth(@RequestParam String monthName, String bookID) throws ExecutionException, InterruptedException {
         int returnedStatus = this.userReadingService.addBookAsPlannedForMonth("4zgcWtT9c3RSy5FpFI18", monthName, bookID);
+        if(returnedStatus == 0) {
+            return "Successfully planned book with ID " + bookID + " for month " + monthName;
+        }
+        else {
+            return "Could not plan book for month " + monthName;
+        }
+    }
+
+    @DeleteMapping(value = "/removebookplannedformonth")
+    public String removePlannedBookForMonth(@RequestParam String monthName, String bookID) throws ExecutionException, InterruptedException {
+        int returnedStatus = this.userReadingService.removeBookAsPlannedForMonth("4zgcWtT9c3RSy5FpFI18", monthName, bookID);
         if(returnedStatus == 0) {
             return "Successfully planned book with ID " + bookID + " for month " + monthName;
         }

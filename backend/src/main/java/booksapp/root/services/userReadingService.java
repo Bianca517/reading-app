@@ -166,4 +166,15 @@ public class userReadingService {
         return 0;
     }   
 
+    public int removeBookAsPlannedForMonth(String userID, String monthName, String bookID) throws InterruptedException, ExecutionException {
+        DocumentReference userDocument = userCollectionDB.document(userID);
+        String planningFieldName = GlobalConstants.USERS_COLLECTION_FIELDS[7]; 
+        String formattedUpdateString = "" + planningFieldName + "." + monthName + "";
+        ApiFuture<WriteResult> updateResult = userDocument.update(formattedUpdateString, FieldValue.arrayRemove(bookID));
+
+        //System.out.println(updateResult.toString());
+        //i wanted to test the value of updateResult but it does not containt the update status as expected
+        return 0;
+    }   
+
 }
