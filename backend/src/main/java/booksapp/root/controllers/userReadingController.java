@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -62,5 +63,16 @@ public class userReadingController {
         Gson gson = new Gson();
         String gsonData = gson.toJson(books);
         return gsonData;
+    }
+
+    @PostMapping(value = "/planbookformonth")
+    public String planBookForMonth(@RequestParam String monthName, String bookID) throws ExecutionException, InterruptedException {
+        int returnedStatus = this.userReadingService.addBookAsPlannedForMonth("4zgcWtT9c3RSy5FpFI18", monthName, bookID);
+        if(returnedStatus == 0) {
+            return "Successfully planned book with ID " + bookID + " for month " + monthName;
+        }
+        else {
+            return "Could not plan book for month " + monthName;
+        }
     }
 }

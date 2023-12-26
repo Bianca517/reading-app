@@ -8,6 +8,8 @@ import java.util.concurrent.ExecutionException;
 import org.springframework.stereotype.Service;
 
 import com.google.cloud.firestore.CollectionReference;
+import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
 import com.google.firebase.cloud.StorageClient;
 import com.google.cloud.storage.Bucket;
@@ -140,15 +142,25 @@ public class userReadingService {
         // retrieve only relevant fields: book name, author, cover
         if(bookfields != null) {
             book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[0], bookID);
-            
+
             String bookName = bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[1]).toString();
             book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[1], bookName);
-            
+
             String author = bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[2]).toString();
             book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[2], author);
         }
 
         return book;
     }
+
+    public int addBookAsPlannedForMonth(String userID, String monthName, String bookID) throws InterruptedException, ExecutionException {
+        DocumentReference userDocument = userCollectionDB.document(userID);
+        System.out.println(userDocument);
+        System.out.println("aici\n");
+        String planningFieldName = GlobalConstants.USERS_COLLECTION_FIELDS[7]; 
+        String formattedUpdateString = "" + planningFieldName + "." + monthName + "";
+        userDocument.update(formattedUpdateString, FieldValue.arrayUnion(bookID));
+        return 0;
+    }   
 
 }
