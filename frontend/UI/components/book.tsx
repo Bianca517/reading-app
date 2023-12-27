@@ -20,20 +20,21 @@ export default function Book(props: BookProps) {
         var constructURIForBookCover = Globals.BOOK_COVER_URI_TEMPLATE.replace('NAME', bookTitle.toLowerCase());
         constructURIForBookCover = constructURIForBookCover.replace('AUTHOR', bookAuthor.toLowerCase());
         bookCover = constructURIForBookCover;
-    }
+    
 
-    return (
-        <View 
-            style={[
-                styles.book_container, 
-                { width: props.bookCoverWidth, height: props.bookCoverHeight }
-            ]}
-        >
-            <Image style={styles.book_cover} source={{ uri: bookCover }}></Image>
-            <Text style={styles.book_title}>{bookTitle}</Text>
-            <Text style={styles.book_author}>{bookAuthor}</Text>
-        </View>
-    );
+        return (
+            <View 
+                style={[
+                    styles.book_container, 
+                    { width: props.bookCoverWidth, height: props.bookCoverHeight }
+                ]}
+            >
+                <Image style={styles.book_cover} source={{ uri: bookCover }}></Image>
+                <Text style={styles.book_title}>{bookTitle}</Text>
+                <Text style={styles.book_author}>{bookAuthor}</Text>
+            </View>
+        );
+    }
 }
 
 const styles = StyleSheet.create({
