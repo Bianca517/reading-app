@@ -13,7 +13,7 @@ import Footer from "../../components/footer";
 import LibraryPageNavigator from "../../components/library-navigator";
 import MonthContainer from "../../components/month-container";
 import { get_current_readings } from "../../../services/retrieve-books-service";
-import {plan_book_for_month} from "../../../services/reading-planner-service";
+import { plan_book_for_month, get_readings_planned_for_month } from "../../../services/reading-planner-service";
 import { LinearGradient } from "expo-linear-gradient";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Book from "../../components/book";
@@ -25,41 +25,66 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
   const [currentReadingBooks, setCurrentReadingBooks] = useState([]);
   const [currentReadingFilteredBooks, setCurrentReadingFilteredBooks] = useState([]);
   const currentMonthIndex = routeProps.params["monthIndex"];
-  const plannedBookList = routeProps.params["plannedBookList"];
+  const [plannedBookList, setPlannedBookList] = useState(routeProps.params["plannedBookList"]);
 
   //get month name as string because it is needed for the backend GET request
   let currentMonthName: string = Globals.MONTHS_LIST[currentMonthIndex].toLowerCase();
   currentMonthName = currentMonthName[0].toUpperCase() + currentMonthName.substring(1);
+
+  //this executes on page load
+  useEffect(() => {
+    loadCurrentReadingBooks();
+    loadPlannedBooksForAMonth();
+  }, []);
+
+   // useEffect to update state when props change
+   useEffect(() => {
+    setPlannedBookList(plannedBookList);
+  }, [plannedBookList]);
+
+  useEffect(() => {
+    setCurrentReadingBooks(currentReadingFilteredBooks);
+  }, [currentReadingFilteredBooks]);
+
 
   async function loadCurrentReadingBooks() {
     let fetchResponse = await get_current_readings().then();
 
     if (fetchResponse.success) {
         const parsedData = JSON.parse(fetchResponse.responseData);
-        console.log(parsedData);
         filterCurrentReadingBooks(parsedData); //used parsedData because if I used setCurrentReadingFilteredBooks it would take too long to filer
         //and the filter function would use an empty array
     }
   }
 
+  async function loadPlannedBooksForAMonth() {
+    let fetchResponse = await get_readings_planned_for_month(currentMonthName).then();
+    if (fetchResponse.success) {
+        setPlannedBookList(JSON.parse(fetchResponse.responseData));
+        console.log("planned book list ", plannedBookList);
+    }
+  }
+
   function filterCurrentReadingBooks(parsedData: any) {
-    // Extract unique identifiers from the second array
+    // get IDs from the planned books
     const plannedBookIDs: Set<string> = new Set(plannedBookList.map((book: { [x: string]: any; }) => book[Globals.BOOK_COLLECTION_FIELDS[6]]));
-    // Filter elements from the first array that are not in the second array
+    // filter books in current readings that dont have the id in planned books
     const result: string[] = parsedData.filter((book: { id: string; }) => !plannedBookIDs.has(book.id));
      
     setCurrentReadingFilteredBooks(result);
+    console.log("filtered current readings: ", currentReadingFilteredBooks);
   }
-
-  //this executes on page load
-  useEffect(() => {
-    loadCurrentReadingBooks();
-  }, []);
 
   async function onAddedBook(bookId: string) {
     //if book was dropped => add it as planned for the current month
-    await plan_book_for_month(currentMonthName, bookId);
-    console.log("teoretic added");
+    plan_book_for_month(currentMonthName, bookId).then(() => {
+      console.log("teoretic added");
+      loadCurrentReadingBooks();
+      loadPlannedBooksForAMonth();
+      //console.log(currentReadingBooks.filter((book) => book[Globals.BOOK_COLLECTION_FIELDS[6]] !== bookId));
+      setCurrentReadingFilteredBooks(currentReadingBooks.filter((book) => {book[Globals.BOOK_COLLECTION_FIELDS[6]] !== bookId;}));
+      console.log("filtered current readings: ", currentReadingFilteredBooks);
+    });
   }
 
   return (
@@ -85,6 +110,7 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
                 index={currentMonthIndex}
                 height={Globals.MONTH_CONTAINER_HEIGHT_IN_EDIT_READING_TRACKER}
                 inEditMode={true}
+                plannedBookList={plannedBookList}
               ></MonthContainer>
 
               <View style={styles.yourLibraryInfo}>

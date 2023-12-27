@@ -4,56 +4,59 @@ import Globals from '../_globals/Globals';
 import { useNavigation } from '@react-navigation/native';
 import { get_readings_planned_for_month} from "../../services/reading-planner-service";
 import Book from './book';
+import EditableBook from './book-editable';
+import { delete_planned_book_for_month } from '../../services/reading-planner-service'
 
 const windowWidth = Dimensions.get('window').width;
+
+interface PlannedBook {
+    key: string;
+    value: string;
+  }
 
 type Props = {
     index: number,
     height: number,
     inEditMode: boolean,
+    plannedBookList: any,
 };
 
-export default function MonthContainer(props: Props) {
+export default function MonthContainer( {index,height, inEditMode, plannedBookList}: Props) {
     const navigation = useNavigation();
-    const [plannedBookList, setPlannedBookList] = useState([]);
+    let [statePlannedBookList, setStatePlannedBookList] = useState([]);
 
     //fetch image background path based on received index
     //get name from index 
-    let currentMonthName = Globals.MONTHS_LIST[props.index].toLowerCase();
+    let currentMonthName = Globals.MONTHS_LIST[index].toLowerCase();
     currentMonthName = currentMonthName[0].toUpperCase() + currentMonthName.substring(1);
     //build firebase storage uri
     const monthImagePath = Globals.MONTHS_BACKGROUND_IMAGES.replace('MONTH', currentMonthName.toLowerCase());
 
-    let rightButtonText = props.inEditMode === true ? 'Done' : 'Edit';
-
-    async function loadCurrentReadingBooks() {
-        let fetchResponse = await get_readings_planned_for_month(currentMonthName).then();
-        if (fetchResponse.success) {
-            console.log("planned books");
-            console.log("FR "+ fetchResponse.responseData);
-            setPlannedBookList(JSON.parse(fetchResponse.responseData));
-            console.log(plannedBookList);
-        }
-    }
+    let rightButtonText = inEditMode === true ? 'Done' : 'Edit';
 
     //this executes on page load
     useEffect(() => {
-        loadCurrentReadingBooks();
+        console.log('rerender moonth ' + currentMonthName);
+        console.log("am primit", plannedBookList);
     }, []);
 
+    useEffect(() => {
+        setStatePlannedBookList(plannedBookList);
+    }, [plannedBookList]);
+
     function checkNavigationOfRightButton() {
-        if(true == props.inEditMode) {
+        if(true == inEditMode) {
             navigation.navigate('Reading Tracker' as never);
             //TODO: save configurations here
         }
         else {
-            navigation.navigate('Edit Reading Tracker', { 'monthIndex' : props.index, "plannedBookList" : plannedBookList});
+            navigation.navigate('Edit Reading Tracker', { 'monthIndex' : index, "plannedBookList" : plannedBookList});
         }
     }
 
     return (
-        <View style={[styles.monthContainer, { height: props.height}]}>
-            <ImageBackground source={{ uri: monthImagePath }} style={[styles.monthBackground, { height: props.height}]} imageStyle={{ borderRadius: 20 }}>
+        <View style={[styles.monthContainer, { height: height}]}>
+            <ImageBackground source={{ uri: monthImagePath }} style={[styles.monthBackground, { height: height}]} imageStyle={{ borderRadius: 20 }}>
                 <View style={styles.headerMonthContainer}>
 
                     <View style={[styles.monthTextContainer]}>
@@ -71,8 +74,12 @@ export default function MonthContainer(props: Props) {
                 <View style={styles.booksGridContainer}>
                     {
                         /*Warning: Each child in a list should have a unique "key" prop.*/
-                        plannedBookList.map((book, index) => (
-                            <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={180} />
+                        statePlannedBookList.map((book, index) => (
+                            inEditMode ? (
+                                <EditableBook key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={180} currentMonthName={currentMonthName}/>
+                            ) : (
+                                <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={180} />
+                            )
                         ))
                     }
                 </View>

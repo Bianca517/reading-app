@@ -4,26 +4,121 @@ import Globals from '../../_globals/Globals';
 import Footer from '../../components/footer';
 import LibraryPageNavigator from '../../components/library-navigator';
 import MonthContainer from '../../components/month-container';
-import { get_current_readings } from '../../../services/retrieve-books-service';
+import { get_readings_planned_for_month } from "../../../services/reading-planner-service";
+import { useIsFocused } from "@react-navigation/native";
 
 const windowWidth = Dimensions.get('window').width;
 
+interface yearlyBooksPlanned {
+    key: string;
+    value: string;
+}
+
 export default function LibraryPageReadingTrackerUI() {
-    const [currentReadingBooks, setCurrentReadingBooks] = useState([]);
+    const [booksAreLoaded, setBooksAreLoaded] = useState<boolean>(false);
+    const isFocused = useIsFocused();
 
+    let [januaryPlannedBooks, setJanuaryPlannedBooks] = useState<yearlyBooksPlanned[]>([]);
+    let [februaryPlannedBooks, setFebruaryPlannedBooks] = useState<yearlyBooksPlanned[]>([]);
+    let [marchPlannedBooks, setMarchPlannedBooks] = useState<yearlyBooksPlanned[]>([]);
+    let [aprilPlannedBooks, setAprilPlannedBooks] = useState<yearlyBooksPlanned[]>([]);
+    let [mayPlannedBooks, setMayPlannedBooks] = useState<yearlyBooksPlanned[]>([]);
+    let [junePlannedBooks, setJunePlannedBooks] = useState<yearlyBooksPlanned[]>([]);
+    let [julyPlannedBooks, setJulyPlannedBooks] = useState<yearlyBooksPlanned[]>([]);
+    let [augustPlannedBooks, setAugustPlannedBooks] = useState<yearlyBooksPlanned[]>([]);
+    let [septemberPlannedBooks, setSeptemberPlannedBooks] = useState<yearlyBooksPlanned[]>([]);
+    let [octoberPlannedBooks, setOctoberPlannedBooks] = useState<yearlyBooksPlanned[]>([]);
+    let [novemberPlannedBooks, setNovemberPlannedBooks] = useState<yearlyBooksPlanned[]>([]);
+    let [decemberPlannedBooks, setDecemberPlannedBooks] = useState<yearlyBooksPlanned[]>([]);
 
-    async function loadCurrentReadingBooks() {
-        const fetchResponse = await get_current_readings().then();
-
-        if (fetchResponse.success) {
-            setCurrentReadingBooks(JSON.parse(fetchResponse.responseData));
+    const yearlyBooks = [
+        januaryPlannedBooks,
+        februaryPlannedBooks,
+        marchPlannedBooks,
+        aprilPlannedBooks,
+        mayPlannedBooks,
+        junePlannedBooks,
+        julyPlannedBooks,
+        augustPlannedBooks,
+        septemberPlannedBooks,
+        octoberPlannedBooks,
+        novemberPlannedBooks,
+        decemberPlannedBooks,
+    ];
+    
+    function setMonthPlannedBooks(monthIndex: number, plannedBooks: any): void {
+        switch(monthIndex) {
+            case 0:
+                setJanuaryPlannedBooks(plannedBooks);
+                break;
+            case 1:
+                setFebruaryPlannedBooks(plannedBooks);
+                break;
+            case 2:
+                setMarchPlannedBooks(plannedBooks);
+                break;
+            case 3:
+                setAprilPlannedBooks(plannedBooks);
+                break;
+            case 4:
+                setMayPlannedBooks(plannedBooks);
+                break;
+            case 5:
+                setJunePlannedBooks(plannedBooks);
+                break;
+            case 6:
+                setJulyPlannedBooks(plannedBooks);
+                break;
+            case 7:
+                setAugustPlannedBooks(plannedBooks);
+                break;
+            case 8:
+                setSeptemberPlannedBooks(plannedBooks);
+                break;
+            case 9:
+                setOctoberPlannedBooks(plannedBooks);
+                break;
+            case 10:
+                setNovemberPlannedBooks(plannedBooks);
+                break;
+            case 11:
+                setDecemberPlannedBooks(plannedBooks);
+                break;
         }
+    }
+    function renderMonths() {
+        if(booksAreLoaded) {
+            return (
+                Globals.MONTHS_LIST.map((month, index) => (
+                    <MonthContainer 
+                        index={index} 
+                        height={Globals.MONTH_CONTAINER_HEIGHT_IN_MAIN_READING_TRACKER}
+                        inEditMode={false}
+                        plannedBookList={yearlyBooks[index]}>
+                    </MonthContainer>
+                ))
+            )
+        }
+    }
+
+    async function loadCurrentPlannedBooks() {
+        const promises = Globals.MONTHS_LIST.map(async (month, index) => {
+            let fetchResponse = await get_readings_planned_for_month(month).then();
+            if (fetchResponse.success) {
+                const booksForMonth = JSON.parse(fetchResponse.responseData);
+                setMonthPlannedBooks(index, booksForMonth);
+            }
+        });
+
+        Promise.all(promises).then(() => setBooksAreLoaded(true));
     }
 
     //this executes on page load
     useEffect(() => {
-        loadCurrentReadingBooks();
-    }, []);
+        if (isFocused) {
+         loadCurrentPlannedBooks(); 
+        }
+    }, [isFocused]);
 
     return (
         <SafeAreaView style={styles.fullscreen_view}>
@@ -37,13 +132,7 @@ export default function LibraryPageReadingTrackerUI() {
             <View style={styles.monthsListContainer}>
                 <ScrollView>
                     {
-                        Globals.MONTHS_LIST.map((month, index) => (
-                            <MonthContainer 
-                                index={index} 
-                                height={Globals.MONTH_CONTAINER_HEIGHT_IN_MAIN_READING_TRACKER}
-                                inEditMode={false}
-                            ></MonthContainer>
-                        ))
+                        renderMonths()
                     }
                 </ScrollView>
 

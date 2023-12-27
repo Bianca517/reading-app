@@ -1,35 +1,42 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Image, Text, TouchableOpacity } from 'react-native';
 import Globals from '../_globals/Globals';
+import { delete_planned_book_for_month } from '../../services/reading-planner-service'
 
 type BookProps = {
     bookFields: string,
     bookCoverWidth: number,
     bookCoverHeight: number,
-    onPressAddButton: (book: string) => void,
+    currentMonthName: string,
 }
 
-export default function EditableBook(props: BookProps) {
+export default function EditableBook({ bookFields, bookCoverWidth, bookCoverHeight, currentMonthName }: BookProps) {
 
-    let bookFieldsJSON = JSON.parse(props.bookFields);
+    let bookFieldsJSON = JSON.parse(bookFields);
     const bookTitle = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[0]];
     const bookAuthor = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[1]];
+    const bookID = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[6]];
 
     var constructURIForBookCover = Globals.BOOK_COVER_URI_TEMPLATE.replace('NAME', bookTitle.toLowerCase());
     constructURIForBookCover = constructURIForBookCover.replace('AUTHOR', bookAuthor.toLowerCase());
     const bookCover = constructURIForBookCover;
 
+    async function bookRemovedCallback(bookID: string) {
+        await delete_planned_book_for_month(currentMonthName, bookID);
+        console.log("teoretic removed");
+    }
+
     return (
         <View 
             style={[
                 styles.book_container, 
-                { width: props.bookCoverWidth, height: props.bookCoverHeight }
+                { width: bookCoverWidth, height: bookCoverHeight }
             ]}
         >
-            <View style={[styles.imageOverlay, { width: props.bookCoverWidth, height: props.bookCoverHeight }]}>    
+            <View style={[styles.imageOverlay, { width: bookCoverWidth, height: bookCoverHeight }]}>    
                 <Image style={styles.book_cover} source={{ uri: bookCover }}></Image>
-                <TouchableOpacity style={styles.addButton} onPress={props.onPressAddButton}>
-                    <Text style={styles.addButtonText}>+</Text>
+                <TouchableOpacity style={styles.deleteButton} onPress={() => bookRemovedCallback(bookID)}>
+                    <Text style={styles.addButtonText}>-</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -55,7 +62,7 @@ const styles = StyleSheet.create({
         flex: 6.8,
         position: 'relative',
     },
-    addButton: {
+    deleteButton: {
         backgroundColor: 'white',
         width: 20,
         height: 20,
@@ -65,10 +72,12 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: -5, // Adjust as needed
         right: -9, // Adjust as needed
+        borderWidth: 2,
+        borderColor: Globals.COLORS.PURPLE
     },
     addButtonText: {
-        fontSize: 17,
+        fontSize: 14,
         fontWeight: 'bold',
-        color: Globals.COLORS.PURPLE,
+        color: 'black',
     }
 })

@@ -30,6 +30,7 @@ export default function BookDraggable({ bookFields, bookCoverWidth, bookCoverHei
     const translateY = useSharedValue(0);
     let isPressed = useSharedValue(false);
     let isLongPressed = useSharedValue(false);
+    let wasDroppedCorrectly = useSharedValue(false);
 
     const panGestureEvent = useAnimatedGestureHandler<PanGestureHandlerGestureEvent, ContextInterface>({
         onStart: (event, context) => {
@@ -54,10 +55,11 @@ export default function BookDraggable({ bookFields, bookCoverWidth, bookCoverHei
             else {
                 runOnJS(bookAddedCallback)(bookID); //run on JS needed because otherwise the app would crash
                 //By using runOnJS, you ensure that the function is executed on the JavaScript thread rather than the UI thread
+                translateX.value = withSpring(0);
+                translateY.value = withSpring(0);
             }
 
             isPressed.value = false;
-            isLongPressed.value = false;
         },
     })
 
