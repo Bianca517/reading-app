@@ -8,7 +8,7 @@ type BookProps = {
     bookFields: string,
     bookCoverWidth: number,
     bookCoverHeight: number,
-    bookAddedCallback: (bookId: string) => void,
+    bookAddedCallback: (bookId: string, bookTitle: string, bookAuthor: string) => void,
 }
 
 type ContextInterface = {
@@ -17,6 +17,8 @@ type ContextInterface = {
 }
 
 export default function BookDraggable({ bookFields, bookCoverWidth, bookCoverHeight, bookAddedCallback }: BookProps) {
+    console.log("am primit in draggable", bookFields);
+
     let bookFieldsJSON = JSON.parse(bookFields);
     const bookTitle = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[0]];
     const bookAuthor = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[1]];
@@ -30,7 +32,6 @@ export default function BookDraggable({ bookFields, bookCoverWidth, bookCoverHei
     const translateY = useSharedValue(0);
     let isPressed = useSharedValue(false);
     let isLongPressed = useSharedValue(false);
-    let wasDroppedCorrectly = useSharedValue(false);
 
     const panGestureEvent = useAnimatedGestureHandler<PanGestureHandlerGestureEvent, ContextInterface>({
         onStart: (event, context) => {
@@ -53,7 +54,7 @@ export default function BookDraggable({ bookFields, bookCoverWidth, bookCoverHei
                 translateY.value = withSpring(0);
             }
             else {
-                runOnJS(bookAddedCallback)(bookID); //run on JS needed because otherwise the app would crash
+                runOnJS(bookAddedCallback)(bookID, bookTitle, bookAuthor); //run on JS needed because otherwise the app would crash
                 //By using runOnJS, you ensure that the function is executed on the JavaScript thread rather than the UI thread
                 translateX.value = withSpring(0);
                 translateY.value = withSpring(0);

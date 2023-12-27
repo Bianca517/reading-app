@@ -14,10 +14,13 @@ export default function Book(props: BookProps) {
     let bookFieldsJSON = JSON.parse(props.bookFields);
     const bookTitle = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[0]];
     const bookAuthor = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[1]];
+    let bookCover = "";
 
-    var constructURIForBookCover = Globals.BOOK_COVER_URI_TEMPLATE.replace('NAME', bookTitle.toLowerCase());
-    constructURIForBookCover = constructURIForBookCover.replace('AUTHOR', bookAuthor.toLowerCase());
-    const bookCover = constructURIForBookCover;
+    if(bookAuthor && bookTitle) {
+        var constructURIForBookCover = Globals.BOOK_COVER_URI_TEMPLATE.replace('NAME', bookTitle.toLowerCase());
+        constructURIForBookCover = constructURIForBookCover.replace('AUTHOR', bookAuthor.toLowerCase());
+        bookCover = constructURIForBookCover;
+    }
 
     return (
         <View 

@@ -19,9 +19,10 @@ type Props = {
     height: number,
     inEditMode: boolean,
     plannedBookList: any,
+    onBookRemovedCallback: (bookID: string, bookTitle: string, bookAuthor: string) => void,
 };
 
-export default function MonthContainer( {index,height, inEditMode, plannedBookList}: Props) {
+export default function MonthContainer( {index,height, inEditMode, plannedBookList, onBookRemovedCallback}: Props) {
     const navigation = useNavigation();
     let [statePlannedBookList, setStatePlannedBookList] = useState([]);
 
@@ -54,6 +55,25 @@ export default function MonthContainer( {index,height, inEditMode, plannedBookLi
         }
     }
 
+    function renderBooks() {
+        if(plannedBookList.length > 0) {
+            return (
+                <View style={styles.booksGridContainer}>
+                {
+                    /*Warning: Each child in a list should have a unique "key" prop.*/
+                    statePlannedBookList.map((book, index) => (
+                        inEditMode ? (
+                            <EditableBook key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={150} currentMonthName={currentMonthName} onBookRemovedCallback={onBookRemovedCallback}/>
+                        ) : (
+                            <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={180} />
+                        )
+                    ))
+                }
+            </View>
+            )
+        }
+    }
+
     return (
         <View style={[styles.monthContainer, { height: height}]}>
             <ImageBackground source={{ uri: monthImagePath }} style={[styles.monthBackground, { height: height}]} imageStyle={{ borderRadius: 20 }}>
@@ -71,18 +91,9 @@ export default function MonthContainer( {index,height, inEditMode, plannedBookLi
                     </TouchableHighlight>
 
                 </View>
-                <View style={styles.booksGridContainer}>
-                    {
-                        /*Warning: Each child in a list should have a unique "key" prop.*/
-                        statePlannedBookList.map((book, index) => (
-                            inEditMode ? (
-                                <EditableBook key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={180} currentMonthName={currentMonthName}/>
-                            ) : (
-                                <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={180} />
-                            )
-                        ))
-                    }
-                </View>
+                
+                {renderBooks()}
+                
             </ImageBackground>
         </View>
     )

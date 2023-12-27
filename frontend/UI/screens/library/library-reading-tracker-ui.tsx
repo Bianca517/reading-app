@@ -86,6 +86,11 @@ export default function LibraryPageReadingTrackerUI() {
                 break;
         }
     }
+
+    function onBookRemovedCallback(bookid: string, booktitle: string, bookauthor: string) {
+        //dummy function needed for month container
+    }
+
     function renderMonths() {
         if(booksAreLoaded) {
             return (
@@ -94,7 +99,8 @@ export default function LibraryPageReadingTrackerUI() {
                         index={index} 
                         height={Globals.MONTH_CONTAINER_HEIGHT_IN_MAIN_READING_TRACKER}
                         inEditMode={false}
-                        plannedBookList={yearlyBooks[index]}>
+                        plannedBookList={yearlyBooks[index]}
+                        onBookRemovedCallback={onBookRemovedCallback}>
                     </MonthContainer>
                 ))
             )

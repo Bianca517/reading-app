@@ -16,16 +16,23 @@ import { get_current_readings } from "../../../services/retrieve-books-service";
 import { plan_book_for_month, get_readings_planned_for_month } from "../../../services/reading-planner-service";
 import { LinearGradient } from "expo-linear-gradient";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import Book from "../../components/book";
+import { useIsFocused } from "@react-navigation/native";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
+interface Book {
+  authorUsername: string;
+  id: string;
+  name: string;
+}
+
 export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
-  const [currentReadingBooks, setCurrentReadingBooks] = useState([]);
-  const [currentReadingFilteredBooks, setCurrentReadingFilteredBooks] = useState([]);
+  const isFocused = useIsFocused();
   const currentMonthIndex = routeProps.params["monthIndex"];
-  const [plannedBookList, setPlannedBookList] = useState(routeProps.params["plannedBookList"]);
+  const [currentReadingBooks, setCurrentReadingBooks] = useState<Book[]>([]);
+  const [currentReadingFilteredBooks, setCurrentReadingFilteredBooks] = useState<Book[]>([]);
+  const [plannedBookList, setPlannedBookList] = useState<Book[]>(routeProps.params["plannedBookList"]);
 
   //get month name as string because it is needed for the backend GET request
   let currentMonthName: string = Globals.MONTHS_LIST[currentMonthIndex].toLowerCase();
@@ -33,19 +40,11 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
 
   //this executes on page load
   useEffect(() => {
-    loadCurrentReadingBooks();
-    loadPlannedBooksForAMonth();
-  }, []);
-
-   // useEffect to update state when props change
-   useEffect(() => {
-    setPlannedBookList(plannedBookList);
-  }, [plannedBookList]);
-
-  useEffect(() => {
-    setCurrentReadingBooks(currentReadingFilteredBooks);
-  }, [currentReadingFilteredBooks]);
-
+    if (isFocused) {
+      loadCurrentReadingBooks();
+      loadPlannedBooksForAMonth();
+    }
+  }, [isFocused]);
 
   async function loadCurrentReadingBooks() {
     let fetchResponse = await get_current_readings().then();
@@ -75,16 +74,36 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
     console.log("filtered current readings: ", currentReadingFilteredBooks);
   }
 
-  async function onAddedBook(bookId: string) {
+  const createBook = (bookId: string, bookTitle: string, bookAuthor: string): Book => {
+    return {
+      id: bookId,
+      name: bookTitle,
+      authorUsername: bookAuthor,
+    } as Book;
+  };
+
+  async function onAddedBook(bookId: string, bookTitle: string, bookAuthor: string) {
     //if book was dropped => add it as planned for the current month
-    plan_book_for_month(currentMonthName, bookId).then(() => {
-      console.log("teoretic added");
-      loadCurrentReadingBooks();
-      loadPlannedBooksForAMonth();
-      //console.log(currentReadingBooks.filter((book) => book[Globals.BOOK_COLLECTION_FIELDS[6]] !== bookId));
-      setCurrentReadingFilteredBooks(currentReadingBooks.filter((book) => {book[Globals.BOOK_COLLECTION_FIELDS[6]] !== bookId;}));
-      console.log("filtered current readings: ", currentReadingFilteredBooks);
-    });
+    await plan_book_for_month(currentMonthName, bookId);
+    const addedBook: Book = createBook(bookId, bookTitle, bookAuthor);
+
+    console.log("teoretic added");
+    setPlannedBookList((plannedBookList: Book[]) => [...plannedBookList, addedBook]);
+
+    setCurrentReadingFilteredBooks((prevBooks: Book[]) =>
+      prevBooks.filter((book: Book) => book["id"] !== bookId)
+    );
+  }
+
+  function onBookRemovedCallback(bookId: string, bookTitle: string, bookAuthor: string,) {
+    const removedPlannedBook: Book = createBook(bookId, bookTitle, bookAuthor);
+
+    //if book was dropped => remove it from planned for the current month
+    console.log("book was removed ", removedPlannedBook);
+    setPlannedBookList(plannedBookList.filter((book: { [x: string]: any; }) => book[Globals.BOOK_COLLECTION_FIELDS[6]] !== bookId));
+    console.log("filtered current readings: ", [...currentReadingFilteredBooks, removedPlannedBook]);
+    setCurrentReadingFilteredBooks([...currentReadingFilteredBooks, removedPlannedBook]);
+    
   }
 
   return (
@@ -111,6 +130,7 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
                 height={Globals.MONTH_CONTAINER_HEIGHT_IN_EDIT_READING_TRACKER}
                 inEditMode={true}
                 plannedBookList={plannedBookList}
+                onBookRemovedCallback={onBookRemovedCallback}
               ></MonthContainer>
 
               <View style={styles.yourLibraryInfo}>

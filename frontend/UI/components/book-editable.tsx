@@ -8,39 +8,46 @@ type BookProps = {
     bookCoverWidth: number,
     bookCoverHeight: number,
     currentMonthName: string,
+    onBookRemovedCallback: (bookID: string, bookTitle: string, bookAuthor: string) => void,
 }
 
-export default function EditableBook({ bookFields, bookCoverWidth, bookCoverHeight, currentMonthName }: BookProps) {
+export default function EditableBook({ bookFields, bookCoverWidth, bookCoverHeight, currentMonthName, onBookRemovedCallback }: BookProps) {
 
     let bookFieldsJSON = JSON.parse(bookFields);
     const bookTitle = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[0]];
     const bookAuthor = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[1]];
     const bookID = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[6]];
+    let bookCover = "";
 
-    var constructURIForBookCover = Globals.BOOK_COVER_URI_TEMPLATE.replace('NAME', bookTitle.toLowerCase());
-    constructURIForBookCover = constructURIForBookCover.replace('AUTHOR', bookAuthor.toLowerCase());
-    const bookCover = constructURIForBookCover;
+    if(bookTitle && bookAuthor) {
+        var constructURIForBookCover = Globals.BOOK_COVER_URI_TEMPLATE.replace('NAME', bookTitle.toLowerCase());
+        constructURIForBookCover = constructURIForBookCover.replace('AUTHOR', bookAuthor.toLowerCase());
+        bookCover = constructURIForBookCover;
+    }
 
     async function bookRemovedCallback(bookID: string) {
         await delete_planned_book_for_month(currentMonthName, bookID);
         console.log("teoretic removed");
+        onBookRemovedCallback(bookID, bookTitle, bookAuthor);
     }
 
-    return (
-        <View 
-            style={[
-                styles.book_container, 
-                { width: bookCoverWidth, height: bookCoverHeight }
-            ]}
-        >
-            <View style={[styles.imageOverlay, { width: bookCoverWidth, height: bookCoverHeight }]}>    
-                <Image style={styles.book_cover} source={{ uri: bookCover }}></Image>
-                <TouchableOpacity style={styles.deleteButton} onPress={() => bookRemovedCallback(bookID)}>
-                    <Text style={styles.addButtonText}>-</Text>
-                </TouchableOpacity>
+    if(bookTitle && bookAuthor) {
+        return (
+            <View 
+                style={[
+                    styles.book_container, 
+                    { width: bookCoverWidth, height: bookCoverHeight }
+                ]}
+            >
+                <View style={[styles.imageOverlay, { width: bookCoverWidth, height: bookCoverHeight }]}>    
+                    <Image style={styles.book_cover} source={{ uri: bookCover }}></Image>
+                    <TouchableOpacity style={styles.deleteButton} onPress={() => bookRemovedCallback(bookID)}>
+                        <Text style={styles.addButtonText}>-</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
-        </View>
-    );
+        );
+    }
 }
 
 const styles = StyleSheet.create({
