@@ -5,6 +5,8 @@ import HomePageUI from "../screens/home/home-ui"
 import FaceDetector from '../test/face-detector';
 import LibraryPageCurrentReadingsUI from '../screens/library/library-current-readings-ui';
 import LibraryPageFinalizedReadingsUI from '../screens/library/library-finalized-reaginds-ui';
+import LibraryPageReadingTrackerUI from '../screens/library/library-reading-tracker-ui';
+import LibraryPageReadingTrackerEdit from '../screens/library/library-reading-tracker-edit';
 import Globals from '../_globals/Globals';
 
 const Stack = createNativeStackNavigator();
@@ -34,6 +36,8 @@ export default function Navigation() {
         <Stack.Screen name="Home" component={HomePageUI} />
         <Stack.Screen name="Library" component={LibraryPageCurrentReadingsUI} />
         <Stack.Screen name="Library2" component={LibraryPageFinalizedReadingsUI} />
+        <Stack.Screen name="Reading Tracker" component={LibraryPageReadingTrackerUI} />
+        <Stack.Screen name="Edit Reading Tracker" component={LibraryPageReadingTrackerEdit} initialParams={{ monthIndex: 0 }} />
         <Stack.Screen name="Test" component={FaceDetector} />
       </Stack.Navigator>
     </NavigationContainer>

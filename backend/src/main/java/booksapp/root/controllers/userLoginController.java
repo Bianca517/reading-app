@@ -15,11 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.api.client.json.Json;
-@CrossOrigin(origins = "http://192.168.1.236:8080")
+
+@CrossOrigin(origins = "http://localhost:8080")
 @RestController
 @RequestMapping
 public class userLoginController {
     private final userLoginService userLoginService;
+
     @Autowired // Inject the userService dependency
     public userLoginController(userLoginService userLoginService) {
         this.userLoginService = userLoginService;
@@ -32,21 +34,21 @@ public class userLoginController {
         int loginStatus = this.userLoginService.loginUserWithEmail(emailAddress, password);
         System.out.println("aici");
         System.out.println(emailAddress + " " + password);
-       
+
         JsonObject response = new JsonObject();
         switch (loginStatus) {
-            case GlobalConstants.EMAIL_DOES_NOT_EXIST :
+            case GlobalConstants.EMAIL_DOES_NOT_EXIST:
                 response.addProperty("message", "Cannot find user with given email!");
                 System.out.println("raspuns " + response);
                 return new ResponseEntity<String>(response.toString(), HttpStatus.NOT_FOUND);
-            case GlobalConstants.PASSWORDS_DO_NOT_MATCH :
+            case GlobalConstants.PASSWORDS_DO_NOT_MATCH:
                 response.addProperty("message", "Passwords do not match!");
                 System.out.println("raspuns " + response);
                 return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
-            default :
+            default:
                 response.addProperty("message", "User successfully logged in! :)");
                 System.out.println("raspuns " + response);
                 return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
-        }        
+        }
     }
 }

@@ -25,32 +25,31 @@ public class userRegisterController {
 
     @GetMapping("hello")
     public String hello() {
-      return userRegisterService.hello();
+        return userRegisterService.hello();
     }
 
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> registerUser(@RequestBody User user) {
         // Check if all required fields are present in the user object
-        if((user.getUserName() == null) || (user.getEmailAddress() == null) || (user.getPassword() == null)) {
+        if ((user.getUserName() == null) || (user.getEmailAddress() == null) || (user.getPassword() == null)) {
             return ResponseEntity.badRequest().body("Incomplete user data");
         }
 
         System.out.println("in controller");
         System.out.println(user);
-        
+
         int registerStatus = userRegisterService.saveUser(user);
         JsonObject response = new JsonObject();
-        
-        switch (registerStatus) 
-        {
+
+        switch (registerStatus) {
             case GlobalConstants.EMAIL_NOT_MEETING_CRITERIA_ERROR_CODE:
                 response.addProperty("message", "Email has wrong format!");
                 return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
-        
+
             case GlobalConstants.PASSWORD_NOT_MEETING_CRITERIA_ERROR_CODE:
                 response.addProperty("message", "Password does not meet criteria!");
                 return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
-            
+
             case GlobalConstants.EMAIL_ALREADY_USED_ERROR_CODE:
                 response.addProperty("message", "An account with this email already exists!");
                 return new ResponseEntity<String>(response.toString(), HttpStatus.IM_USED);

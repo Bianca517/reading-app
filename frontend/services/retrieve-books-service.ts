@@ -1,11 +1,11 @@
-const BACKEND_HTTPS: string = "http://192.168.1.236:8080"
+import Globals from "../UI/_globals/Globals"
 const GET_FINALIZED_READINGS_ENDPOINT: string = "/getusersfinalizedreadings"
 const GET_CURRENT_READINGS_ENDPOINT: string = "/getusercurrentreadings"
 
-export async function retrieve_finalized_readings() {
-    const HTTPS_REQUEST = BACKEND_HTTPS + GET_FINALIZED_READINGS_ENDPOINT
+export async function get_finalized_readings() {
+    const HTTPS_REQUEST = Globals.BACKEND_HTTP + GET_FINALIZED_READINGS_ENDPOINT
     var body = ""
-    console.log("in retrieve finalized readings");
+    //console.log("in retrieve finalized readings");
 
     var returnedFinalizedBooks = await fetch(HTTPS_REQUEST, {
         method: "GET",
@@ -16,24 +16,23 @@ export async function retrieve_finalized_readings() {
     })
         .then((response) => response.json())
         .then((responseData) => {
-            console.log("sosaj");
-            console.log(JSON.stringify(responseData));
+            //console.log("got it");
+            //console.log(JSON.stringify(responseData));
             responseData = JSON.stringify(responseData);
-            return { success: true, responseData};
+            return { success: true, responseData };
         })
         .catch(async (e) => {
             console.log("intra pe catch");
             console.log(e);
-            return { success: false, e};
+            return { success: false, e };
         });
     return returnedFinalizedBooks
 }
 
 
-export async function retrieve_current_readings() {
-    const HTTPS_REQUEST = BACKEND_HTTPS + GET_CURRENT_READINGS_ENDPOINT
+export async function get_current_readings() {
+    const HTTPS_REQUEST = Globals.BACKEND_HTTP + GET_CURRENT_READINGS_ENDPOINT
     var body = ""
-    console.log("in retrieve current readings");
 
     var returnedCurrentBooks = await fetch(HTTPS_REQUEST, {
         method: "GET",
@@ -44,15 +43,17 @@ export async function retrieve_current_readings() {
     })
         .then((response) => response.json())
         .then((responseData) => {
-            console.log("sosaj");
-            console.log(JSON.stringify(responseData));
+            //console.log("sosaj");
+            //console.log(JSON.stringify(responseData));
             responseData = JSON.stringify(responseData);
-            return { success: true, responseData};
+            return { success: true, responseData };
         })
         .catch(async (e) => {
             console.log("intra pe catch");
             console.log(e);
-            return { success: false, e};
+            return { success: false, e };
         });
     return returnedCurrentBooks
 }
+
+

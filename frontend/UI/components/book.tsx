@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Image, Text } from 'react-native';
 import Globals from '../_globals/Globals';
 
+
 type BookProps = {
     bookFields: string,
     bookCoverWidth: number,
@@ -13,19 +14,27 @@ export default function Book(props: BookProps) {
     let bookFieldsJSON = JSON.parse(props.bookFields);
     const bookTitle = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[0]];
     const bookAuthor = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[1]];
+    let bookCover = "";
 
-    var constructURIForBookCover = Globals.BOOK_COVER_URI_TEMPLATE.replace('NAME', bookTitle.toLowerCase());
-    constructURIForBookCover = constructURIForBookCover.replace('AUTHOR', bookAuthor.toLowerCase());
-    const bookCover = constructURIForBookCover;
+    if(bookAuthor && bookTitle) {
+        var constructURIForBookCover = Globals.BOOK_COVER_URI_TEMPLATE.replace('NAME', bookTitle.toLowerCase());
+        constructURIForBookCover = constructURIForBookCover.replace('AUTHOR', bookAuthor.toLowerCase());
+        bookCover = constructURIForBookCover;
+    
 
-    return (
-        <View style={[styles.book_container, { width: props.bookCoverWidth, height: props.bookCoverHeight }]}>
-            <Image style={styles.book_cover}
-                source={{ uri: bookCover }}></Image>
-            <Text style={styles.book_title}>{bookTitle}</Text>
-            <Text style={styles.book_author}>{bookAuthor}</Text>
-        </View>
-    );
+        return (
+            <View 
+                style={[
+                    styles.book_container, 
+                    { width: props.bookCoverWidth, height: props.bookCoverHeight }
+                ]}
+            >
+                <Image style={styles.book_cover} source={{ uri: bookCover }}></Image>
+                <Text style={styles.book_title}>{bookTitle}</Text>
+                <Text style={styles.book_author}>{bookAuthor}</Text>
+            </View>
+        );
+    }
 }
 
 const styles = StyleSheet.create({

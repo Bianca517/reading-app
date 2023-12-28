@@ -4,14 +4,14 @@ import Globals from '../../_globals/Globals';
 import Book from '../../components/book';
 import Footer from '../../components/footer';
 import LibraryPageNavigator from '../../components/library-navigator';
-import { retrieve_current_readings } from '../../../services/retrieve-books-service';
+import { get_current_readings } from '../../../services/retrieve-books-service';
 
 
 export default function LibraryPageCurrentReadingsUI() {
     const [currentReadingBooks, setCurrentReadingBooks] = useState([]);
 
     async function loadCurrentReadingBooks() {
-        const fetchResponse = await retrieve_current_readings().then();
+        const fetchResponse = await get_current_readings().then();
 
         if (fetchResponse.success) {
             setCurrentReadingBooks(JSON.parse(fetchResponse.responseData));
