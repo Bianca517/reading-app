@@ -5,8 +5,11 @@ import Footer from '../../components/footer';
 import Book from '../../components/book';
 import { get_finalized_readings, get_current_readings } from '../../../services/retrieve-books-service';
 import Globals from '../../_globals/Globals';
+import { useNavigation } from '@react-navigation/native';
 
 export default function HomePageUI() {
+    const navigation = useNavigation();
+
     const [popularBooks, setPopularBooks] = useState([]);
     const [currentReadingBooks, setCurrentReadingBooks] = useState([]);
 
@@ -28,6 +31,10 @@ export default function HomePageUI() {
 
     //this executes on page load
     useEffect(() => {
+        navigation.setOptions({
+            headerBackVisible: false
+        });
+    
         loadPopularBooks();
         loadCurrentReadingBooks();
     }, []);

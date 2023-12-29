@@ -101,7 +101,7 @@ function Section({ naviagtionButtonPressed }: { naviagtionButtonPressed: string 
         </View>
 
         <View style={styles.sign_in_button_part}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Submit Interests' as never)}>
             <View style={[styles.sign_in_button, { marginTop: 15 }]}>
               <Text style={styles.login_signup_signin_text}>Register Now</Text>
             </View>

@@ -7,6 +7,7 @@ import LibraryPageCurrentReadingsUI from '../screens/library/library-current-rea
 import LibraryPageFinalizedReadingsUI from '../screens/library/library-finalized-reaginds-ui';
 import LibraryPageReadingTrackerUI from '../screens/library/library-reading-tracker-ui';
 import LibraryPageReadingTrackerEdit from '../screens/library/library-reading-tracker-edit';
+import SubmitInterests from '../screens/submit_interests/interests';
 import Globals from '../_globals/Globals';
 
 const Stack = createNativeStackNavigator();
@@ -33,6 +34,7 @@ export default function Navigation() {
         initialRouteName="Login"
       >
         <Stack.Screen name="Login" component={LoginPageUI} />
+        <Stack.Screen name="Submit Interests" component={SubmitInterests} />
         <Stack.Screen name="Home" component={HomePageUI} />
         <Stack.Screen name="Library" component={LibraryPageCurrentReadingsUI} />
         <Stack.Screen name="Library2" component={LibraryPageFinalizedReadingsUI} />

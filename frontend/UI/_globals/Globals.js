@@ -3,6 +3,8 @@ export default {
         BACKGROUND_GRAY: '#2d2d2d',
         PURPLE: '#d807f2',
         FOR_YOU_SECTION: '#aa78cf',
+        CHECKBOX_CHECKED_GREEN: '#47af2c',
+        INTEREST_CONTAINER_BACKGROUND_LIGHT_PINK: '#db81f1',
     },
     LIBRARY_SECTIONS: {
         CURRENT_READINGS: 0,
@@ -30,4 +32,17 @@ export default {
     MONTH_CONTAINER_HEIGHT_IN_EDIT_READING_TRACKER: 350,
     BACKEND_HTTP: "http://192.168.1.135:8080",
     Y_INDEX_OF_BEGINNING_MONTH_CONTAINER: -190,
+    INTERESTS_LIST: [
+        "Fiction",
+        "Non-Fiction",
+        "Science Fiction",
+        "Romance",
+        "Comedy",
+        "Horror",
+        "Thriller",
+        "War",
+        "History",
+        "Music",
+        "Biography",
+    ]
 }
