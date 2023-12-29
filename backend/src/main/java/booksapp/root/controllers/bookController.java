@@ -2,8 +2,12 @@ package booksapp.root.controllers;
 
 import booksapp.root.services.booksService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.google.gson.JsonObject;
 
 import java.util.concurrent.ExecutionException;
 
@@ -37,4 +41,28 @@ public class bookController {
         this.booksService.addBooks();
         return "added books";
     }
+
+    @GetMapping(value = "/getbookchapters")
+    public int getBookChapters(@RequestParam String bookID) throws InterruptedException, ExecutionException {
+        System.out.println("inc ontroller");
+        int bookChapters = this.booksService.getBookChapters("GRav9LLWPj6ISCOGxfVZ");
+        return bookChapters;
+    }
+
+
+    @GetMapping(value = "/getbookchaptertitle")
+    public String getBookChapterTitle(@RequestParam String bookID, int chapterNumber) throws InterruptedException, ExecutionException {
+        System.out.println("inc ontroller");
+        String bookChapterTitle = this.booksService.getBookChapterTitle("GRav9LLWPj6ISCOGxfVZ", chapterNumber);
+        return bookChapterTitle;
+    }
+
+    @GetMapping(value = "/getbookchaptercontent")
+    public String getBookChapterContent(@RequestParam String bookID, int chapterNumber) throws InterruptedException, ExecutionException {
+        System.out.println("inc ontroller");
+        String bookChapterContent = this.booksService.getBookChapterContent("GRav9LLWPj6ISCOGxfVZ", chapterNumber);
+        return bookChapterContent;
+    }
+
+
 }
