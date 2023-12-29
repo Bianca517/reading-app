@@ -3,8 +3,8 @@ import { useState } from "react";
 import { StyleSheet, Text, View, ScrollView, SafeAreaView, TouchableOpacity} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Globals from "../../_globals/Globals";
-import Checkbox from 'expo-checkbox';
 import InterestContainer from "../../components/interest-container";
+import { save_user_interests } from "../../../services/save-user-interests-service";
 
 function SubmitInterests() {
   const navigation = useNavigation();
@@ -40,17 +40,25 @@ function SubmitInterests() {
             <View style={styles.rightLineThrough}></View>
         </View>
 
+        
         <View style={styles.contentContainer}>
-            {
-                Globals.INTERESTS_LIST.map((genre, index) => {
-                    return (
-                        <InterestContainer genreName={genre} onChosenInterest={onInterestChosen} onRemovedInterest={onRemovedInterest}/>
-                    );
-                })
-            }
+            <ScrollView style={styles.contentContainer}>
+                <View style={styles.gridInterestsContainer}>
+                    {
+                        Globals.INTERESTS_LIST.map((genre, index) => {
+                            return (
+                                <InterestContainer genreName={genre} onChosenInterest={onInterestChosen} onRemovedInterest={onRemovedInterest}/>
+                            );
+                        })
+                    }
+                </View>
+            </ScrollView>
         </View>
+        
 
-        <TouchableOpacity style={styles.submitButton} onPress={() => navigation.navigate('Home' as never)}>
+        <TouchableOpacity style={styles.submitButton} onPress={() => {
+            save_user_interests(chosenInterests);
+            navigation.navigate('Home' as never)}}>
             <Text style={styles.submitText}>Submit</Text>
         </TouchableOpacity>
     </SafeAreaView>
@@ -72,9 +80,14 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         flex: 10,
-        paddingHorizontal: 15,
+        paddingLeft: 15,
+        paddingBottom: 30,
+    },
+    gridInterestsContainer: {
+        flexDirection: 'row',
         flexWrap: 'wrap',
         paddingTop: 2,
+        alignItems: 'flex-start'
     },
     rightLineThrough: {
         flex: 4,
@@ -106,7 +119,7 @@ const styles = StyleSheet.create({
     },
     submitButton: {
         backgroundColor: '#cc00ff',
-        marginBottom: 7,
+        marginBottom: 10,
         width: 270,
         height: 50,
         borderRadius: 15,
@@ -118,7 +131,7 @@ const styles = StyleSheet.create({
         fontStyle: 'normal',
         fontWeight: 'bold',
         fontSize: 20,
-    }
+    },
 })
 
 export default SubmitInterests;

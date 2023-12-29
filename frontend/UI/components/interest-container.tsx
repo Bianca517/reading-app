@@ -35,8 +35,8 @@ function InterestContainer( {genreName, onChosenInterest, onRemovedInterest} : P
             <Text style={styles.genreName}>{genreName}</Text>
             <Checkbox
                 style={[styles.checkbox, { opacity: isChecked ? 1 : 0 }]}
-                value={!isChecked}
-                onValueChange={setIsChecked}
+                value={isChecked}
+                onValueChange={() => setIsChecked(!isChecked)}
                 color={isChecked ? Globals.COLORS.CHECKBOX_CHECKED_GREEN : undefined}
             />
         </View>
@@ -49,7 +49,7 @@ function InterestContainer( {genreName, onChosenInterest, onRemovedInterest} : P
 const styles = StyleSheet.create({
     genreContainer: {
         backgroundColor: Globals.COLORS.INTEREST_CONTAINER_BACKGROUND_LIGHT_PINK,
-        width: 170,
+        width: 150,
         height: 90,
         borderRadius: 20,
         flexDirection: 'row',
@@ -60,7 +60,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 8
     },
     checkbox: {
-        margin: 8,
+        backgroundColor: Globals.COLORS.CHECKBOX_CHECKED_GREEN,
+        marginRight: 15,
         borderRadius: 10,
         width: 25,
         height: 25,

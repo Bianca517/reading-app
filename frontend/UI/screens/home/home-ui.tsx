@@ -9,9 +9,6 @@ import { useNavigation } from '@react-navigation/native';
 
 export default function HomePageUI() {
     const navigation = useNavigation();
-    navigation.setOptions({
-        headerBackVisible: false
-    });
 
     const [popularBooks, setPopularBooks] = useState([]);
     const [currentReadingBooks, setCurrentReadingBooks] = useState([]);
@@ -34,6 +31,10 @@ export default function HomePageUI() {
 
     //this executes on page load
     useEffect(() => {
+        navigation.setOptions({
+            headerBackVisible: false
+        });
+    
         loadPopularBooks();
         loadCurrentReadingBooks();
     }, []);
