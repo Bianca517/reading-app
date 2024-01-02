@@ -12,7 +12,12 @@ export default {
         READING_TRACKER: 2,
     },
     BOOK_COVER_URI_TEMPLATE: 'https://firebasestorage.googleapis.com/v0/b/reading-app-d23dc.appspot.com/o/book_covers%2FNAME_AUTHOR.png?alt=media',
-    BOOK_COLLECTION_FIELDS: ["name", "authorUsername", "chapters", "cover", "readers", "genre", "id"],
+    BOOK_COLLECTION_FIELDS: ["name", "authorUsername", "chaptersContents", "cover", "readers", "genre", "id"],
+    BOOK_COLLECTION_FIELDS_NAME_INDEX: 0,
+    BOOK_COLLECTION_FIELDS_AUTHOR_USERNAME_INDEX: 1,
+    BOOK_COLLECTION_FIELDS_CHAPTERS_CONTENTS_INDEX: 2,
+    BOOK_COLLECTION_FIELDS_COVER_INDEX: 3,
+    BOOK_COLLECTION_FIELDS_READERS_INDEX: 4,
     BOOK_COLLECTION_FIELDS_ID_INDEX: 6,
     MONTHS_BACKGROUND_IMAGES: 'https://firebasestorage.googleapis.com/v0/b/reading-app-d23dc.appspot.com/o/reading_tracker_months_backgrounds%2FMONTH.jpg?alt=media&token=9ef99e38-7a1b-4236-a992-b9f5021a756b',
     MONTHS_LIST: [

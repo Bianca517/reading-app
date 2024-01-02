@@ -1,9 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ScrollView, Image, Dimensions, PanResponder } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ScrollView, Image, Dimensions, Button } from 'react-native';
 import Globals from '../../_globals/Globals';
 import { get_book_chapter_content } from '../../../services/book-reading-service';
+import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useNavigation } from '@react-navigation/native';
+import BottomSheetContent from '../../components/bottom-sheet-content';
 
 const windowHeight = Dimensions.get('window').height;
+const windowWidth = Dimensions.get('window').width;
 const bodyHeight = windowHeight * 60 / 100;
 
 export default function ReadingScreen( {route} ) {
@@ -11,6 +16,19 @@ export default function ReadingScreen( {route} ) {
     const [currentPage, setCurrentPage] = useState<number>(0);
     const bookID = route.params.bookID;
     const scrollViewRef = useRef<ScrollView>(null);
+    const sheetRef = useRef<BottomSheet>(null);
+    const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+    const snapPoints = ["45%"];
+    const navigation = useNavigation();
+    navigation.setOptions({
+        headerRight: () => (
+                <Button
+                  onPress={() => handleSnapPress(0)}
+                  title="Settings"
+                  color="gray"
+                />
+        ),
+    })
 
     useEffect(() => {
         loadBookChapterContent();
@@ -31,25 +49,43 @@ export default function ReadingScreen( {route} ) {
         }
     };
 
+    const handleSnapPress = useCallback((index: number) => {
+        sheetRef.current?.snapToIndex(index);
+        setIsBottomSheetOpen(true);
+    }, []);
 
     return (
-        <SafeAreaView style={styles.fullscreen_view}>
-            <View style={styles.header}>
-                <Text style={styles.chapter_number}>Chapter 10</Text>
-                <Text style={styles.chapter_title}>What a beautiful day</Text>
-            </View>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+            <SafeAreaView style={styles.fullscreen_view}>
+                <View style={styles.header}>
+                    <Text style={styles.chapter_number}>Chapter 10</Text>
+                    <Text style={styles.chapter_title}>What a beautiful day</Text>
+                </View>
 
-            <View style={styles.white_line}/>
+                <View style={styles.white_line}/>
 
-            <View style={styles.content_view}>
-                <ScrollView 
-                    style={styles.scrollview}
-                    pagingEnabled
-                    ref={scrollViewRef}>
-                    <Text style={styles.content_text}> {bookChapterContent} </Text>
-                </ScrollView>
-            </View>
-        </SafeAreaView>
+                <View style={styles.content_view}>
+                    <ScrollView 
+                        style={styles.scrollview}
+                        pagingEnabled
+                        ref={scrollViewRef}>
+                        <Text style={styles.content_text}> {bookChapterContent} </Text>
+                    </ScrollView>
+                </View>
+
+                <BottomSheet
+                    ref={sheetRef}
+                    snapPoints={snapPoints}
+                    enablePanDownToClose={true}
+                    onClose={() => setIsBottomSheetOpen(false)}
+                    style={{marginHorizontal: 10}}
+                >
+                    <BottomSheetView>
+                        <BottomSheetContent/>
+                    </BottomSheetView>
+                </BottomSheet>
+            </SafeAreaView>
+        </GestureHandlerRootView>
     )
 }
 
