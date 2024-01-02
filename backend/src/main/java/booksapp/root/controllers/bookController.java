@@ -1,5 +1,6 @@
 package booksapp.root.controllers;
 
+import booksapp.root.models.GlobalConstants;
 import booksapp.root.services.booksService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -7,8 +8,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
 @CrossOrigin(origins = "http://localhost:8080")
@@ -61,7 +64,10 @@ public class bookController {
     public String getBookChapterContent(@RequestParam String bookID, int chapterNumber) throws InterruptedException, ExecutionException {
         System.out.println("inc ontroller");
         String bookChapterContent = this.booksService.getBookChapterContent("GRav9LLWPj6ISCOGxfVZ", chapterNumber);
-        return bookChapterContent;
+        bookChapterContent = bookChapterContent.substring(1, bookChapterContent.length() - 1);
+        Gson gson = new Gson();
+        String gsonData = gson.toJson(bookChapterContent);
+        return gsonData;
     }
 
 

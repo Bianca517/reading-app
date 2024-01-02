@@ -16,6 +16,7 @@ export default function Book(props: BookProps) {
     let bookFieldsJSON = JSON.parse(props.bookFields);
     const bookTitle = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[0]];
     const bookAuthor = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[1]];
+    const bookID = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[Globals.BOOK_COLLECTION_FIELDS_ID_INDEX]];
     let bookCover = "";
 
     function handleLongPress() {
@@ -36,7 +37,7 @@ export default function Book(props: BookProps) {
                     ]}
                     onLongPress={() => setIsLongPressed(true)}
                     onPressOut={() => setIsLongPressed(false)}
-                    onPress={() => navigation.navigate("Reading Screen" as never)}
+                    onPress={() => navigation.navigate("Reading Screen", { 'bookID' : bookID})}
                 >
                 
                     <Image style={styles.book_cover} source={{ uri: bookCover }}></Image>
