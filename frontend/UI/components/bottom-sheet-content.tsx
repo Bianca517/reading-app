@@ -21,15 +21,34 @@ type props = {
     updateFontSize: (increaseFont: boolean) => void;
 }
 
+type FontStyles = {
+    [key: string]: {
+        fontFamily?: string;
+        // Add other style properties if needed
+    };
+};
+
+const fontStyles: FontStyles = {
+    'System': {},
+    'Arial': { fontFamily: 'Arial' },
+    'Georgia': { fontFamily: 'Georgia' },
+    'Times New Roman': { fontFamily: 'Times New Roman' },
+    'Verdana': { fontFamily: 'Verdana' },
+    'Courier New': { fontFamily: 'Courier New' },
+    'Helvetica': { fontFamily: 'Helvetica' },
+    'Palatino': { fontFamily: 'Palatino' },
+    'Garamond': { fontFamily: 'Garamond' },
+};
+
 export default function BottomSheetContent({updateFontSize} : props) {
     const [isEnabled, setIsEnabled] = useState(false);
     const toggleSwitch = () => setIsEnabled(previousState => !previousState);
     const [selectedBackgroundColor, setSelectedBackgroundColor] = useState(BackgroundColors.black);
-    const [selectedFont, setSelectedFont] = useState('Default Font');
+    const [selectedFont, setSelectedFont] = useState('System');
     const [isFontPickerVisible, setIsFontPickerVisible] = useState(false);
 
     const FontPicker = ({ visible, onSelect, onClose }: { visible: boolean; onSelect: (font: string) => void; onClose: () => void }) => {
-        const fonts = ['Default Font', 'Font 1', 'Font 2', 'Font 3', 'Font 4', 'Font 5']; // Add your font names here
+        const fonts = ['System', 'Arial', 'Georgia', 'Times New Roman', 'Verdana', 'Courier New', 'Helvetica', 'Palatino'];
     
         return (
             <Modal transparent animationType="slide" visible={visible} onRequestClose={onClose}>
@@ -114,7 +133,7 @@ export default function BottomSheetContent({updateFontSize} : props) {
 
             <View style={styles.font_family_container}>
                 <TouchableOpacity style={styles.font_family_view} onPress={() => setIsFontPickerVisible(true)}>
-                        <Text style={styles.font_family_text}>{selectedFont}</Text>
+                        <Text style={[styles.font_family_text, {fontFamily: selectedFont}]}>{selectedFont}</Text>
                 </TouchableOpacity>
                 <FontPicker
                     visible={isFontPickerVisible}
