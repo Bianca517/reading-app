@@ -53,8 +53,8 @@ public class booksService {
             if (documentsList.get(i) != null) {
                 String bookID = documentsList.get(i).getId();
                 ArrayList<String> bookFields = new ArrayList<String>();
-                bookFields.add(documentsList.get(i).get(GlobalConstants.BOOK_COLLECTION_FIELDS[0]).toString());
-                bookFields.add(documentsList.get(i).get(GlobalConstants.BOOK_COLLECTION_FIELDS[1]).toString());
+                bookFields.add(documentsList.get(i).get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_TITLE_INDEX]).toString());
+                bookFields.add(documentsList.get(i).get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_AUTHOR_INDEX]).toString());
                 resultedBooks.put(bookID, bookFields);
             }
         }

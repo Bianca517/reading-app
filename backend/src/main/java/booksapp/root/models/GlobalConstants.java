@@ -12,6 +12,8 @@ public class GlobalConstants {
                         "cover",
                         "readers",
                         "genre" };
+        public final static int BOOK_TITLE_INDEX = 1;
+        public final static int BOOK_AUTHOR_INDEX = 2;
         public final static int CHAPTER_TITLE_INDEX = 3;
         public final static int CHAPTER_CONTENT_INDEX = 4;
         public final static int NUMBER_OF_CHAPTERS_INDEX = 5;
