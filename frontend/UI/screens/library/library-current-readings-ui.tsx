@@ -36,7 +36,7 @@ export default function LibraryPageCurrentReadingsUI() {
                 {
                     /*Warning: Each child in a list should have a unique "key" prop.*/
                     currentReadingBooks.map((book, index) => (
-                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={100} bookCoverHeight={180} />
+                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={100} bookCoverHeight={180} bookWithDetails={true}/>
                     ))
                 }
             </View>
