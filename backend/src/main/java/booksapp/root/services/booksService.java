@@ -154,10 +154,10 @@ public class booksService {
     public String getBookChapterTitle(String bookID, int chapterNumber) throws InterruptedException, ExecutionException {
         Map<String, Object> bookData = getBookByID(bookID);
         Object chapterTitles = bookData.get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.CHAPTER_TITLE_INDEX]);
-        List<Object> chapterTitlesList = List.of(chapterTitles);
-        System.out.println(chapterTitlesList.get(chapterNumber));
-        String chapterTitle = chapterTitlesList.get(chapterNumber).toString();
-        return chapterTitle;
+        
+        String chapterTitlesString = chapterTitles.toString();
+        String[] chapterTitlesArray = chapterTitlesString.substring(1, chapterTitlesString.length() - 1).split(", ");
+        return chapterTitlesArray[chapterNumber];
     }
 
     public String getBookChapterContent(String bookID, int chapterNumber) throws InterruptedException, ExecutionException {

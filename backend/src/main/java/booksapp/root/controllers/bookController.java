@@ -57,7 +57,9 @@ public class bookController {
     public String getBookChapterTitle(@RequestParam String bookID, int chapterNumber) throws InterruptedException, ExecutionException {
         System.out.println("inc ontroller");
         String bookChapterTitle = this.booksService.getBookChapterTitle("GRav9LLWPj6ISCOGxfVZ", chapterNumber);
-        return bookChapterTitle;
+        Gson gson = new Gson();
+        String gsonData = gson.toJson(bookChapterTitle);
+        return gsonData;
     }
 
     @GetMapping(value = "/getbookchaptercontent")

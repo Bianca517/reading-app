@@ -6,6 +6,7 @@ import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import BottomSheetContent from '../../components/bottom-sheet-content';
+import { AntDesign } from '@expo/vector-icons'; 
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -57,6 +58,16 @@ export default function ReadingScreen( {route} ) {
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             <SafeAreaView style={styles.fullscreen_view}>
+                <View style={styles.table_of_contents_preview}>
+                    <Text style={styles.table_of_contents_text}>Table of Contents</Text>
+                  
+                    <TouchableOpacity style={styles.right_side_of_table_of_contents_preview} onPress={() => navigation.navigate("Table of Contents", {'bookID' : bookID})}>
+                        <Text style={styles.table_of_contents_text}> 41</Text>
+                        <AntDesign name="down" size={20} color="white" />
+                    </TouchableOpacity>
+                   
+                </View>
+
                 <View style={styles.header}>
                     <Text style={styles.chapter_number}>Chapter 10</Text>
                     <Text style={styles.chapter_title}>What a beautiful day</Text>
@@ -94,6 +105,24 @@ const styles = StyleSheet.create({
         backgroundColor: Globals.COLORS.BACKGROUND_GRAY,
         flex: 1,
         flexDirection: 'column',
+    },
+    table_of_contents_preview: {
+        flex: 0.5,
+        backgroundColor: 'black',
+        flexDirection: 'row',
+        paddingHorizontal: 50,
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    right_side_of_table_of_contents_preview: {
+        flexDirection: 'row'
+    },
+    table_of_contents_text: {
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 15,
+        textAlign: 'justify',
+        lineHeight: 20,
     },
     header: {
         //backgroundColor: 'purple',
