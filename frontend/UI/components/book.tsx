@@ -37,7 +37,7 @@ export default function Book(props: BookProps) {
                     ]}
                     onLongPress={() => setIsLongPressed(true)}
                     onPressOut={() => setIsLongPressed(false)}
-                    onPress={() => navigation.navigate("Reading Screen", { 'bookID' : bookID})}
+                    onPress={() => navigation.navigate("Reading Screen", { "bookID" : bookID, "chapterNumber" : 1})}
                 >
                 
                     <Image style={styles.book_cover} source={{ uri: bookCover }}></Image>

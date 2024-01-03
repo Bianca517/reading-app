@@ -1,24 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { StyleSheet, Text, View, Switch, Modal, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Switch, Modal, ScrollView} from 'react-native'; 
 import Globals from '../_globals/Globals';
+import { FontPicker } from './font-picker';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { TouchableOpacity } from '@gorhom/bottom-sheet';
 
-enum BackgroundColors {
-    white,
-    black,
-    yellow
-}
 
-const BackgroundColorCodes = [
-    '#FFFFFF',
-    '#000000',
-    '#FFFFCC'
-]
+const backgroundColors: { [key: string]: string } = {
+    [Globals.BACKGROUND_COLOR_0]: Globals.COLORS.BACKGROUND_WHITE,
+    [Globals.BACKGROUND_COLOR_1]: Globals.COLORS.BACKGROUND_GRAY,
+    [Globals.BACKGROUND_COLOR_2]: Globals.COLORS.BACKGROUND_YELLOW,
+};
 
 type props = {
+    updateFontFamily: (fontFamily: string) => void;
     updateFontSize: (increaseFont: boolean) => void;
+    updateBackgroundColor: (backgroundColor: string) => void;
+    updateGestureScroll: (isEnabled: boolean) => void;
 }
 
 type FontStyles = {
@@ -40,38 +39,27 @@ const fontStyles: FontStyles = {
     'Garamond': { fontFamily: 'Garamond' },
 };
 
-export default function BottomSheetContent({updateFontSize} : props) {
-    const [isEnabled, setIsEnabled] = useState(false);
-    const toggleSwitch = () => setIsEnabled(previousState => !previousState);
-    const [selectedBackgroundColor, setSelectedBackgroundColor] = useState(BackgroundColors.black);
+export default function BottomSheetContent( {updateFontFamily, updateFontSize, updateBackgroundColor, updateGestureScroll} : props) {
+    const toggleSwitch = () => setIsGestureScrollingActive(previousState => !previousState);
+
+    const [selectedBackgroundColor, setSelectedBackgroundColor] = useState<string>(backgroundColors[1]);
     const [selectedFont, setSelectedFont] = useState('System');
+    const [isGestureScrollingActive, setIsGestureScrollingActive] = useState<boolean>(false);
+
     const [isFontPickerVisible, setIsFontPickerVisible] = useState(false);
 
-    const FontPicker = ({ visible, onSelect, onClose }: { visible: boolean; onSelect: (font: string) => void; onClose: () => void }) => {
-        const fonts = ['System', 'Arial', 'Georgia', 'Times New Roman', 'Verdana', 'Courier New', 'Helvetica', 'Palatino'];
-    
-        return (
-            <Modal transparent animationType="slide" visible={visible} onRequestClose={onClose}>
-                <View style={styles.modalContainer}>
-                    <ScrollView style={styles.fontList}>
-                        {fonts.map((font, index) => (
-                            <TouchableHighlight
-                                key={index}
-                                style={styles.fontItem}
-                                underlayColor={Globals.COLORS.BACKGROUND_GRAY}
-                                onPress={() => {
-                                    onSelect(font);
-                                    onClose();
-                                }}
-                            >
-                                <Text style={styles.fontText}>{font}</Text>
-                            </TouchableHighlight>
-                        ))}
-                    </ScrollView>
-                </View>
-            </Modal>
-        );
-    };
+    useEffect(() => {
+        updateGestureScroll(isGestureScrollingActive);
+    }), [isGestureScrollingActive];
+
+    useEffect(() => {
+        updateFontFamily(selectedFont);
+    }), [selectedFont];
+
+    useEffect(() => {
+        updateBackgroundColor(selectedBackgroundColor);
+    }), [selectedBackgroundColor];
+   
     
     return (
         <View style={styles.container}> 
@@ -82,7 +70,7 @@ export default function BottomSheetContent({updateFontSize} : props) {
                     thumbColor={'white'}
                     ios_backgroundColor="#3e3e3e"
                     onValueChange={toggleSwitch}
-                    value={isEnabled}
+                    value={isGestureScrollingActive}
                  />
             </View>
 
@@ -93,20 +81,20 @@ export default function BottomSheetContent({updateFontSize} : props) {
                     <TouchableHighlight
                             activeOpacity={0.6}
                             underlayColor="#DDDDDD"
-                            style={[styles.background_color, { backgroundColor: BackgroundColorCodes[0], borderColor: selectedBackgroundColor === BackgroundColors.white ? Globals.COLORS.PURPLE : Globals.COLORS.BACKGROUND_GRAY }]}
-                            onPress={() => setSelectedBackgroundColor(BackgroundColors.white)}
+                            style={[styles.background_color, { backgroundColor: backgroundColors[Globals.BACKGROUND_COLOR_0], borderColor: selectedBackgroundColor === backgroundColors[Globals.BACKGROUND_COLOR_0] ? Globals.COLORS.PURPLE : Globals.COLORS.BACKGROUND_GRAY }]}
+                            onPress={() => setSelectedBackgroundColor(backgroundColors[Globals.BACKGROUND_COLOR_0])}
                     ></TouchableHighlight>
 
                     <TouchableHighlight
-                        style={[styles.background_color, { backgroundColor: BackgroundColorCodes[1], borderColor: selectedBackgroundColor === BackgroundColors.black ? Globals.COLORS.PURPLE : Globals.COLORS.BACKGROUND_GRAY }]}
-                        onPress={() => setSelectedBackgroundColor(BackgroundColors.black)}
+                        style={[styles.background_color, { backgroundColor: backgroundColors[Globals.BACKGROUND_COLOR_1], borderColor: selectedBackgroundColor ===  backgroundColors[Globals.BACKGROUND_COLOR_1] ? Globals.COLORS.PURPLE : Globals.COLORS.BACKGROUND_GRAY }]}
+                        onPress={() => setSelectedBackgroundColor(backgroundColors[Globals.BACKGROUND_COLOR_1])}
                     ></TouchableHighlight>
 
                     <TouchableHighlight
                         activeOpacity={0.6}
                         underlayColor="#DDDDDD"
-                        style={[styles.background_color, { backgroundColor: BackgroundColorCodes[2], borderColor: selectedBackgroundColor === BackgroundColors.yellow ? Globals.COLORS.PURPLE : Globals.COLORS.BACKGROUND_GRAY }]}
-                        onPress={() => setSelectedBackgroundColor(BackgroundColors.yellow)}
+                        style={[styles.background_color, { backgroundColor: backgroundColors[Globals.BACKGROUND_COLOR_2], borderColor: selectedBackgroundColor ===  backgroundColors[Globals.BACKGROUND_COLOR_2] ? Globals.COLORS.PURPLE : Globals.COLORS.BACKGROUND_GRAY }]}
+                        onPress={() => setSelectedBackgroundColor(backgroundColors[Globals.BACKGROUND_COLOR_2])}
                     ></TouchableHighlight>
                 </View>
 
@@ -117,14 +105,14 @@ export default function BottomSheetContent({updateFontSize} : props) {
                 <View style={styles.font_sizes_container}>
                     <TouchableOpacity
                         style={styles.font_size_button}
-                        //onPress={() => updateFontSize(false)}
+                        onPress={() => updateFontSize(false)}
                     >
                         <Text style={styles.font_size_text}> Aa- </Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
                         style={styles.font_size_button}
-                        //onPress={() => updateFontSize(true)}
+                        onPress={() => updateFontSize(true)}
                     >
                         <Text style={styles.font_size_text}> Aa+ </Text>
                     </TouchableOpacity>

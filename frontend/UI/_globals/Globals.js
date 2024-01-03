@@ -1,6 +1,8 @@
 export default {
     COLORS: {
         BACKGROUND_GRAY: '#2d2d2d',
+        BACKGROUND_WHITE: '#FFFFFF',
+        BACKGROUND_YELLOW: '#FFFFCC',
         PURPLE: '#d807f2',
         FOR_YOU_SECTION: '#aa78cf',
         CHECKBOX_CHECKED_GREEN: '#47af2c',
@@ -50,5 +52,15 @@ export default {
         "History",
         "Music",
         "Biography",
-    ]
+    ],
+    DEFAULT_FONT_FAMILY: 'System',
+    DEFAULT_FONT_SIZE: 15,
+    MIN_FONT_SIZE: 12,
+    MAX_FONT_SIZE: 23,
+    BACKGROUND_COLOR_0: 'white',
+    FONT_COLOR_0: 'black',
+    BACKGROUND_COLOR_1: 'black',
+    FONT_COLOR_1: 'white',
+    BACKGROUND_COLOR_2: 'yellow',
+    FONT_COLOR_2: "#333333",
 }
