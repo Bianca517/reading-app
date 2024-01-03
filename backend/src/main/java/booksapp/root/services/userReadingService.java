@@ -87,16 +87,15 @@ public class userReadingService {
             Map<String, Object> bookfields = localBookService.getBookByID(bookID);
             // retrieve only relevant fields: book name, author, cover
             String bookName = bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[1]).toString();
-            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[1], bookName);
+            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_TITLE_INDEX], bookName);
 
             String author = bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[2]).toString();
-            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[2], author);
+            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_AUTHOR_INDEX], author);
 
-            String coverRefference = bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[4]).toString();
-            coverRefference = new booksService(DB).makeCompleteRefferenceToBook(bookName, author,
-                    coverRefference);
+            //String coverRefference = bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[4]).toString();
+            //coverRefference = new booksService(DB).makeCompleteRefferenceToBook(bookName, author, coverRefference);
             // coverRefference = getDownloadURL(coverRefference);
-            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[4], coverRefference);
+            //book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[4], coverRefference);
 
             booksToReturn.add(book);
         }

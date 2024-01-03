@@ -8,6 +8,8 @@ import LibraryPageFinalizedReadingsUI from '../screens/library/library-finalized
 import LibraryPageReadingTrackerUI from '../screens/library/library-reading-tracker-ui';
 import LibraryPageReadingTrackerEdit from '../screens/library/library-reading-tracker-edit';
 import SubmitInterests from '../screens/submit_interests/interests';
+import ReadingScreen from '../screens/reading-screen/reading-ui';
+import TableOfContentsScreen from '../screens/reading-screen/table-of-contents';
 import Globals from '../_globals/Globals';
 
 const Stack = createNativeStackNavigator();
@@ -40,6 +42,8 @@ export default function Navigation() {
         <Stack.Screen name="Library2" component={LibraryPageFinalizedReadingsUI} />
         <Stack.Screen name="Reading Tracker" component={LibraryPageReadingTrackerUI} />
         <Stack.Screen name="Edit Reading Tracker" component={LibraryPageReadingTrackerEdit} initialParams={{ monthIndex: 0 }} />
+        <Stack.Screen name="Reading Screen" component={ReadingScreen} />
+        <Stack.Screen name="Table of Contents" component={TableOfContentsScreen} />
         <Stack.Screen name="Test" component={FaceDetector} />
       </Stack.Navigator>
     </NavigationContainer>

@@ -53,8 +53,8 @@ public class booksService {
             if (documentsList.get(i) != null) {
                 String bookID = documentsList.get(i).getId();
                 ArrayList<String> bookFields = new ArrayList<String>();
-                bookFields.add(documentsList.get(i).get(GlobalConstants.BOOK_COLLECTION_FIELDS[0]).toString());
-                bookFields.add(documentsList.get(i).get(GlobalConstants.BOOK_COLLECTION_FIELDS[1]).toString());
+                bookFields.add(documentsList.get(i).get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_TITLE_INDEX]).toString());
+                bookFields.add(documentsList.get(i).get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_AUTHOR_INDEX]).toString());
                 resultedBooks.put(bookID, bookFields);
             }
         }
@@ -142,5 +142,30 @@ public class booksService {
     public String makeCompleteRefferenceToBook(String bookName, String authorUsername, String refference) {
         return refference + GlobalConstants.FIREBASE_STORAGE_COVERS_FOLDER + "/" + bookName.toLowerCase() + "_"
                 + authorUsername.toLowerCase() + ".png";
+    }
+
+    public int getBookChapters(String bookID) throws InterruptedException, ExecutionException {
+        Map<String, Object> bookData = getBookByID(bookID);
+        System.out.println(bookData.get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.NUMBER_OF_CHAPTERS_INDEX]));
+        int numberOfChapers = Integer.parseInt(bookData.get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.NUMBER_OF_CHAPTERS_INDEX]).toString());
+        return numberOfChapers;
+    }
+
+    public String getBookChapterTitle(String bookID, int chapterNumber) throws InterruptedException, ExecutionException {
+        Map<String, Object> bookData = getBookByID(bookID);
+        Object chapterTitles = bookData.get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.CHAPTER_TITLE_INDEX]);
+        
+        String chapterTitlesString = chapterTitles.toString();
+        String[] chapterTitlesArray = chapterTitlesString.substring(1, chapterTitlesString.length() - 1).split(", ");
+        return chapterTitlesArray[chapterNumber];
+    }
+
+    public String getBookChapterContent(String bookID, int chapterNumber) throws InterruptedException, ExecutionException {
+        Map<String, Object> bookData = getBookByID(bookID);
+        Object chapterContents = bookData.get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.CHAPTER_CONTENT_INDEX]);
+        List<Object> chapterContentsList = List.of(chapterContents);
+        System.out.println(chapterContentsList.get(chapterNumber));
+        String chapterContent = chapterContentsList.get(chapterNumber).toString();
+        return chapterContent;
     }
 }

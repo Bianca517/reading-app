@@ -36,7 +36,7 @@ export default function LibraryPageCurrentReadingsUI() {
                 {
                     /*Warning: Each child in a list should have a unique "key" prop.*/
                     currentReadingBooks.map((book, index) => (
-                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={180} />
+                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={100} bookCoverHeight={180} bookWithDetails={true}/>
                     ))
                 }
             </View>
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
         flex: 6,
         flexDirection: 'row',
         flexWrap: 'wrap',
-        justifyContent: 'flex-start', // Align rows to the start
+        justifyContent: 'center', // Align rows to the start
         alignItems: 'flex-start', // Align items to the start within each row
         columnGap: -3,
         rowGap: 20,
