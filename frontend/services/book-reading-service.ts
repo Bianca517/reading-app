@@ -46,7 +46,7 @@ export async function get_book_chapter_content(bookID: string, chapterNumber: nu
     })
         .then((response) => response.json())
         .then((responseData) => {
-            console.log("got it");
+            //console.log("got it");
             responseData = JSON.stringify(responseData);
             return { success: true, responseData };
         })
@@ -73,9 +73,9 @@ export async function get_book_chapter_title(bookID: string, chapterNumber: numb
     })
         .then((response) => response.json())
         .then((responseData) => {
-            console.log("TITLE");
+            //console.log("TITLE");
             responseData = JSON.stringify(responseData);
-            console.log(responseData);
+            //console.log(responseData);
             return { success: true, message: responseData };
         })
         .catch(async (e) => {

@@ -7,6 +7,7 @@ import { get_finalized_readings, get_current_readings } from '../../../services/
 import Globals from '../../_globals/Globals';
 import { useNavigation } from '@react-navigation/native';
 
+
 export default function HomePageUI() {
     const navigation = useNavigation();
 
