@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ScrollView, Image, Dimensions, Button } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ScrollView, Image, Dimensions, Button, FlatList } from 'react-native';
 import Globals from '../../_globals/Globals';
 import { get_book_chapter_content, get_book_chapter_title } from '../../../services/book-reading-service';
-import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import BottomSheet, { BottomSheetView, SCREEN_WIDTH } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import BottomSheetContent from '../../components/bottom-sheet-content';
 import { AntDesign } from '@expo/vector-icons'; 
+import TextDistributer from '../../components/page-distribution-calculator';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -16,6 +17,18 @@ type ResponseType = {
     success: boolean;
     message: any;
 };
+
+type textParagraph = {
+    id: string;
+    content: string;
+}
+
+let textToDisplay: textParagraph[] = 
+[ {'id': '0', 'content': "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum"},
+   {'id': '1', 'content': "Lorem Ipsum is simply dummy text of the p Lorem Ipsum"},
+   {'id': '2', 'content': "Lorem Ipsum is simply dummy text of  Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum"},
+]
+
 export default function ReadingScreen( {route} ) {
     //route params
     const bookID = route.params.bookID;
@@ -33,9 +46,12 @@ export default function ReadingScreen( {route} ) {
     const [bookChapterContent, setBookChapterContent] = useState<string>("");
     const [bookChapterTitle, setBookChapterTitle] = useState<string>("");
     const [currentPage, setCurrentPage] = useState<number>(0);
-    const scrollViewRef = useRef<ScrollView>(null);
+    const [totalPageNumbers, setTotalPageNumbers] = useState<number>(0);
+    const flatlistRef = useRef<FlatList<string>>(null);
     const sheetRef = useRef<BottomSheet>(null);
     const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+    const [paragraphsInPages, setParagraphsInPages] = useState<textParagraph[][]>([]);
+    const [textInPages, setTextInPages] = useState<string[]>([]);
 
     const snapPoints = ["45%"];
 
@@ -55,7 +71,40 @@ export default function ReadingScreen( {route} ) {
         loadBookChapterTitle();
     }, [bookID, chapterNumber]);
 
+    useEffect(() => {
+        const distributedParagraphs: textParagraph[][] = TextDistributer(textToDisplay, bodyHeight, windowWidth, fontSize);
+        setParagraphsInPages(distributedParagraphs);
+    }, [fontSize]);
+
+    useEffect(() => {
+        //console.log("paragraphs in page", paragraphsInPages);
+        updateTextInPages(paragraphsInPages);
+        setTotalPageNumbers(paragraphsInPages.length);
+    }, [paragraphsInPages]);
+
+    useEffect(() => {
+        //console.log("text in page", textInPages);
+    }, [textInPages]);
+
+    useEffect(() => {
+        console.log("current page", currentPage);
+    }, [currentPage])
     
+    function updateTextInPages(paragraphsInPages: textParagraph[][]) {
+        let pagesText: string[] = [];
+        let currentPageNumber: number = 0;
+        paragraphsInPages.forEach((arrayOfParagraphInPage: textParagraph[]) => {
+            arrayOfParagraphInPage.forEach((paragraph: textParagraph) => {
+                if(!pagesText[currentPageNumber]) {
+                    pagesText[currentPageNumber] = "";
+                }
+                pagesText[currentPageNumber] += paragraph.content;
+            });
+            currentPageNumber++;
+        });
+        setTextInPages(pagesText);
+    }
+
     async function loadBookChapterTitle() : Promise<void> {
         const fetchResponse: ResponseType = await get_book_chapter_title(bookID, chapterNumber).then();
 
@@ -84,7 +133,7 @@ export default function ReadingScreen( {route} ) {
         } else if(Globals.MIN_FONT_SIZE < fontSize){
             setFontSize(fontSize - 1);
         }
-        console.log("fontsize: " + fontSize);
+        //console.log("fontsize: " + fontSize);
     }
 
     function updateBackgroundColor (backgroundColor: string): void{
@@ -107,17 +156,34 @@ export default function ReadingScreen( {route} ) {
         setIsGestureScrollingActive(isEnabled);
     }
 
-    function handlePageScroll() : void {
-        if (scrollViewRef.current) {
-            scrollViewRef.current.scrollTo({ x: currentPage * bodyHeight, animated: true });
-        }
-    };
-
     const handleSnapPress = useCallback((index: number) => {
         sheetRef.current?.snapToIndex(index);
         setIsBottomSheetOpen(true);
     }, []);
 
+    function flatListScrollToNext() {
+        if(currentPage < totalPageNumbers - 1) {
+            flatlistRef.current?.scrollToIndex({
+                index: currentPage + 1,
+            });
+            setCurrentPage(currentPage+1);
+        }
+    }
+
+    function flatListScrollToPrevious() {
+        if(currentPage > 0) {
+            flatlistRef.current?.scrollToIndex({
+                index: currentPage - 1,
+            });
+            setCurrentPage(currentPage-1);
+        }
+    }
+
+    const onViewableItemsChanged = useCallback(({ viewableItems, changed }) => {
+        const currentPage: number = viewableItems[0]["index"];
+        setCurrentPage(currentPage);
+    }, []);
+    
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             <SafeAreaView style={styles.fullscreen_view}>
@@ -131,22 +197,37 @@ export default function ReadingScreen( {route} ) {
                    
                 </View>
 
-                <View style={styles.body}>                
-                    <ScrollView 
-                            style={[styles.scrollview, {backgroundColor: selectedBackgroundColor}]}
-                            pagingEnabled
-                            ref={scrollViewRef}>
-                        <View style={[styles.header, {backgroundColor: selectedBackgroundColor}]}>                    
-                            <Text style={[styles.chapter_number, {fontFamily: selectedFont, color: fontColor}]}>Chapter {chapterNumberToDisplay}</Text>
-                            <Text style={[styles.chapter_title, {fontFamily: selectedFont, color: fontColor}]}>{ bookChapterTitle }</Text>
-                        </View>
 
-                        <View style={[styles.white_line, {backgroundColor: fontColor}]}/>
+                <View style={styles.body}>
+                    <View style={[styles.header, {backgroundColor: selectedBackgroundColor}]}>                    
+                        <Text style={[styles.chapter_number, {fontFamily: selectedFont, color: fontColor}]}>Chapter {chapterNumberToDisplay}</Text>
+                        <Text style={[styles.chapter_title, {fontFamily: selectedFont, color: fontColor}]}>{ bookChapterTitle }</Text>
+                    </View>
 
-                        <View style={[styles.content_view, {backgroundColor: selectedBackgroundColor}]}>
-                                <Text style={[styles.content_text, {fontFamily: selectedFont, fontSize: fontSize, color: fontColor}]}> {bookChapterContent} </Text>
-                        </View>
-                    </ScrollView>
+                    <View style={[styles.white_line, {backgroundColor: fontColor}]}/>
+
+                    <View style = {styles.text_container}>
+
+                    <FlatList
+                        ref={flatlistRef}
+                        data={textInPages}
+                        horizontal={true}  
+                        showsHorizontalScrollIndicator={false} 
+                        keyExtractor={(item, index) => index.toString()}
+                        disableIntervalMomentum
+                        pagingEnabled={true}
+                        decelerationRate={'fast'}
+                        onViewableItemsChanged={onViewableItemsChanged}
+                        renderItem={({ item }) => (
+                            <View style={[styles.content_view, { backgroundColor: selectedBackgroundColor }]}>
+                                <Text style={[styles.content_text, { fontFamily: selectedFont, fontSize: fontSize, color: fontColor }]}>
+                                    {item}
+                                </Text>
+                            </View>
+                        )}
+                    />
+
+                    </View>
                 </View>
 
                 <BottomSheet
@@ -208,8 +289,9 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        paddingTop: 10,
-        paddingBottom: 100,
+        //paddingTop: 10,
+        //paddingBottom: 100,
+        width: windowWidth,
         paddingHorizontal: 25,
     },
     chapter_number: {
@@ -230,12 +312,17 @@ const styles = StyleSheet.create({
         lineHeight: 20,
     },
     scrollview: {
-        paddingTop: 20,
         marginBottom: 20,
-        paddingBottom: 50
+        //paddingBottom: 50,
+        width: windowWidth,
     },
     body: {
         flex: 13,
-    }
+        widht: windowWidth,
+    },
+    text_container: {
+        height: 550,
+        width: windowWidth,
+    },
 });
 
