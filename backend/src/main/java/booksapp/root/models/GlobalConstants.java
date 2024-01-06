@@ -19,8 +19,18 @@ public class GlobalConstants {
         public final static int CHAPTER_CONTENT_INDEX = 4;
         public final static int NUMBER_OF_CHAPTERS_INDEX = 5;
         public final static int BOOK_DESCRIPTION_INDEX = 9;
+
         public final static String[] USERS_COLLECTION_FIELDS = { "userName", "password", "salt", "emailAddress",
                         "interests", "currentReadings", "finalizedReadings", "plannedBooks" };
+        public final static int USER_NAME_INDEX = 0;
+        public final static int USER_PASSWORD_INDEX = 1;
+        public final static int USER_SALT_INDEX = 2;
+        public final static int USER_EMAIL_INDEX = 3;
+        public final static int USER_INTERESTS_INDEX = 4;
+        public final static int USER_CURRENT_READINGS_INDEX = 5;
+        public final static int USER_FINALIZED_READINGS_INDEX = 6;
+        public final static int USER_PLANNED_READINGS_INDEX = 7;
+        
         public final static String FIREBASE_STORAGE_COVERS_FOLDER = "book_covers";
         public final static int EMAIL_ALREADY_USED_ERROR_CODE = 3;
         public final static int PASSWORD_NOT_MEETING_CRITERIA_ERROR_CODE = 2;

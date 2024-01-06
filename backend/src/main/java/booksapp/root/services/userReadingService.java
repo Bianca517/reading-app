@@ -178,4 +178,10 @@ public class userReadingService {
         return 0;
     }   
 
+    public int addBookToLibrary(String userID, String bookID) throws InterruptedException, ExecutionException {
+        DocumentReference userDocument = userCollectionDB.document(userID);
+        userDocument.update(GlobalConstants.USERS_COLLECTION_FIELDS[GlobalConstants.USER_CURRENT_READINGS_INDEX], FieldValue.arrayUnion(bookID));
+        return 0;
+    }
+
 }

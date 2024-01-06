@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ScrollView, Image, Dimensions, TouchableHighlight } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ScrollView, Image, Dimensions, TouchableHighlight, Alert } from 'react-native';
 import Globals from '../../_globals/Globals';
 import { AntDesign } from '@expo/vector-icons'; 
 import { useNavigation } from '@react-navigation/native';
-import { get_book_description } from '../../../services/book-reading-service';
+import { get_book_description, add_book_to_library } from '../../../services/book-reading-service';
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -27,16 +27,28 @@ export default function BookDescriptionView({route}) {
     const [bookDescription, setBookDescription] = useState<string>("");
     const navigation = useNavigation();
 
-    console.log("route", route);
     console.log("bookID", bookID);
+
     async function loadBookDescription() {
         const fetchResponse: ResponseType = await get_book_description(bookID).then();
 
         if (fetchResponse.success) {
             const receivedBookDescription: string = JSON.parse(fetchResponse.message);
-            console.log("received book description: " + receivedBookDescription);
             setBookDescription(receivedBookDescription);
         }
+    }
+
+    async function addBookToLibrary() {
+        const fetchResponse: ResponseType = await add_book_to_library(bookID).then();
+
+        if(fetchResponse.success) {
+            Alert.alert("Successfully added book to library!");
+        }
+    }
+
+    function handleAddToLibraryButtonPress() {
+        addBookToLibrary();
+        navigation.navigate("Library");
     }
 
     useEffect(() => {
@@ -62,7 +74,7 @@ export default function BookDescriptionView({route}) {
                 </View>
 
                 <View style={styles.buttonsContainer}>
-                    <TouchableOpacity style={styles.addBookButton}  activeOpacity={0.8}>
+                    <TouchableOpacity style={styles.addBookButton} activeOpacity={0.8} onPress={() => handleAddToLibraryButtonPress()}>
                         <Text style={styles.addBookText}> Add to Library </Text>    
                     </TouchableOpacity>    
 

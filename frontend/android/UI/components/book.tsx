@@ -14,15 +14,12 @@ export default function Book(props: BookProps) {
     const [isLongPressed, setIsLongPressed] = useState(false);
     const navigation = useNavigation();
     let bookFieldsJSON = JSON.parse(props.bookFields);
-    console.log("aici", bookFieldsJSON);
     const bookTitle = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[0]];
     const bookAuthor = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[1]];
     const bookID = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[Globals.BOOK_COLLECTION_FIELDS_ID_INDEX]];
-    console.log("bid", bookID);
     let bookCover = "";
     const [userCurrentChapterInBook, setUserCurrentChapterInBook] = useState<number>(0); 
     const isBookIsInLibrary: boolean = false;
-    console.log("in book");
 
     function handleLongPress() {
         console.log("handleLongPress: " + isLongPressed);
