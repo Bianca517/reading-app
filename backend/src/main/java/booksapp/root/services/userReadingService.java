@@ -85,7 +85,9 @@ public class userReadingService {
             HashMap<String, String> book = new HashMap<String, String>();
 
             Map<String, Object> bookfields = localBookService.getBookByID(bookID);
-            // retrieve only relevant fields: book name, author, cover
+            // retrieve only relevant fields: book id, book name, author, cover
+            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[0],  bookID);
+
             String bookName = bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[1]).toString();
             book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_TITLE_INDEX], bookName);
 
@@ -175,5 +177,11 @@ public class userReadingService {
         //i wanted to test the value of updateResult but it does not containt the update status as expected
         return 0;
     }   
+
+    public int addBookToLibrary(String userID, String bookID) throws InterruptedException, ExecutionException {
+        DocumentReference userDocument = userCollectionDB.document(userID);
+        userDocument.update(GlobalConstants.USERS_COLLECTION_FIELDS[GlobalConstants.USER_CURRENT_READINGS_INDEX], FieldValue.arrayUnion(bookID));
+        return 0;
+    }
 
 }

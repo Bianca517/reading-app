@@ -3,6 +3,16 @@ type textParagraph = {
     content: string;
 }
 
+function addLastPage(pageTexts: textParagraph[][]) {
+    const numberOfPages: number = pageTexts.length;
+    const lastPage: textParagraph = {
+        id: (numberOfPages + 1).toString(),
+        content: "End of chapter ",
+    }
+    pageTexts.push([lastPage]);
+    return pageTexts;
+}
+
 export default function textDistributer (textToDisplay: textParagraph[], pagesHeight: number, pagesWidth: number, fontSize: number): textParagraph[][]{
     let charactersPerLine: number= Math.floor(pagesWidth / (fontSize * 0.6));  
     let linesPerPage: number = Math.floor(pagesHeight / fontSize);
@@ -28,6 +38,7 @@ export default function textDistributer (textToDisplay: textParagraph[], pagesHe
             i--; //the paragraph was not yet assigned to a page
         }
     }
-    //console.log("pageTexts: ", pageTexts);
+    pageTexts = addLastPage(pageTexts);
+    //console.log("pageTexts: ", pageTexts)
     return pageTexts;
 };

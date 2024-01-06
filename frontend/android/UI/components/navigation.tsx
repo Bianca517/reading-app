@@ -10,6 +10,7 @@ import LibraryPageReadingTrackerEdit from '../screens/library/library-reading-tr
 import SubmitInterests from '../screens/submit_interests/interests';
 import ReadingScreen from '../screens/reading-screen/reading-ui';
 import TableOfContentsScreen from '../screens/reading-screen/table-of-contents';
+import BookDescriptionView from '../screens/reading-screen/book-description-view';
 import Globals from '../_globals/Globals';
 
 const Stack = createNativeStackNavigator();
@@ -44,6 +45,7 @@ export default function Navigation() {
         <Stack.Screen name="Edit Reading Tracker" component={LibraryPageReadingTrackerEdit} initialParams={{ monthIndex: 0 }} />
         <Stack.Screen name="Reading Screen" component={ReadingScreen} />
         <Stack.Screen name="Table of Contents" component={TableOfContentsScreen} />
+        <Stack.Screen name="Prologue" component={BookDescriptionView} />
         <Stack.Screen name="Test" component={FaceDetector} />
       </Stack.Navigator>
     </NavigationContainer>

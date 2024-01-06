@@ -2,6 +2,8 @@ import Globals from "../UI/_globals/Globals"
 const GET_NUMBER_OF_CHAPTERS_ENDPOINT: string = "/getbookchapters?bookID=BOOK_ID"
 const GET_CHAPTER_TITLE_ENDPOINT: string = "/getbookchaptertitle?bookID=BOOK_ID&chapterNumber=CHAPTER_NUMBER"
 const GET_CHAPTER_CONTENT_ENDPOINT: string = "/getbookchaptercontent?bookID=BOOK_ID&chapterNumber=CHAPTER_NUMBER"
+const GET_BOOK_DESCRIPTION_ENDPOINT: string = "/getbookdescription?bookID=BOOK_ID"
+const ADD_BOOK_TO_LIBRARY_ENDPOINT: string = "/addbooktolibrary?bookID=BOOK_ID"
 const BOOK_ID_STRING_TO_REPLACE: string = "BOOK_ID"
 const CHAPTER_NUMBER_STRING_TO_REPLACE: string = "CHAPTER_NUMBER"
 
@@ -35,7 +37,7 @@ export async function get_book_chapter_content(bookID: string, chapterNumber: nu
     let HTTPS_REQUEST = Globals.BACKEND_HTTP + GET_CHAPTER_CONTENT_ENDPOINT;
     HTTPS_REQUEST = HTTPS_REQUEST.replace(BOOK_ID_STRING_TO_REPLACE, bookID);
     HTTPS_REQUEST = HTTPS_REQUEST.replace(CHAPTER_NUMBER_STRING_TO_REPLACE, chapterNumber.toString());
-    console.log(HTTPS_REQUEST);
+    //console.log(HTTPS_REQUEST);
 
     var chapterContent = await fetch(HTTPS_REQUEST, {
         method: "GET",
@@ -85,5 +87,57 @@ export async function get_book_chapter_title(bookID: string, chapterNumber: numb
         });
     return chapterContent
 }
+
+export async function get_book_description(bookID: string) {
+    let HTTPS_REQUEST = Globals.BACKEND_HTTP + GET_BOOK_DESCRIPTION_ENDPOINT;
+    HTTPS_REQUEST = HTTPS_REQUEST.replace(BOOK_ID_STRING_TO_REPLACE, bookID);
+    //console.log(HTTPS_REQUEST);
+
+    var bookDescription = await fetch(HTTPS_REQUEST, {
+        method: "GET",
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+    })
+        .then((response) => response.json())
+        .then((responseData) => {
+            responseData = JSON.stringify(responseData);
+            //console.log(responseData);
+            return { success: true, message: responseData };
+        })
+        .catch(async (e) => {
+            console.log("intra pe catch");
+            console.log(e);
+            return { success: false, message: e };
+        });
+    return bookDescription
+}
+
+export async function add_book_to_library(bookID: string) {
+    let HTTPS_REQUEST = Globals.BACKEND_HTTP + ADD_BOOK_TO_LIBRARY_ENDPOINT;
+    HTTPS_REQUEST = HTTPS_REQUEST.replace(BOOK_ID_STRING_TO_REPLACE, bookID);
+    console.log(HTTPS_REQUEST);
+
+    var requestResponse = await fetch(HTTPS_REQUEST, {
+        method: "POST",
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+    })
+        .then((responseData) => {
+            //responseData = JSON.stringify(responseData);
+            //console.log(responseData);
+            return { success: true, message: responseData };
+        })
+        .catch(async (e) => {
+            console.log("intra pe catch");
+            console.log(e);
+            return { success: false, message: e };
+        });
+    return requestResponse
+}
+
 
 

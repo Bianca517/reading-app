@@ -18,9 +18,34 @@ export default function Book(props: BookProps) {
     const bookAuthor = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[1]];
     const bookID = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[Globals.BOOK_COLLECTION_FIELDS_ID_INDEX]];
     let bookCover = "";
+    const [userCurrentChapterInBook, setUserCurrentChapterInBook] = useState<number>(0); 
+    const isBookIsInLibrary: boolean = false;
 
     function handleLongPress() {
         console.log("handleLongPress: " + isLongPressed);
+    }
+
+    function handleNavigation() {
+        if(!isBookIsInLibrary || (userCurrentChapterInBook == 0)) {
+            navigation.navigate("Prologue", 
+                { 
+                    "bookID" : bookID, 
+                    "chapterNumber" : 1, 
+                    "bookCoverImage" : bookCover, 
+                    "bookTitle": bookTitle, 
+                    "bookAuthor": bookAuthor
+                })
+        }
+        else {
+            navigation.navigate("Reading Screen", 
+                { 
+                    "bookID" : bookID, 
+                    "chapterNumber" : userCurrentChapterInBook, 
+                    "bookCoverImage" : bookCover, 
+                    "bookTitle": bookTitle, 
+                    "bookAuthor": bookAuthor
+                })
+        }
     }
 
     if(bookAuthor && bookTitle) {
@@ -37,7 +62,7 @@ export default function Book(props: BookProps) {
                     ]}
                     onLongPress={() => setIsLongPressed(true)}
                     onPressOut={() => setIsLongPressed(false)}
-                    onPress={() => navigation.navigate("Reading Screen", { "bookID" : bookID, "chapterNumber" : 1, "bookCoverImage" : bookCover, "bookTitle": bookTitle, "bookAuthor": bookAuthor})}
+                    onPress={() => handleNavigation()}
                 >
                 
                     <Image style={styles.book_cover} source={{ uri: bookCover }}></Image>

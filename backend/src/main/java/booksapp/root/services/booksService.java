@@ -168,4 +168,11 @@ public class booksService {
         String chapterContent = chapterContentsList.get(chapterNumber).toString();
         return chapterContent;
     }
+
+    public String getBookDescription(String bookID) throws InterruptedException, ExecutionException {
+        Map<String, Object> bookData = getBookByID(bookID);
+        Object description = bookData.get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_DESCRIPTION_INDEX]);
+        String bookDescription = description.toString();
+        return bookDescription;
+    }
 }
