@@ -9,6 +9,8 @@ import BottomSheetContent from '../../components/bottom-sheet-content';
 import { AntDesign } from '@expo/vector-icons'; 
 import TextDistributer from '../../components/page-distribution-calculator';
 import FaceDetectionModule from '../../components/face-detector';
+import BookDescriptionView from '../../components/book-description-view';
+import Book from '../../components/book';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -36,8 +38,9 @@ let textToDisplay: textParagraph[] =
 export default function ReadingScreen( {route} ) {
     //route params
     const bookID = route.params.bookID;
-    const chapterNumber = route.params.chapterNumber;
-    const chapterNumberToDisplay = chapterNumber + 1;
+    const bookTitle = route.params.bookTitle;
+    const bookAuthor = route.params.bookAuthor;
+    const bookCoverImageUrl = route.params.bookCoverImage;
 
     //customization parameters
     const [selectedBackgroundColor, setSelectedBackgroundColor] = useState<string>(Globals.COLORS.BACKGROUND_GRAY);
@@ -56,6 +59,8 @@ export default function ReadingScreen( {route} ) {
     const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
     const [paragraphsInPages, setParagraphsInPages] = useState<textParagraph[][]>([]);
     const [textInPages, setTextInPages] = useState<string[]>([]);
+    const [userCurrentChapterInBook, setUserCurrentChapterInBook] = useState<number>(0);
+    const [chapterNumberToDisplay, setChapterNumberToDisplay] = useState<number>(userCurrentChapterInBook + 1);
 
     const snapPoints = ["45%"];
 
@@ -73,7 +78,8 @@ export default function ReadingScreen( {route} ) {
     useEffect(() => {
         loadBookChapterContent();
         loadBookChapterTitle();
-    }, [bookID, chapterNumber]);
+        setChapterNumberToDisplay(userCurrentChapterInBook + 1);
+    }, [bookID, userCurrentChapterInBook]);
 
     useEffect(() => {
         const distributedParagraphs: textParagraph[][] = TextDistributer(textToDisplay, bodyHeight, windowWidth, fontSize);
@@ -114,7 +120,7 @@ export default function ReadingScreen( {route} ) {
     }
 
     async function loadBookChapterTitle() : Promise<void> {
-        const fetchResponse: ResponseType = await get_book_chapter_title(bookID, chapterNumber).then();
+        const fetchResponse: ResponseType = await get_book_chapter_title(bookID, userCurrentChapterInBook).then();
 
         if (fetchResponse.success) {
             const receivedChapterTitle: string = JSON.parse(fetchResponse.message);
@@ -191,6 +197,56 @@ export default function ReadingScreen( {route} ) {
         const currentPage: number = viewableItems[0]["index"];
         setCurrentPage(currentPage);
     }, []);
+
+
+    function renderDescriptionPageOrReadingView(): React.ReactElement{
+        if(userCurrentChapterInBook == 0) {
+            return (
+                <BookDescriptionView bookID={bookID} bookTitle={bookTitle} bookCoverImageUrl={bookCoverImageUrl} bookAuthor={bookAuthor}></BookDescriptionView>
+            )
+        }
+        else {
+            return (
+                readingView()
+            )
+        }
+    }
+
+    function readingView(): React.ReactElement {
+        return (
+            <View style={styles.body}>
+                <View style={[styles.header, {backgroundColor: selectedBackgroundColor}]}>                    
+                    <Text style={[styles.chapter_number, {fontFamily: selectedFont, color: fontColor}]}>Chapter {chapterNumberToDisplay}</Text>
+                    <Text style={[styles.chapter_title, {fontFamily: selectedFont, color: fontColor}]}>{ bookChapterTitle }</Text>
+                </View>
+
+                <View style={[styles.white_line, {backgroundColor: fontColor}]}/>
+
+                <View style = {styles.text_container}>
+
+                <FlatList
+                    ref={flatlistRef}
+                    data={textInPages}
+                    horizontal={true}  
+                    showsHorizontalScrollIndicator={false} 
+                    keyExtractor={(item, index) => index.toString()}
+                    disableIntervalMomentum
+                    pagingEnabled={true}
+                    decelerationRate={'fast'}
+                    onViewableItemsChanged={onViewableItemsChanged}
+                    renderItem={({ item }) => (
+                        <View style={[styles.content_view, { backgroundColor: selectedBackgroundColor }]}>
+                            <Text style={[styles.content_text, { fontFamily: selectedFont, fontSize: fontSize, color: fontColor }]}>
+                                {item}
+                            </Text>
+                        </View>
+                    )}
+                />
+
+                </View>
+            </View>
+        );
+    }
     
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
@@ -210,38 +266,7 @@ export default function ReadingScreen( {route} ) {
                    
                 </View>
 
-
-                <View style={styles.body}>
-                    <View style={[styles.header, {backgroundColor: selectedBackgroundColor}]}>                    
-                        <Text style={[styles.chapter_number, {fontFamily: selectedFont, color: fontColor}]}>Chapter {chapterNumberToDisplay}</Text>
-                        <Text style={[styles.chapter_title, {fontFamily: selectedFont, color: fontColor}]}>{ bookChapterTitle }</Text>
-                    </View>
-
-                    <View style={[styles.white_line, {backgroundColor: fontColor}]}/>
-
-                    <View style = {styles.text_container}>
-
-                    <FlatList
-                        ref={flatlistRef}
-                        data={textInPages}
-                        horizontal={true}  
-                        showsHorizontalScrollIndicator={false} 
-                        keyExtractor={(item, index) => index.toString()}
-                        disableIntervalMomentum
-                        pagingEnabled={true}
-                        decelerationRate={'fast'}
-                        onViewableItemsChanged={onViewableItemsChanged}
-                        renderItem={({ item }) => (
-                            <View style={[styles.content_view, { backgroundColor: selectedBackgroundColor }]}>
-                                <Text style={[styles.content_text, { fontFamily: selectedFont, fontSize: fontSize, color: fontColor }]}>
-                                    {item}
-                                </Text>
-                            </View>
-                        )}
-                    />
-
-                    </View>
-                </View>
+                {renderDescriptionPageOrReadingView()}
 
                 <BottomSheet
                     ref={sheetRef}
