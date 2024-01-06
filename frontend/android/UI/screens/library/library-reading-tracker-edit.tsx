@@ -87,7 +87,7 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
     await plan_book_for_month(currentMonthName, bookId);
     const addedBook: Book = createBook(bookId, bookTitle, bookAuthor);
 
-    console.log("teoretic added");
+    //console.log("teoretic added");
     setPlannedBookList((plannedBookList: Book[]) => [...plannedBookList, addedBook]);
 
     setCurrentReadingFilteredBooks((prevBooks: Book[]) =>
@@ -99,9 +99,9 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
     const removedPlannedBook: Book = createBook(bookId, bookTitle, bookAuthor);
 
     //if book was dropped => remove it from planned for the current month
-    console.log("book was removed ", removedPlannedBook);
+    //console.log("book was removed ", removedPlannedBook);
     setPlannedBookList(plannedBookList.filter((book: { [x: string]: any; }) => book[Globals.BOOK_COLLECTION_FIELDS[6]] !== bookId));
-    console.log("filtered current readings: ", [...currentReadingFilteredBooks, removedPlannedBook]);
+    //console.log("filtered current readings: ", [...currentReadingFilteredBooks, removedPlannedBook]);
     setCurrentReadingFilteredBooks([...currentReadingFilteredBooks, removedPlannedBook]);
     
   }
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
     width: windowWidth - 30,
     borderRadius: 20,
     marginTop: 0,
-    height: windowHeight - 310,
+    height: windowHeight - 230,
     paddingHorizontal: 0,
     flexDirection: "row",
     flexWrap: "wrap",

@@ -6,7 +6,9 @@ import Book from '../../components/book';
 import { get_finalized_readings, get_current_readings } from '../../../services/retrieve-books-service';
 import Globals from '../../_globals/Globals';
 import { useNavigation } from '@react-navigation/native';
-
+import GlobalBookData from '../../_globals/GlobalBookData';
+import { ResponseType } from '../../../types';
+import { loadCurrentPlannedBooks } from '../../components/service-calls-wrapper';
 
 export default function HomePageUI() {
     const navigation = useNavigation();
@@ -15,19 +17,21 @@ export default function HomePageUI() {
     const [currentReadingBooks, setCurrentReadingBooks] = useState([]);
 
     async function loadPopularBooks() {
-        const fetchResponse = await get_finalized_readings().then();
+        const fetchResponse: ResponseType = await get_finalized_readings().then();
 
         if (fetchResponse.success) {
-            setPopularBooks(JSON.parse(fetchResponse.responseData));
+            setPopularBooks(JSON.parse(fetchResponse.message));
+            GlobalBookData.FINALIZED_READINGS = JSON.parse(fetchResponse.message);
         }
     }
 
     async function loadCurrentReadingBooks() {
-        const fetchResponse = await get_current_readings().then();
+        const fetchResponse: ResponseType = await get_current_readings().then();
 
         if (fetchResponse.success) {
-            setCurrentReadingBooks(JSON.parse(fetchResponse.responseData));
-            console.log(JSON.parse(fetchResponse.responseData));
+            setCurrentReadingBooks(JSON.parse(fetchResponse.message));
+            //console.log(JSON.parse(fetchResponse.message));
+            GlobalBookData.CURRENT_READINGS = JSON.parse(fetchResponse.message);
         }
     }
 
@@ -39,6 +43,8 @@ export default function HomePageUI() {
     
         loadPopularBooks();
         loadCurrentReadingBooks();
+        //load this for the reading planner here as it takes a long time and it shall be prepared until user gets there
+        loadCurrentPlannedBooks();
     }, []);
 
     return (
@@ -60,7 +66,7 @@ export default function HomePageUI() {
                                 </Text>
                             </View>
 
-                            <View style={[styles.right_line_through, { marginLeft: 1 }]}></View>
+                            <View style={[styles.right_line_through, { marginLeft: -20 }]}></View>
                         </View>
 
                         <View style={[styles.books_container, { backgroundColor: '#81179b' }]}>
@@ -78,7 +84,7 @@ export default function HomePageUI() {
                                 </Text>
                             </View>
 
-                            <View style={[styles.right_line_through, { marginLeft: -119 }]}></View>
+                            <View style={[styles.right_line_through, { marginLeft: -140 }]}></View>
                         </View>
 
                         <View style={[styles.books_container, { backgroundColor: Globals.COLORS.FOR_YOU_SECTION }]}>
@@ -86,7 +92,7 @@ export default function HomePageUI() {
                                 {
                                     /*Warning: Each child in a list should have a unique "key" prop.*/
                                     currentReadingBooks.map((book, index) => (
-                                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={180} bookWithDetails={false}/>
+                                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={175} bookWithDetails={false}/>
                                     ))
                                 }
                             </ScrollView>
@@ -103,7 +109,7 @@ export default function HomePageUI() {
                                 </Text>
                             </View>
 
-                            <View style={[styles.right_line_through, { marginLeft: 0 }]}></View>
+                            <View style={[styles.right_line_through, { marginLeft: -20 }]}></View>
                         </View>
 
                         <View style={[styles.books_container, { backgroundColor: '#b9bff3' }]}>
@@ -111,7 +117,7 @@ export default function HomePageUI() {
                                 {
                                     /*Warning: Each child in a list should have a unique "key" prop.*/
                                     popularBooks.map((book, index) => (
-                                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={180} />
+                                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={175} />
                                     ))
                                 }
                             </ScrollView>
@@ -173,11 +179,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     right_line_through: {
-        flex: 4,
+        flex: 3,
         backgroundColor: 'white',
         height: 2,
         marginTop: 15,
-        marginLeft: -5
+        marginLeft: 0
     },
     left_line_through: {
         flex: 1,
@@ -192,7 +198,7 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: 'bold',
         fontSize: 15,
-        justifyContent: 'flex-start'
+        justifyContent: 'flex-start',
     },
     books_container: {
         flex: 7,

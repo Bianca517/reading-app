@@ -5,10 +5,10 @@ import Book from '../../components/book';
 import Footer from '../../components/footer';
 import LibraryPageNavigator from '../../components/library-navigator';
 import { get_finalized_readings } from '../../../services/retrieve-books-service';
-
+import GlobalBookData from '../../_globals/GlobalBookData';
 
 export default function LibraryPageFinalizedReadingsUI() {
-    const [finalizedBooks, setFinalizedBooks] = useState([]);
+    const [finalizedBooks, setFinalizedBooks] = useState(GlobalBookData.FINALIZED_READINGS);
 
     async function loadFinalizedReadingBooks() {
         const fetchResponse = await get_finalized_readings().then();
@@ -20,7 +20,9 @@ export default function LibraryPageFinalizedReadingsUI() {
 
     //this executes on page load
     useEffect(() => {
-        loadFinalizedReadingBooks();
+        if(!GlobalBookData.FINALIZED_READINGS) {
+            loadFinalizedReadingBooks();
+        }
     }, []);
 
     return (
@@ -36,7 +38,7 @@ export default function LibraryPageFinalizedReadingsUI() {
                 {
                     /*Warning: Each child in a list should have a unique "key" prop.*/
                     finalizedBooks.map((book, index) => (
-                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={180} />
+                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={95} bookCoverHeight={180} />
                     ))
                 }
             </View>

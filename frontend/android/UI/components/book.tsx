@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Image, Text, TouchableOpacity } from 'react-native';
 import Globals from '../_globals/Globals';
 import { useNavigation } from '@react-navigation/native';
+import GlobalBookData from '../_globals/GlobalBookData';
 
 type BookProps = {
     bookFields: string,
@@ -18,15 +19,27 @@ export default function Book(props: BookProps) {
     const bookAuthor = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[1]];
     const bookID = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[Globals.BOOK_COLLECTION_FIELDS_ID_INDEX]];
     let bookCover = "";
-    const [userCurrentChapterInBook, setUserCurrentChapterInBook] = useState<number>(0); 
-    const isBookIsInLibrary: boolean = false;
-
+    const [userCurrentChapterInBook, setUserCurrentChapterInBook] = useState<number>(-1); 
+    const [isBookInLibrary, setIsBookInLibrary] = useState<boolean>(false);
+    
     function handleLongPress() {
         console.log("handleLongPress: " + isLongPressed);
     }
 
+    useEffect(() => {
+        checkIfBookIsInLibrary();
+    }, []);
+
+    function checkIfBookIsInLibrary() {
+        GlobalBookData.CURRENT_READINGS.forEach(book => {
+            if(bookID == book.id) {
+                setIsBookInLibrary(true);
+            }
+        });
+    }
+
     function handleNavigation() {
-        if(!isBookIsInLibrary || (userCurrentChapterInBook == 0)) {
+        if(!isBookInLibrary || (userCurrentChapterInBook == 0)) {
             navigation.navigate("Prologue", 
                 { 
                     "bookID" : bookID, 

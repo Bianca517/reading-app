@@ -5,7 +5,7 @@ const DELETE_PLANNED_BOOK_FOR_MONTH_ENDPOINT: string = "/removebookplannedformon
 
 export async function get_readings_planned_for_month(monthName: string) {
     const HTTPS_REQUEST = Globals.BACKEND_HTTP + GET_PLANNED_BOOKS_FOR_MONTH_ENDPOINT + monthName
-    console.log("in get planned books\n");
+    //console.log("in get planned books\n");
 
     var returnedPlannedBooks = await fetch(HTTPS_REQUEST, {
         method: "GET",
@@ -16,15 +16,15 @@ export async function get_readings_planned_for_month(monthName: string) {
     })
         .then((response) => response.json())
         .then((responseData) => {
-            console.log("sosaj");
+            //console.log("sosaj");
             //console.log(JSON.stringify(responseData));
             responseData = JSON.stringify(responseData);
-            return { success: true, responseData };
+            return { success: true, message: responseData };
         })
         .catch(async (e) => {
             console.log("intra pe catch");
             console.log(e);
-            return { success: false, e };
+            return { success: false, message: e };
         });
     return returnedPlannedBooks;
 }

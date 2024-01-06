@@ -46,9 +46,9 @@ public class bookController {
     }
 
     @GetMapping(value = "/getbookchapters")
-    public int getBookChapters(@RequestParam String bookID) throws InterruptedException, ExecutionException {
+    public int getBookTotalNrOfChapters(@RequestParam String bookID) throws InterruptedException, ExecutionException {
         System.out.println("inc ontroller");
-        int bookChapters = this.booksService.getBookChapters("GRav9LLWPj6ISCOGxfVZ");
+        int bookChapters = this.booksService.getBookChapters(bookID);
         return bookChapters;
     }
 

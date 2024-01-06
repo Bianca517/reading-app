@@ -19,12 +19,12 @@ export async function get_finalized_readings() {
             //console.log("got it");
             //console.log(JSON.stringify(responseData));
             responseData = JSON.stringify(responseData);
-            return { success: true, responseData };
+            return { success: true, message: responseData };
         })
         .catch(async (e) => {
             console.log("intra pe catch");
             console.log(e);
-            return { success: false, e };
+            return { success: false, message: e };
         });
     return returnedFinalizedBooks
 }
@@ -46,12 +46,12 @@ export async function get_current_readings() {
             //console.log("sosaj");
             //console.log(JSON.stringify(responseData));
             responseData = JSON.stringify(responseData);
-            return { success: true, responseData };
+            return { success: true, message: responseData };
         })
         .catch(async (e) => {
             console.log("intra pe catch");
             console.log(e);
-            return { success: false, e };
+            return { success: false, message: e };
         });
     return returnedCurrentBooks
 }
