@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ScrollView, Ima
 import Globals from '../../_globals/Globals';
 import { AntDesign } from '@expo/vector-icons'; 
 import { useNavigation } from '@react-navigation/native';
+import { get_book_description } from '../../../services/book-reading-service';
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -12,18 +13,35 @@ type props = {
     bookID: string,
     bookAuthor: string,
 }
-export default function BookDescriptionView({route}) {
-    const bookDescription = `   In the enchanting realm of Eldoria, where magic dances in the moonlight, "Whispers of the Silver Rose" unfolds a spellbinding romance that transcends worlds. As ancient prophecies awaken, young sorceress Elysia discovers an unexpected connection with the mysterious guardian of the Silver Rose, a fabled flower with the power to bridge the realms of reality and fantasy.
 
-    Elysia's heart is torn between duty and desire as she navigates a forbidden love with the enigmatic guardian, whose fate is intricately tied to the balance of Eldoria. Amidst looming shadows and treacherous alliances, they embark on a perilous quest to unlock the secrets of the Silver Rose and defy the destiny that threatens to tear them apart.
-    
-    Brimming with magical creatures, ethereal landscapes, and a love that defies the boundaries of time, "Whispers of the Silver Rose" is a captivating tale that explores the essence of true love and the enduring power of hope. Will Elysia and her guardian conquer the forces that seek to keep them apart, or will Eldoria succumb to darkness? `
+type ResponseType = {
+    success: boolean,
+    message: string,
+}
+
+export default function BookDescriptionView({route}) {
     const bookTitle: string = route.params.bookTitle;
     const bookID: string = route.params.bookID;
     const bookAuthor: string = route.params.bookAuthor;
     const bookCoverImageUrl: string = route.params.bookCoverImage;
-
+    const [bookDescription, setBookDescription] = useState<string>("");
     const navigation = useNavigation();
+
+    console.log("route", route);
+    console.log("bookID", bookID);
+    async function loadBookDescription() {
+        const fetchResponse: ResponseType = await get_book_description(bookID).then();
+
+        if (fetchResponse.success) {
+            const receivedBookDescription: string = JSON.parse(fetchResponse.message);
+            console.log("received book description: " + receivedBookDescription);
+            setBookDescription(receivedBookDescription);
+        }
+    }
+
+    useEffect(() => {
+        loadBookDescription();
+    }, []);
 
     return(
             <View style={styles.body}>

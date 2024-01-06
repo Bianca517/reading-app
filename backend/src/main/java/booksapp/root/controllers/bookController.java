@@ -72,5 +72,14 @@ public class bookController {
         return gsonData;
     }
 
+    @GetMapping(value = "/getbookdescription")
+    public String getBookDescription(@RequestParam String bookID) throws InterruptedException, ExecutionException {
+        System.out.println("in controller");
+        String bookDescription = this.booksService.getBookDescription(bookID);
+        Gson gson = new Gson();
+        String gsonData = gson.toJson(bookDescription);
+        return gsonData;
+    }
+
 
 }

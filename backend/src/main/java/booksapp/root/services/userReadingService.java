@@ -85,7 +85,9 @@ public class userReadingService {
             HashMap<String, String> book = new HashMap<String, String>();
 
             Map<String, Object> bookfields = localBookService.getBookByID(bookID);
-            // retrieve only relevant fields: book name, author, cover
+            // retrieve only relevant fields: book id, book name, author, cover
+            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[0],  bookID);
+
             String bookName = bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[1]).toString();
             book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_TITLE_INDEX], bookName);
 

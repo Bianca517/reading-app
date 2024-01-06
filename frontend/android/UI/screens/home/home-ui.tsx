@@ -27,6 +27,7 @@ export default function HomePageUI() {
 
         if (fetchResponse.success) {
             setCurrentReadingBooks(JSON.parse(fetchResponse.responseData));
+            console.log(JSON.parse(fetchResponse.responseData));
         }
     }
 
@@ -85,7 +86,7 @@ export default function HomePageUI() {
                                 {
                                     /*Warning: Each child in a list should have a unique "key" prop.*/
                                     currentReadingBooks.map((book, index) => (
-                                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={180} />
+                                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={180} bookWithDetails={false}/>
                                     ))
                                 }
                             </ScrollView>
