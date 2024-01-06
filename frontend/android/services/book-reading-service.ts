@@ -35,7 +35,7 @@ export async function get_book_chapter_content(bookID: string, chapterNumber: nu
     let HTTPS_REQUEST = Globals.BACKEND_HTTP + GET_CHAPTER_CONTENT_ENDPOINT;
     HTTPS_REQUEST = HTTPS_REQUEST.replace(BOOK_ID_STRING_TO_REPLACE, bookID);
     HTTPS_REQUEST = HTTPS_REQUEST.replace(CHAPTER_NUMBER_STRING_TO_REPLACE, chapterNumber.toString());
-    console.log(HTTPS_REQUEST);
+    //console.log(HTTPS_REQUEST);
 
     var chapterContent = await fetch(HTTPS_REQUEST, {
         method: "GET",

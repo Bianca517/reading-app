@@ -9,7 +9,6 @@ import BottomSheetContent from '../../components/bottom-sheet-content';
 import { AntDesign } from '@expo/vector-icons'; 
 import TextDistributer from '../../components/page-distribution-calculator';
 import FaceDetectionModule from '../../components/face-detector';
-import BookDescriptionView from '../../components/book-description-view';
 import Book from '../../components/book';
 
 const windowHeight = Dimensions.get('window').height;
@@ -41,6 +40,7 @@ export default function ReadingScreen( {route} ) {
     const bookTitle = route.params.bookTitle;
     const bookAuthor = route.params.bookAuthor;
     const bookCoverImageUrl = route.params.bookCoverImage;
+    const bookChapterNumber = route.params.chapterNumber;
 
     //customization parameters
     const [selectedBackgroundColor, setSelectedBackgroundColor] = useState<string>(Globals.COLORS.BACKGROUND_GRAY);
@@ -60,7 +60,6 @@ export default function ReadingScreen( {route} ) {
     const [paragraphsInPages, setParagraphsInPages] = useState<textParagraph[][]>([]);
     const [textInPages, setTextInPages] = useState<string[]>([]);
     const [userCurrentChapterInBook, setUserCurrentChapterInBook] = useState<number>(0);
-    const [chapterNumberToDisplay, setChapterNumberToDisplay] = useState<number>(userCurrentChapterInBook + 1);
 
     const snapPoints = ["45%"];
 
@@ -75,10 +74,20 @@ export default function ReadingScreen( {route} ) {
         ),
     })
 
+    //this executes at the beginning
+    useEffect(() => {
+        console.log("in reading screen");
+        if(!bookChapterNumber) {
+            //load where user remained with reading in this book
+        }
+        else {
+            setUserCurrentChapterInBook(bookChapterNumber);
+        }
+    }, []);
+
     useEffect(() => {
         loadBookChapterContent();
         loadBookChapterTitle();
-        setChapterNumberToDisplay(userCurrentChapterInBook + 1);
     }, [bookID, userCurrentChapterInBook]);
 
     useEffect(() => {
@@ -97,11 +106,11 @@ export default function ReadingScreen( {route} ) {
     }, [textInPages]);
 
     useEffect(() => {
-        console.log("current page", currentPage);
+        //console.log("current page", currentPage);
     }, [currentPage])
 
     useEffect(() => {
-        console.log("gesture scroll active ", isGestureScrollingActive);
+        //console.log("gesture scroll active ", isGestureScrollingActive);
     }, [isGestureScrollingActive]);
     
     function updateTextInPages(paragraphsInPages: textParagraph[][]) {
@@ -197,56 +206,6 @@ export default function ReadingScreen( {route} ) {
         const currentPage: number = viewableItems[0]["index"];
         setCurrentPage(currentPage);
     }, []);
-
-
-    function renderDescriptionPageOrReadingView(): React.ReactElement{
-        if(userCurrentChapterInBook == 0) {
-            return (
-                <BookDescriptionView bookID={bookID} bookTitle={bookTitle} bookCoverImageUrl={bookCoverImageUrl} bookAuthor={bookAuthor}></BookDescriptionView>
-            )
-        }
-        else {
-            return (
-                readingView()
-            )
-        }
-    }
-
-    function readingView(): React.ReactElement {
-        return (
-            <View style={styles.body}>
-                <View style={[styles.header, {backgroundColor: selectedBackgroundColor}]}>                    
-                    <Text style={[styles.chapter_number, {fontFamily: selectedFont, color: fontColor}]}>Chapter {chapterNumberToDisplay}</Text>
-                    <Text style={[styles.chapter_title, {fontFamily: selectedFont, color: fontColor}]}>{ bookChapterTitle }</Text>
-                </View>
-
-                <View style={[styles.white_line, {backgroundColor: fontColor}]}/>
-
-                <View style = {styles.text_container}>
-
-                <FlatList
-                    ref={flatlistRef}
-                    data={textInPages}
-                    horizontal={true}  
-                    showsHorizontalScrollIndicator={false} 
-                    keyExtractor={(item, index) => index.toString()}
-                    disableIntervalMomentum
-                    pagingEnabled={true}
-                    decelerationRate={'fast'}
-                    onViewableItemsChanged={onViewableItemsChanged}
-                    renderItem={({ item }) => (
-                        <View style={[styles.content_view, { backgroundColor: selectedBackgroundColor }]}>
-                            <Text style={[styles.content_text, { fontFamily: selectedFont, fontSize: fontSize, color: fontColor }]}>
-                                {item}
-                            </Text>
-                        </View>
-                    )}
-                />
-
-                </View>
-            </View>
-        );
-    }
     
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
@@ -260,13 +219,43 @@ export default function ReadingScreen( {route} ) {
                     <Text style={styles.table_of_contents_text}>Table of Contents</Text>
                   
                     <TouchableOpacity style={styles.right_side_of_table_of_contents_preview} onPress={() => navigation.navigate("Table of Contents", {'bookID' : bookID})}>
-                        <Text style={styles.table_of_contents_text}> {chapterNumberToDisplay} </Text>
+                        <Text style={styles.table_of_contents_text}> {userCurrentChapterInBook} </Text>
                         <AntDesign name="down" size={20} color="white" />
                     </TouchableOpacity>
                    
                 </View>
 
-                {renderDescriptionPageOrReadingView()}
+                <View style={styles.body}>
+                    <View style={[styles.header, {backgroundColor: selectedBackgroundColor}]}>                    
+                        <Text style={[styles.chapter_number, {fontFamily: selectedFont, color: fontColor}]}>Chapter {userCurrentChapterInBook}</Text>
+                        <Text style={[styles.chapter_title, {fontFamily: selectedFont, color: fontColor}]}>{ bookChapterTitle }</Text>
+                    </View>
+
+                    <View style={[styles.white_line, {backgroundColor: fontColor}]}/>
+
+                    <View style = {styles.text_container}>
+
+                        <FlatList
+                            ref={flatlistRef}
+                            data={textInPages}
+                            horizontal={true}  
+                            showsHorizontalScrollIndicator={false} 
+                            keyExtractor={(item, index) => index.toString()}
+                            disableIntervalMomentum
+                            pagingEnabled={true}
+                            decelerationRate={'fast'}
+                            onViewableItemsChanged={onViewableItemsChanged}
+                            renderItem={({ item }) => (
+                                <View style={[styles.content_view, { backgroundColor: selectedBackgroundColor }]}>
+                                    <Text style={[styles.content_text, { fontFamily: selectedFont, fontSize: fontSize, color: fontColor }]}>
+                                        {item}
+                                    </Text>
+                                </View>
+                            )}
+                        />
+
+                    </View>
+                </View>
 
                 <BottomSheet
                     ref={sheetRef}

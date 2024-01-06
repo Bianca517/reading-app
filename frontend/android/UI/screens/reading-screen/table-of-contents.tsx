@@ -70,9 +70,12 @@ export default function TableOfContentsScreen({ route }) {
                     chapterTitles.map((title, index) => (
                         <TouchableOpacity key={index} style={styles.chapterContainer} onPress={() => navigation.navigate(
                             "Reading Screen",
-                            {
-                                'bookID': bookID,
-                                'chapterNumber': index
+                            { 
+                                "bookID" : bookID, 
+                                "chapterNumber" : index, 
+                                "bookCoverImage" : "", 
+                                "bookTitle": "", 
+                                "bookAuthor": ""
                             }
                         )}>
                             <Text style={styles.chapterText}>Chapter {index + 1}</Text>
