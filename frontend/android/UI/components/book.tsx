@@ -27,7 +27,6 @@ export default function Book(props: BookProps) {
     }
 
     function handleNavigation() {
-        console.log("handleNavigation: " );
         if(!isBookIsInLibrary || (userCurrentChapterInBook == 0)) {
             navigation.navigate("Prologue", 
                 { 

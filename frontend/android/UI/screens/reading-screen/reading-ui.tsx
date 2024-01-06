@@ -9,7 +9,6 @@ import BottomSheetContent from '../../components/bottom-sheet-content';
 import { AntDesign } from '@expo/vector-icons'; 
 import TextDistributer from '../../components/page-distribution-calculator';
 import FaceDetectionModule from '../../components/face-detector';
-import Book from '../../components/book';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -25,7 +24,8 @@ type textParagraph = {
     content: string;
 }
 
-let textToDisplay: textParagraph[] = 
+
+let textToDisplay: textParagraph[] =
 [ {'id': '0', 'content': "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum"},
    {'id': '1', 'content': "Lorem Ipsum is simply dummy text of the p Lorem Ipsum"},
    {'id': '2', 'content': "Lorem Ipsum is simply dummy text of  Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum"},
@@ -37,10 +37,6 @@ let textToDisplay: textParagraph[] =
 export default function ReadingScreen( {route} ) {
     //route params
     const bookID = route.params.bookID;
-    const bookTitle = route.params.bookTitle;
-    const bookAuthor = route.params.bookAuthor;
-    const bookCoverImageUrl = route.params.bookCoverImage;
-    const bookChapterNumber = route.params.chapterNumber;
 
     //customization parameters
     const [selectedBackgroundColor, setSelectedBackgroundColor] = useState<string>(Globals.COLORS.BACKGROUND_GRAY);
@@ -50,17 +46,22 @@ export default function ReadingScreen( {route} ) {
     const [fontColor, setFontColor] = useState<string>(Globals.FONT_COLOR_1);
 
     //local variables
-    const [bookChapterContent, setBookChapterContent] = useState<string>("");
+    const [bookChapterContent, setBookChapterContent] = useState<textParagraph[]>([]);
     const [bookChapterTitle, setBookChapterTitle] = useState<string>("");
     const [currentPage, setCurrentPage] = useState<number>(0);
     const [totalPageNumbers, setTotalPageNumbers] = useState<number>(0);
-    const flatlistRef = useRef<FlatList<string>>(null);
-    const sheetRef = useRef<BottomSheet>(null);
-    const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
     const [paragraphsInPages, setParagraphsInPages] = useState<textParagraph[][]>([]);
     const [textInPages, setTextInPages] = useState<string[]>([]);
-    const [userCurrentChapterInBook, setUserCurrentChapterInBook] = useState<number>(0);
+    const [chapterNumber, setChapterNumber] = useState<number>(0);
+    const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+    const [navigateToNextChapterTrigger, setNavigateToNextChapterTrigger] = useState<boolean>(false);
+    //const [navigateToPreviousChapterTrigger, setNavigateToPreviousChapterTrigger] = useState<boolean>(false);
+    const navigateToPreviousChapterTriggerRef = useRef<boolean>(false);
 
+    //refferences
+    const flatlistRef = useRef<FlatList<string>>(null);
+    const sheetRef = useRef<BottomSheet>(null);
+    
     const snapPoints = ["45%"];
 
     const navigation = useNavigation();
@@ -76,30 +77,41 @@ export default function ReadingScreen( {route} ) {
 
     //this executes at the beginning
     useEffect(() => {
-        console.log("in reading screen");
-        if(!bookChapterNumber) {
-            //load where user remained with reading in this book
-        }
-        else {
-            setUserCurrentChapterInBook(bookChapterNumber);
+        const routes = navigation.getState()?.routes;
+        const prevRoute = routes[routes.length - 2]["name"]; // -2 because -1 is the current route
+        //console.log(prevRoute);
+        //if the previous screen is the prologue, it means the user is now beginning the book
+        if(prevRoute == "Prologue") {
+            setChapterNumber(0);
         }
     }, []);
 
     useEffect(() => {
         loadBookChapterContent();
         loadBookChapterTitle();
-    }, [bookID, userCurrentChapterInBook]);
+    }, [bookID, chapterNumber]);
 
     useEffect(() => {
+        console.log("bookchaprercontent");
         const distributedParagraphs: textParagraph[][] = TextDistributer(textToDisplay, bodyHeight, windowWidth, fontSize);
         setParagraphsInPages(distributedParagraphs);
-    }, [fontSize]);
+    }, [fontSize, bookChapterContent]);
 
     useEffect(() => {
-        //console.log("paragraphs in page", paragraphsInPages);
         updateTextInPages(paragraphsInPages);
         setTotalPageNumbers(paragraphsInPages.length);
     }, [paragraphsInPages]);
+
+    useEffect(() => {
+         //if the last action was to go to the previous chapter, then the first page displayed shall be the last one in the chapter
+         if(navigateToPreviousChapterTriggerRef.current === true) {
+            console.log(totalPageNumbers);
+            flatlistRef.current?.scrollToIndex({
+                index: totalPageNumbers,
+            });
+            navigateToPreviousChapterTriggerRef.current = false;
+        }
+    }, [totalPageNumbers]);
 
     useEffect(() => {
         //console.log("text in page", textInPages);
@@ -129,7 +141,7 @@ export default function ReadingScreen( {route} ) {
     }
 
     async function loadBookChapterTitle() : Promise<void> {
-        const fetchResponse: ResponseType = await get_book_chapter_title(bookID, userCurrentChapterInBook).then();
+        const fetchResponse: ResponseType = await get_book_chapter_title(bookID, chapterNumber).then();
 
         if (fetchResponse.success) {
             const receivedChapterTitle: string = JSON.parse(fetchResponse.message);
@@ -138,12 +150,14 @@ export default function ReadingScreen( {route} ) {
     }
 
     async function loadBookChapterContent() : Promise<void> {
-        const fetchResponse = await get_book_chapter_content(bookID, 0).then();
+        //const fetchResponse = await get_book_chapter_content(bookID, 0).then();
+//
+        //if (fetchResponse.success) {
+        //    const receivedChapterContent: string = JSON.parse(fetchResponse.responseData);
+        //    //setBookChapterContent(receivedChapterContent);
+        //}
+        setBookChapterContent(textToDisplay);
 
-        if (fetchResponse.success) {
-            const receivedChapterContent: string = JSON.parse(fetchResponse.responseData);
-            setBookChapterContent(receivedChapterContent);
-        }
     }
 
     function updateFontFamily (fontFamily: string): void{
@@ -184,12 +198,37 @@ export default function ReadingScreen( {route} ) {
         setIsBottomSheetOpen(true);
     }, []);
 
+    function navigateToNextChapter() {
+        setNavigateToNextChapterTrigger(false);
+        if(chapterNumber < 5) {
+            setChapterNumber(chapterNumber + 1);
+            //first page of next chapter
+            flatlistRef.current?.scrollToIndex({
+                index: 0,
+            });
+            setCurrentPage(0);
+            console.log("navigate to next chapter");
+        }
+    }
+
+    function navigateToPreviousChapter() {
+        if(chapterNumber > 1) {
+            setChapterNumber(chapterNumber - 1);
+            console.log("navigate to previous chapter");
+        }
+    }
+
     function flatListScrollToNext() {
+        console.log("scrollToNext");
+        //can scroll in the current chapter
         if(currentPage < totalPageNumbers - 1) {
             flatlistRef.current?.scrollToIndex({
                 index: currentPage + 1,
             });
             setCurrentPage(currentPage+1);
+        }
+        if(navigateToNextChapterTrigger) {
+            navigateToNextChapter();
         }
     }
 
@@ -200,12 +239,29 @@ export default function ReadingScreen( {route} ) {
             });
             setCurrentPage(currentPage-1);
         }
+        if(navigateToPreviousChapterTriggerRef.current) {
+            navigateToPreviousChapter();
+        }
     }
 
     const onViewableItemsChanged = useCallback(({ viewableItems, changed }) => {
-        const currentPage: number = viewableItems[0]["index"];
-        setCurrentPage(currentPage);
+        const currentPageVisible: number = viewableItems[0]["index"];
+        setCurrentPage(currentPageVisible);
     }, []);
+
+    function onScrollCallback (scrollOffset: number) {
+        if (scrollOffset === 0) {
+            //console.log("setez perv chapter trigger");
+            navigateToPreviousChapterTriggerRef.current = true;
+        }
+        else {
+            if((totalPageNumbers - 1) * windowWidth !== scrollOffset) { //this is how scr0ll offset is calculated
+                setNavigateToNextChapterTrigger(false);
+            }
+            //console.log("resetez perv chapter trigger");
+            navigateToPreviousChapterTriggerRef.current = false;
+        }
+    }
     
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
@@ -219,7 +275,7 @@ export default function ReadingScreen( {route} ) {
                     <Text style={styles.table_of_contents_text}>Table of Contents</Text>
                   
                     <TouchableOpacity style={styles.right_side_of_table_of_contents_preview} onPress={() => navigation.navigate("Table of Contents", {'bookID' : bookID})}>
-                        <Text style={styles.table_of_contents_text}> {userCurrentChapterInBook} </Text>
+                        <Text style={styles.table_of_contents_text}> {chapterNumber} </Text>
                         <AntDesign name="down" size={20} color="white" />
                     </TouchableOpacity>
                    
@@ -227,14 +283,14 @@ export default function ReadingScreen( {route} ) {
 
                 <View style={styles.body}>
                     <View style={[styles.header, {backgroundColor: selectedBackgroundColor}]}>                    
-                        <Text style={[styles.chapter_number, {fontFamily: selectedFont, color: fontColor}]}>Chapter {userCurrentChapterInBook}</Text>
+                        <Text style={[styles.chapter_number, {fontFamily: selectedFont, color: fontColor}]}>Chapter {chapterNumber}</Text>
                         <Text style={[styles.chapter_title, {fontFamily: selectedFont, color: fontColor}]}>{ bookChapterTitle }</Text>
                     </View>
 
                     <View style={[styles.white_line, {backgroundColor: fontColor}]}/>
 
                     <View style = {styles.text_container}>
-
+                        
                         <FlatList
                             ref={flatlistRef}
                             data={textInPages}
@@ -245,6 +301,15 @@ export default function ReadingScreen( {route} ) {
                             pagingEnabled={true}
                             decelerationRate={'fast'}
                             onViewableItemsChanged={onViewableItemsChanged}
+                            onScroll={(event) => {
+                                const scrollOffset = event.nativeEvent.contentOffset.x;
+                                onScrollCallback(scrollOffset);
+                            }}
+                            onEndReached={() => {
+                                if(currentPage !== 0) {
+                                    setNavigateToNextChapterTrigger(true);
+                                }
+                            }}
                             renderItem={({ item }) => (
                                 <View style={[styles.content_view, { backgroundColor: selectedBackgroundColor }]}>
                                     <Text style={[styles.content_text, { fontFamily: selectedFont, fontSize: fontSize, color: fontColor }]}>
@@ -253,7 +318,7 @@ export default function ReadingScreen( {route} ) {
                                 </View>
                             )}
                         />
-
+                            
                     </View>
                 </View>
 
@@ -268,6 +333,29 @@ export default function ReadingScreen( {route} ) {
                         <BottomSheetContent updateFontFamily = {updateFontFamily} updateFontSize = {updateFontSize} updateBackgroundColor = {updateBackgroundColor} updateGestureScroll = {updateGestureScroll}/>
                     </BottomSheetView>
                 </BottomSheet>
+                                
+                {
+                    navigateToNextChapterTrigger &&
+
+                    <View style={styles.nextChapterInfo}>
+                        <TouchableOpacity activeOpacity={0.5} onPress={() => navigateToNextChapter()}>
+                            <AntDesign name="arrowright" size={20} color={Globals.COLORS.PURPLE} />
+                            <Text style={styles.changeChaptersText}> Next Chapter </Text>
+                        </TouchableOpacity>
+                    </View>
+                }
+
+                {
+                    navigateToPreviousChapterTriggerRef.current &&
+
+                    <View style={styles.previousChapterInfo}>
+                        <TouchableOpacity activeOpacity={0.5} onPress={() => navigateToPreviousChapter()}>
+                            <AntDesign name="arrowleft" size={20} color={Globals.COLORS.PURPLE} />
+                            <Text style={styles.changeChaptersText}> Previous Chapter </Text>
+                        </TouchableOpacity>
+                    </View>
+                }
+                
             </SafeAreaView>
         </GestureHandlerRootView>
     )
@@ -351,5 +439,36 @@ const styles = StyleSheet.create({
         height: 550,
         width: windowWidth,
     },
+    nextChapterInfo: {
+        position: 'absolute',
+        height: windowHeight * 0.3,
+        width: windowWidth * 0.3,
+        top: windowHeight * 0.35,
+        right: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Set the alpha value (0.5) for transparency
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderBottomLeftRadius: 10,
+        borderTopLeftRadius: 10,
+    },
+    changeChaptersText: {
+        backgroundColor: 'black',
+        color: Globals.COLORS.PURPLE,
+        fontWeight: 'bold',
+    },
+    previousChapterInfo: {
+        position: 'absolute',
+        height: windowHeight * 0.3,
+        width: windowWidth * 0.3,
+        top: windowHeight * 0.35,
+        left: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Set the alpha value (0.5) for transparency
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderTopRightRadius: 10,
+        borderBottomRightRadius: 10,
+    }
 });
 
