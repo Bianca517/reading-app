@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
@@ -65,8 +66,8 @@ public class bookController {
     @GetMapping(value = "/getbookchaptercontent")
     public String getBookChapterContent(@RequestParam String bookID, int chapterNumber) throws InterruptedException, ExecutionException {
         System.out.println("inc ontroller");
-        String bookChapterContent = this.booksService.getBookChapterContent("GRav9LLWPj6ISCOGxfVZ", chapterNumber);
-        bookChapterContent = bookChapterContent.substring(1, bookChapterContent.length() - 1);
+        ArrayList<HashMap<String, Object>> bookChapterContent = this.booksService.getBookChapterContent("GRav9LLWPj6ISCOGxfVZ", chapterNumber);
+        //bookChapterContent = bookChapterContent.substring(1, bookChapterContent.length() - 1);
         Gson gson = new Gson();
         String gsonData = gson.toJson(bookChapterContent);
         return gsonData;
@@ -78,6 +79,15 @@ public class bookController {
         String bookDescription = this.booksService.getBookDescription(bookID);
         Gson gson = new Gson();
         String gsonData = gson.toJson(bookDescription);
+        return gsonData;
+    }
+    
+     @GetMapping(value = "/getbookparagraphcomments")
+    public String getBookParagraphComments(@RequestParam String bookID, int chapterNumber, int paragraphNumber) throws InterruptedException, ExecutionException {
+        System.out.println("inc ontroller");
+        ArrayList<HashMap<String, Object>> paragraphComments = this.booksService.getBookParagraphComments(bookID, chapterNumber, paragraphNumber);
+        Gson gson = new Gson();
+        String gsonData = gson.toJson(paragraphComments);
         return gsonData;
     }
 

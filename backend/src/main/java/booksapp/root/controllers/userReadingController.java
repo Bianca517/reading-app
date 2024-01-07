@@ -87,15 +87,4 @@ public class userReadingController {
             return "Could not plan book for month " + monthName;
         }
     }
-
-    @PostMapping(value = "/addbooktolibrary")
-    public String planBookForMonth(@RequestParam String bookID) throws ExecutionException, InterruptedException {
-        int returnedStatus = this.userReadingService.addBookToLibrary("4zgcWtT9c3RSy5FpFI18", bookID);
-        if(returnedStatus == 0) {
-            return "Successfully added book with ID " + bookID;
-        }
-        else {
-            return "Could not add book";
-        }
-    }
 }

@@ -8,6 +8,7 @@ import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.Query;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.WriteResult;
+import com.google.gson.Gson;
 import com.google.cloud.firestore.Query.Direction;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -160,13 +161,41 @@ public class booksService {
         return chapterTitlesArray[chapterNumber];
     }
 
-    public String getBookChapterContent(String bookID, int chapterNumber) throws InterruptedException, ExecutionException {
+    public ArrayList<HashMap<String, Object>> getBookChapterContent(String bookID, int chapterNumber) throws InterruptedException, ExecutionException {
         Map<String, Object> bookData = getBookByID(bookID);
         Object chapterContents = bookData.get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.CHAPTER_CONTENT_INDEX]);
-        List<Object> chapterContentsList = List.of(chapterContents);
-        System.out.println(chapterContentsList.get(chapterNumber));
-        String chapterContent = chapterContentsList.get(chapterNumber).toString();
-        return chapterContent;
+        List<Object> chapterContentsList = (List<Object>) chapterContents;
+    
+        // Ensure that the chapterNumber is within valid range
+        if (chapterNumber < 0 || chapterNumber >= chapterContentsList.size()) {
+            throw new IllegalArgumentException("Invalid chapterNumber");
+        }
+    
+        Map<String, Object> chapterData = (Map<String, Object>) chapterContentsList.get(0);
+        List<Object> paragraphsList = (List<Object>) chapterData.get("paragraphs");
+        System.out.println("paragraphs list ");
+        System.out.println(paragraphsList);
+        // Ensure that the chapterNumber is within valid range
+
+        if (chapterNumber < 0 || chapterNumber >= paragraphsList.size()) {
+            throw new IllegalArgumentException("Invalid chapterNumber");
+        }
+        
+        ArrayList<HashMap<String, Object>> chapterContentMap = new ArrayList<HashMap<String, Object>>();
+        
+        String chapterContent = "";
+        int idParagraph = 0;
+        for (Object paragraph : paragraphsList) {
+            Map<String, Object> paragraphData =  (Map<String, Object>) paragraph;
+            String paragraphContent = (String) paragraphData.get("content");
+            HashMap<String, Object> paragraphMap = new HashMap<String, Object>();
+            paragraphMap.put("id", idParagraph);
+            paragraphMap.put("content", paragraphContent);
+            chapterContentMap.add(paragraphMap);
+            idParagraph++;
+        }
+
+        return chapterContentMap;
     }
 
     public String getBookDescription(String bookID) throws InterruptedException, ExecutionException {
@@ -175,4 +204,35 @@ public class booksService {
         String bookDescription = description.toString();
         return bookDescription;
     }
+
+     public ArrayList<HashMap<String, Object>> getBookParagraphComments(String bookID, int chapterNumber, int paragraphNumber) throws InterruptedException, ExecutionException {
+        Map<String, Object> bookData = getBookByID(bookID);
+        Object chapterContents = bookData.get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.CHAPTER_CONTENT_INDEX]);
+        List<Object> chapterContentsList = (List<Object>) chapterContents;
+    
+        // Ensure that the chapterNumber is within valid range
+        if (chapterNumber < 0 || chapterNumber >= chapterContentsList.size()) {
+            throw new IllegalArgumentException("Invalid chapterNumber");
+        }
+    
+        Map<String, Object> chapterData = (Map<String, Object>) chapterContentsList.get(0);
+        List<Object> paragraphsList = (List<Object>) chapterData.get("paragraphs");
+        System.out.println("paragraphs list ");
+        System.out.println(paragraphsList);
+        // Ensure that the chapterNumber is within valid range
+
+        if (chapterNumber < 0 || chapterNumber >= paragraphsList.size()) {
+            throw new IllegalArgumentException("Invalid chapterNumber");
+        }
+        
+        ArrayList<HashMap<String, Object>> paragraphCommentsMap = new ArrayList<HashMap<String, Object>>();
+        
+        for (Object paragraph : paragraphsList) {
+            Map<String, Object> paragraphData =  (Map<String, Object>) paragraph;
+            paragraphCommentsMap = (ArrayList<HashMap<String, Object>>) paragraphData.get("comments");
+        }
+
+        return paragraphCommentsMap;
+    }
+
 }
