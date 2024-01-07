@@ -11,6 +11,7 @@ import TextDistributer from '../../components/page-distribution-calculator';
 import FaceDetectionModule from '../../components/face-detector';
 import { get_total_nr_of_chapters } from '../../../services/book-reading-service';
 import { loadTotalNumberOfChapters } from '../../components/service-calls-wrapper';
+import PageView from '../../components/page-view';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -97,13 +98,15 @@ export default function ReadingScreen( {route} ) {
     }, [bookID, chapterNumber]);
 
     useEffect(() => {
-        const distributedParagraphs: textParagraph[][] = TextDistributer(textToDisplay, bodyHeight, windowWidth, fontSize);
+        const distributedParagraphs: textParagraph[][] = TextDistributer(bookChapterContent, bodyHeight, windowWidth, fontSize);
         setParagraphsInPages(distributedParagraphs);
     }, [fontSize, bookChapterContent]);
 
     useEffect(() => {
         updateTextInPages(paragraphsInPages);
         setTotalPageNumbers(paragraphsInPages.length);
+        console.log("paragraphsInPages: ");
+        console.log(paragraphsInPages);
     }, [paragraphsInPages]);
 
     useEffect(() => {
@@ -118,7 +121,7 @@ export default function ReadingScreen( {route} ) {
     }, [totalPageNumbers]);
 
     useEffect(() => {
-        //console.log("text in page", textInPages);
+        console.log("text in page", textInPages);
     }, [textInPages]);
 
     useEffect(() => {
@@ -154,14 +157,15 @@ export default function ReadingScreen( {route} ) {
     }
 
     async function loadBookChapterContent() : Promise<void> {
-        //const fetchResponse = await get_book_chapter_content(bookID, 0).then();
-//
-        //if (fetchResponse.success) {
-        //    const receivedChapterContent: string = JSON.parse(fetchResponse.responseData);
-        //    //setBookChapterContent(receivedChapterContent);
-        //}
-        setBookChapterContent(textToDisplay);
+        const fetchResponse = await get_book_chapter_content(bookID, 0).then();
 
+        if (fetchResponse.success) {
+            const receivedChapterContent: textParagraph[] = JSON.parse(fetchResponse.message);
+            //console.log("aici");
+            console.log(receivedChapterContent);
+            setBookChapterContent(receivedChapterContent);
+        }
+        //setBookChapterContent(textToDisplay);
     }
 
     function updateFontFamily (fontFamily: string): void{
@@ -316,9 +320,13 @@ export default function ReadingScreen( {route} ) {
                             }}
                             renderItem={({ item }) => (
                                 <View style={[styles.content_view, { backgroundColor: selectedBackgroundColor }]}>
-                                    <Text style={[styles.content_text, { fontFamily: selectedFont, fontSize: fontSize, color: fontColor }]}>
-                                        {item}
-                                    </Text>
+                                    <PageView
+                                        paragraphsInAPage={paragraphsInPages[currentPage]}
+                                        selectedBackgroundColor={selectedBackgroundColor}
+                                        selectedFont={selectedFont}
+                                        fontColor={fontColor}
+                                        fontSize={fontSize}
+                                        />
                                 </View>
                             )}
                         />

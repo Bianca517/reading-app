@@ -51,12 +51,12 @@ export async function get_book_chapter_content(bookID: string, chapterNumber: nu
         .then((responseData) => {
             //console.log("got it");
             responseData = JSON.stringify(responseData);
-            return { success: true, responseData };
+            return { success: true, message: responseData };
         })
         .catch(async (e) => {
             console.log("intra pe catch");
             console.log(e);
-            return { success: false, e };
+            return { success: false, message: e };
         });
     return chapterContent
 }

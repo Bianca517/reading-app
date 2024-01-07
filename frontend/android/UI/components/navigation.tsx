@@ -11,6 +11,7 @@ import SubmitInterests from '../screens/submit_interests/interests';
 import ReadingScreen from '../screens/reading-screen/reading-ui';
 import TableOfContentsScreen from '../screens/reading-screen/table-of-contents';
 import BookDescriptionView from '../screens/reading-screen/book-description-view';
+import CommentsView from '../screens/comments_screen/comments-screen';
 import Globals from '../_globals/Globals';
 
 const Stack = createNativeStackNavigator();
@@ -46,6 +47,7 @@ export default function Navigation() {
         <Stack.Screen name="Reading Screen" component={ReadingScreen} />
         <Stack.Screen name="Table of Contents" component={TableOfContentsScreen} />
         <Stack.Screen name="Prologue" component={BookDescriptionView} />
+        <Stack.Screen name="Comments" component={CommentsView} />
         <Stack.Screen name="Test" component={FaceDetector} />
       </Stack.Navigator>
     </NavigationContainer>

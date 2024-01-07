@@ -84,7 +84,7 @@ public class bookController {
     
      @GetMapping(value = "/getbookparagraphcomments")
     public String getBookParagraphComments(@RequestParam String bookID, int chapterNumber, int paragraphNumber) throws InterruptedException, ExecutionException {
-        System.out.println("inc ontroller");
+        System.out.println("in controller for comments");
         ArrayList<HashMap<String, Object>> paragraphComments = this.booksService.getBookParagraphComments(bookID, chapterNumber, paragraphNumber);
         Gson gson = new Gson();
         String gsonData = gson.toJson(paragraphComments);
