@@ -1,5 +1,5 @@
 import React, { useState, useEffect, ReactNode } from 'react';
-import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, SafeAreaView } from 'react-native';
+import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, SafeAreaView, TextInput , ScrollView} from 'react-native';
 import Globals from '../../_globals/Globals';
 import { useNavigation } from '@react-navigation/native';
 import { FontAwesome } from '@expo/vector-icons';
@@ -26,19 +26,10 @@ interface Comment {
 
 export default function CommentsView({ bookID, chapterNumber, paragraphNumber } : props) {
     const [paragraphComments, setParagraphComments] = useState<comment[]>([]);
+    const [enteredComment, onChangeEnteredComment] = React.useState("");
 
     async function handleComments(comments: Object[]) {
         let commentsOK: Comment[] = [];
-
-        comments.forEach(comment => {
-            const author: string = Object.keys(comment)[0];
-            const content: string = comment[author];
-            const oneComment: Comment = {
-                author: author,
-                content: content,
-            }
-            commentsOK.push(oneComment);
-        });
 
         comments.forEach(comment => {
             const author: string = Object.keys(comment)[0];
@@ -67,6 +58,16 @@ export default function CommentsView({ bookID, chapterNumber, paragraphNumber } 
         }
     }
 
+    function addEnteredComment() {
+        console.log("adding comment");
+        console.log(enteredComment);
+        const commentToBeAdded: Comment = {
+            author: 'You',
+            content: enteredComment,
+        }
+        setParagraphComments([...paragraphComments, commentToBeAdded]);
+    }
+
     useEffect(() => {
         loadParagraphComments();
     }, []);
@@ -81,6 +82,16 @@ export default function CommentsView({ bookID, chapterNumber, paragraphNumber } 
             <View style={styles.whiteline}></View>
 
             <View style={styles.body}>
+                <View style={styles.textinputview}>
+                <TextInput
+                    style={styles.textinput}
+                    onChangeText={onChangeEnteredComment}
+                    value={enteredComment}
+                    placeholder="add a comment"
+                    onSubmitEditing={addEnteredComment}
+                />
+                </View>
+                <ScrollView style={styles.scrollview}>
                 {
                     paragraphComments.map(commentObject => (
                         <View key={commentObject.author} style={styles.oneCommentView}>
@@ -89,6 +100,7 @@ export default function CommentsView({ bookID, chapterNumber, paragraphNumber } 
                         </View>
                     ))
                 }
+                </ScrollView>
             </View>
         </SafeAreaView>
     );
@@ -149,5 +161,21 @@ const styles = StyleSheet.create({
         borderBottomWidth: 2,
         width: windowWidth * 0.7,
         marginBottom: 10,
+    },
+    textinputview: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    scrollview: {
+
+    },
+    textinput: {
+        width: windowWidth * 0.7,
+        borderRadius: 25,
+        marginBottom: 12,
+        padding: 10,
+        backgroundColor: 'gray',
+        paddingLeft: 20,
     }
 })
