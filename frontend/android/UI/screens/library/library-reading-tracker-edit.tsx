@@ -229,5 +229,6 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "flex-start",
     alignItems: "center", // Align items to the start within each row
+    columnGap: -15
   }
 });
