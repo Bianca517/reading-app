@@ -13,6 +13,8 @@ type textParagraph = {
 }
 
 type props = {
+    bookID: string;
+    chapterNumber: number;
     paragraphsInAPage: textParagraph[];
     selectedBackgroundColor: string;
     selectedFont: string;
@@ -20,7 +22,7 @@ type props = {
     fontColor: string;
 }
 
-export default function PageView({ paragraphsInAPage, selectedBackgroundColor, selectedFont, fontSize, fontColor} : props) {
+export default function PageView({ bookID, chapterNumber, paragraphsInAPage, selectedBackgroundColor, selectedFont, fontSize, fontColor} : props) {
     const navigation = useNavigation();
 
     function mapTextAndButtons(): ReactNode {
@@ -38,9 +40,9 @@ export default function PageView({ paragraphsInAPage, selectedBackgroundColor, s
                                 style={styles.comments_button}
                                 onPress={() => {
                                     navigation.navigate('Comments', {
-                                        bookID: "GRav9LLWPj6ISCOGxfVZ",
-                                        chapterNumber: 0,
-                                        paragraphNumber: 0
+                                        bookID: bookID,
+                                        chapterNumber: chapterNumber,
+                                        paragraphNumber: paragraphMap.id
                                     });
                                 }}>
                                 <FontAwesome name="commenting" size={24} color="white" />

@@ -8,12 +8,6 @@ import { ResponseType } from '../../../types';
 
 const windowWidth = Dimensions.get('window').width;
 
-type props = {
-    bookID: string;
-    chapterNumber: number;
-    paragraphNumber: number;
-}
-
 type comment = {
     author: string;
     content: string;
@@ -24,7 +18,11 @@ interface Comment {
     content: string;
 }
 
-export default function CommentsView({ bookID, chapterNumber, paragraphNumber } : props) {
+export default function CommentsView({ route }) {
+    const bookID = route.params.bookID;
+    const chapterNumber = route.params.chapterNumber;
+    const paragraphNumber = route.params.paragraphNumber;
+
     const [paragraphComments, setParagraphComments] = useState<comment[]>([]);
     const [enteredComment, onChangeEnteredComment] = React.useState("");
 
@@ -49,7 +47,7 @@ export default function CommentsView({ bookID, chapterNumber, paragraphNumber } 
 
     async function loadParagraphComments() {
         //TODO: pls change
-        const fetchedResponse: ResponseType = await get_book_paragraph_comments("GRav9LLWPj6ISCOGxfVZ", 0, 0);
+        const fetchedResponse: ResponseType = await get_book_paragraph_comments(bookID, chapterNumber, paragraphNumber);
 
         if(fetchedResponse.success) {
             const paragraphCommentsReceived = JSON.parse(fetchedResponse.message);

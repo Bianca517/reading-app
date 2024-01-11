@@ -308,6 +308,8 @@ export default function ReadingScreen( {route} ) {
                             renderItem={({ item }) => (
                                 <View style={[styles.content_view, { backgroundColor: selectedBackgroundColor }]}>
                                     <PageView
+                                        bookID={bookID}
+                                        chapterNumber={chapterNumber}
                                         paragraphsInAPage={paragraphsInPages[currentPage]}
                                         selectedBackgroundColor={selectedBackgroundColor}
                                         selectedFont={selectedFont}
