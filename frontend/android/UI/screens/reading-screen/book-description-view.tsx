@@ -4,6 +4,7 @@ import Globals from '../../_globals/Globals';
 import { AntDesign } from '@expo/vector-icons'; 
 import { useNavigation } from '@react-navigation/native';
 import { get_book_description, add_book_to_library } from '../../../services/book-reading-service';
+import GlobalBookData from '../../_globals/GlobalBookData';
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -19,15 +20,22 @@ type ResponseType = {
     message: string,
 }
 
+interface book {
+    name: string,
+    id: string,
+    authorUsername: string,
+}
+
 export default function BookDescriptionView({route}) {
-    const bookTitle: string = route.params.bookTitle;
-    const bookID: string = route.params.bookID;
-    const bookAuthor: string = route.params.bookAuthor;
+    const bookTitle: string = route.params.name;
+    const bookID: string = route.params.id;
+    const bookAuthor: string = route.params.authorUsername;
     const bookCoverImageUrl: string = route.params.bookCoverImage;
     const [bookDescription, setBookDescription] = useState<string>("");
     const navigation = useNavigation();
 
-    console.log("bookID", bookID);
+    console.log("bookID")
+    console.log(bookID);
 
     async function loadBookDescription() {
         const fetchResponse: ResponseType = await get_book_description(bookID).then();
@@ -39,6 +47,13 @@ export default function BookDescriptionView({route}) {
     }
 
     async function addBookToLibrary() {
+        const bookToBeAdded: book = {
+            name: bookTitle,
+            authorUsername: bookAuthor,
+            id: bookID,
+        }
+        GlobalBookData.CURRENT_READINGS.push(bookToBeAdded);
+
         const fetchResponse: ResponseType = await add_book_to_library(bookID).then();
 
         if(fetchResponse.success) {
@@ -53,6 +68,8 @@ export default function BookDescriptionView({route}) {
 
     useEffect(() => {
         loadBookDescription();
+        console.log("in prologue");
+        console.log(route.params);
     }, []);
 
     return(

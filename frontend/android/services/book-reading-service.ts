@@ -4,9 +4,10 @@ const GET_CHAPTER_TITLE_ENDPOINT: string = "/getbookchaptertitle?bookID=BOOK_ID&
 const GET_CHAPTER_CONTENT_ENDPOINT: string = "/getbookchaptercontent?bookID=BOOK_ID&chapterNumber=CHAPTER_NUMBER"
 const GET_BOOK_DESCRIPTION_ENDPOINT: string = "/getbookdescription?bookID=BOOK_ID"
 const GET_TOTAL_NR_OF_CHAPTERS_ENDPOINT: string = "/getbookchapters?bookID=BOOK_ID"
-const ADD_BOOK_TO_LIBRARY_ENDPOINT: string = "/addbooktolibrary?bookID=BOOK_ID"
+const ADD_BOOK_TO_LIBRARY_ENDPOINT: string = "/addbooktolibrary?userID=USER_ID&bookID=BOOK_ID"
 const BOOK_ID_STRING_TO_REPLACE: string = "BOOK_ID"
 const CHAPTER_NUMBER_STRING_TO_REPLACE: string = "CHAPTER_NUMBER"
+const USERID_STRING_TO_REPLACE: string = "USER_ID"
 
 export async function get_number_of_chapters_of_book(bookID: string) {
     let HTTPS_REQUEST = Globals.BACKEND_HTTP + GET_NUMBER_OF_CHAPTERS_ENDPOINT;
@@ -144,6 +145,7 @@ export async function get_total_nr_of_chapters(bookID: string) {
 export async function add_book_to_library(bookID: string) {
     let HTTPS_REQUEST = Globals.BACKEND_HTTP + ADD_BOOK_TO_LIBRARY_ENDPOINT;
     HTTPS_REQUEST = HTTPS_REQUEST.replace(BOOK_ID_STRING_TO_REPLACE, bookID);
+    HTTPS_REQUEST = HTTPS_REQUEST.replace(USERID_STRING_TO_REPLACE, "4zgcWtT9c3RSy5FpFI18");
     console.log(HTTPS_REQUEST);
 
     var requestResponse = await fetch(HTTPS_REQUEST, {

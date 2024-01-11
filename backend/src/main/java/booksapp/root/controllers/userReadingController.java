@@ -87,4 +87,14 @@ public class userReadingController {
             return "Could not plan book for month " + monthName;
         }
     }
+
+    @PostMapping(value = "/addbooktolibrary")
+    public String addBooktolibrary(@RequestParam String userID, String bookID) throws ExecutionException, InterruptedException {
+        int returnedStatus = this.userReadingService.addBookToCurrentReadings(userID, bookID);
+        HashMap<String, String> returnJson = new HashMap<String, String>();
+        returnJson.put("status", returnedStatus == 0 ? "Successfully added book to current readings" : "Book could not be added to current readings");
+        Gson gson = new Gson();
+        String gsonData = gson.toJson(returnJson);
+        return gsonData;
+    }
 }

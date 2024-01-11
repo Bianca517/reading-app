@@ -59,7 +59,6 @@ export default function CommentsView({ bookID, chapterNumber, paragraphNumber } 
     }
 
     function addEnteredComment() {
-        console.log("adding comment");
         console.log(enteredComment);
         const commentToBeAdded: Comment = {
             author: 'You',

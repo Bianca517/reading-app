@@ -28,6 +28,8 @@ export default function Book(props: BookProps) {
 
     useEffect(() => {
         checkIfBookIsInLibrary();
+        console.log("book id")
+        console.log(bookID);
     }, []);
 
     function checkIfBookIsInLibrary() {
@@ -42,21 +44,21 @@ export default function Book(props: BookProps) {
         if(!isBookInLibrary || (userCurrentChapterInBook == 0)) {
             navigation.navigate("Prologue", 
                 { 
-                    "bookID" : bookID, 
+                    "id" : bookID, 
                     "chapterNumber" : 1, 
                     "bookCoverImage" : bookCover, 
-                    "bookTitle": bookTitle, 
-                    "bookAuthor": bookAuthor
+                    "name": bookTitle, 
+                    "authorUsername": bookAuthor
                 })
         }
         else {
             navigation.navigate("Reading Screen", 
                 { 
-                    "bookID" : bookID, 
+                    "id" : bookID, 
                     "chapterNumber" : userCurrentChapterInBook, 
                     "bookCoverImage" : bookCover, 
-                    "bookTitle": bookTitle, 
-                    "bookAuthor": bookAuthor
+                    "name": bookTitle, 
+                    "authorUsername": bookAuthor
                 })
         }
     }

@@ -1,5 +1,6 @@
 package booksapp.root.services;
 
+import booksapp.root.models.Book;
 import booksapp.root.models.GlobalConstants;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.CollectionReference;
@@ -36,54 +37,57 @@ public class booksService {
         this.userReadingService = new userReadingService(DB);
     }
 
-    public HashMap<String, List<String>> getAllPopularBooks() throws ExecutionException, InterruptedException {
+    public ArrayList<HashMap<String, String>> getAllPopularBooks() throws ExecutionException, InterruptedException {
         // get all documents from the book collection
         Query collectionDocumentsQuery = booksCollectionDB.get().get().getQuery();
-
+    
         // order documents descending by popularity; get the first 10 popular
         collectionDocumentsQuery = collectionDocumentsQuery
                 .orderBy(GlobalConstants.BOOK_COLLECTION_FIELDS[4], Direction.DESCENDING)
                 .limit(GlobalConstants.DISPLAYED_BOOKS_IN_HOME_SCREEN);
-
-        // get the list of documents resulted form the query
+    
+        // get the list of documents resulted from the query
         List<QueryDocumentSnapshot> documentsList = collectionDocumentsQuery.get().get().getDocuments();
-
-        // get a map with the id, cover, name, author name from the documents list
-        HashMap<String, List<String>> resultedBooks = new HashMap<String, List<String>>();
+    
+        // get a list of maps with the id, cover, name, author name from the documents list
+        ArrayList<HashMap<String, String>> resultedBooks = new ArrayList<HashMap<String, String>>();
         for (int i = 0; i < GlobalConstants.DISPLAYED_BOOKS_IN_HOME_SCREEN && i < documentsList.size(); i++) {
             if (documentsList.get(i) != null) {
                 String bookID = documentsList.get(i).getId();
-                ArrayList<String> bookFields = new ArrayList<String>();
-                bookFields.add(documentsList.get(i).get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_TITLE_INDEX]).toString());
-                bookFields.add(documentsList.get(i).get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_AUTHOR_INDEX]).toString());
-                resultedBooks.put(bookID, bookFields);
+                HashMap<String, String> book = new HashMap<String, String>();
+                book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[0], bookID);
+                book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[1], documentsList.get(i).get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_TITLE_INDEX]).toString());
+                book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[2], documentsList.get(i).get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_AUTHOR_INDEX]).toString());
+                resultedBooks.add(book);
             }
         }
-
+    
         System.out.println(resultedBooks);
         return resultedBooks;
     }
+    
 
-    public HashMap<String, List<String>> getRecommendationsForUsedWithID(String userID)
+    public ArrayList<HashMap<String, String>> getRecommendationsForUserWithID(String userID)
             throws InterruptedException, ExecutionException {
         // get users interests
         ArrayList<String> usersInterests = userReadingService.getUsersGeneresInterests(userID);
 
-        HashMap<String, List<String>> booksToReturn = new HashMap<String, List<String>>(
+        ArrayList<HashMap<String, String>> booksToReturn = new ArrayList<HashMap<String, String>>(
                 GlobalConstants.DISPLAYED_BOOKS_IN_HOME_SCREEN);
-        Integer numberOfBooksOfEachGender = Math.floorDiv(GlobalConstants.DISPLAYED_BOOKS_IN_HOME_SCREEN,
+        Integer numberOfBooksOfEachGenre = Math.floorDiv(GlobalConstants.DISPLAYED_BOOKS_IN_HOME_SCREEN,
                 usersInterests.size());
         // for GlobalConstants.DISPLAYED_BOOKS_IN_HOME_SCREEN number / user interests ->
         // choose a random book with that genre
         for (String genre : usersInterests) {
-            HashMap<String, List<String>> booksWithGenre = getXBooksWithGenre(genre, numberOfBooksOfEachGender);
-            booksToReturn.putAll(booksWithGenre);
+            ArrayList<HashMap<String, String>> booksWithGenre = getXBooksWithGenre(genre, numberOfBooksOfEachGenre);
+            booksToReturn.addAll(booksWithGenre);
         }
 
         return booksToReturn;
-    }
+    }   
 
-    public HashMap<String, List<String>> getXBooksWithGenre(String genre, Integer X)
+
+    public ArrayList<HashMap<String, String>> getXBooksWithGenre(String genre, Integer X)
             throws ExecutionException, InterruptedException {
         // get all documents from the book collection
         Query collectionDocumentsQuery = booksCollectionDB.get().get().getQuery();
@@ -93,40 +97,46 @@ public class booksService {
 
         // get documents which contain the specified book genre
         collectionDocumentsQuery = collectionDocumentsQuery
-                .whereEqualTo(GlobalConstants.BOOK_COLLECTION_FIELDS[5], genre);
+                .whereEqualTo(GlobalConstants.BOOK_COLLECTION_FIELDS[8], genre);
 
         // get a random book from the resulted books
         List<QueryDocumentSnapshot> resultedBooks = collectionDocumentsQuery.get().get().getDocuments();
 
-        HashMap<String, List<String>> booksToReturn = new HashMap<String, List<String>>(X);
+        ArrayList<HashMap<String, String>> booksToReturn = new ArrayList<HashMap<String, String>>(X);
 
         for (int i = 0; (i < X) && (i < resultedBooks.size()); i++) {
             int randomIndex = (int) (Math.random() * resultedBooks.size());
 
             QueryDocumentSnapshot book = resultedBooks.get(randomIndex);
 
-            ArrayList<String> bookFields = new ArrayList<String>();
+            HashMap<String, String> bookFields = new HashMap<String, String>();
+            // book id
+            bookFields.put(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_ID_INDEX], book.getId().toString());
             // book name
-            bookFields.add(book.get(GlobalConstants.BOOK_COLLECTION_FIELDS[0]).toString());
+            bookFields.put(GlobalConstants.BOOK_COLLECTION_FIELDS[1], book.get(GlobalConstants.BOOK_COLLECTION_FIELDS[1]).toString());
             // book author
-            bookFields.add(book.get(GlobalConstants.BOOK_COLLECTION_FIELDS[1]).toString());
+            bookFields.put(GlobalConstants.BOOK_COLLECTION_FIELDS[2], book.get(GlobalConstants.BOOK_COLLECTION_FIELDS[2]).toString());
 
-            booksToReturn.put(book.getId(), bookFields);
+            booksToReturn.add(bookFields);
         }
         return booksToReturn;
     }
 
-    public void addBooks() {
-        HashMap<String, Object> book = new HashMap<String, Object>();
 
-        book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[0], "Complicity");
-        book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[1], "annatodd2");
-        book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[2], "101");
-        book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[3],
-                "gs://reading-app-d23dc.appspot.com/book_covers/Complicity_annatodd2.png");
-        book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[4], "245");
-        book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[5], "Action");
-        booksCollectionDB.add(book);
+    public void addBooks(Book book) {
+
+
+        Map<String, Object> bookMap = new HashMap<>();
+        bookMap.put("authorUsername", book.getAuthorUsername());
+        bookMap.put("chaptersContents", book.getChaptersContents());
+        bookMap.put("chaptersTitles", book.getChaptersTitles());
+        bookMap.put("description", book.getDescription());
+        bookMap.put("genre", book.getGenre());
+        bookMap.put("name", book.getName());
+        bookMap.put("numberOfChapters", book.getNumberOfChapters());
+        bookMap.put("readers", book.getReaders());
+          
+        booksCollectionDB.add(bookMap);
 
     }
 

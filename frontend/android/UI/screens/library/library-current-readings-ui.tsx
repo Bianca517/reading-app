@@ -21,8 +21,15 @@ export default function LibraryPageCurrentReadingsUI() {
 
     //this executes on page load
     useEffect(() => {
+        console.log("in current readings");
+        console.log(GlobalBookData.CURRENT_READINGS);
         if(!GlobalBookData.CURRENT_READINGS) {
             loadCurrentReadingBooks();
+        }
+        else {
+            console.log("intra aici");
+            setCurrentReadingBooks(GlobalBookData.CURRENT_READINGS);
+            console.log(currentReadingBooks);
         }
     }, []);
 

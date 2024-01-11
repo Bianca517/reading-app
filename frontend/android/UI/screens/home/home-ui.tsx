@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, SafeAreaView, ScrollView, Image, FlatList } fro
 import { LinearGradient } from 'expo-linear-gradient';
 import Footer from '../../components/footer';
 import Book from '../../components/book';
-import { get_finalized_readings, get_current_readings } from '../../../services/retrieve-books-service';
+import { get_finalized_readings, get_current_readings, get_popular_readings, get_recommended_readings } from '../../../services/retrieve-books-service';
 import Globals from '../../_globals/Globals';
 import { useNavigation } from '@react-navigation/native';
 import GlobalBookData from '../../_globals/GlobalBookData';
@@ -15,13 +15,15 @@ export default function HomePageUI() {
 
     const [popularBooks, setPopularBooks] = useState([]);
     const [currentReadingBooks, setCurrentReadingBooks] = useState([]);
+    const [recommendedBooks, setRecommendedBooks] = useState([]);
 
     async function loadPopularBooks() {
-        const fetchResponse: ResponseType = await get_finalized_readings().then();
+        const fetchResponse: ResponseType = await get_popular_readings().then();
 
         if (fetchResponse.success) {
             setPopularBooks(JSON.parse(fetchResponse.message));
-            GlobalBookData.FINALIZED_READINGS = JSON.parse(fetchResponse.message);
+            console.log('Popular books loaded successfully');
+            console.log(fetchResponse.message);
         }
     }
 
@@ -30,8 +32,23 @@ export default function HomePageUI() {
 
         if (fetchResponse.success) {
             setCurrentReadingBooks(JSON.parse(fetchResponse.message));
-            //console.log(JSON.parse(fetchResponse.message));
             GlobalBookData.CURRENT_READINGS = JSON.parse(fetchResponse.message);
+        }
+    }
+
+    async function loadRecommendedReadingBooks() {
+        const fetchResponse: ResponseType = await get_recommended_readings().then();
+
+        if (fetchResponse.success) {
+            setRecommendedBooks(JSON.parse(fetchResponse.message));
+        }
+    }
+
+    async function loadFinalizedReadingBooks() {
+        const fetchResponse: ResponseType = await get_finalized_readings().then();
+
+        if (fetchResponse.success) {
+            GlobalBookData.FINALIZED_READINGS = JSON.parse(fetchResponse.message);
         }
     }
 
@@ -43,6 +60,8 @@ export default function HomePageUI() {
     
         loadPopularBooks();
         loadCurrentReadingBooks();
+        loadRecommendedReadingBooks();
+        loadFinalizedReadingBooks();
         //load this for the reading planner here as it takes a long time and it shall be prepared until user gets there
         loadCurrentPlannedBooks();
     }, []);
@@ -70,7 +89,14 @@ export default function HomePageUI() {
                         </View>
 
                         <View style={[styles.books_container, { backgroundColor: '#81179b' }]}>
-
+                        <ScrollView horizontal={true}>
+                                {
+                                    /*Warning: Each child in a list should have a unique "key" prop.*/
+                                    currentReadingBooks.map((book, index) => (
+                                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={175} bookWithDetails={false}/>
+                                    ))
+                                }
+                            </ScrollView>
                         </View>
                     </View>
 
@@ -91,7 +117,7 @@ export default function HomePageUI() {
                             <ScrollView horizontal={true}>
                                 {
                                     /*Warning: Each child in a list should have a unique "key" prop.*/
-                                    currentReadingBooks.map((book, index) => (
+                                    recommendedBooks.map((book, index) => (
                                         <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={175} bookWithDetails={false}/>
                                     ))
                                 }

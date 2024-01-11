@@ -39,7 +39,7 @@ let textToDisplay: textParagraph[] =
 
 export default function ReadingScreen( {route} ) {
     //route params
-    const bookID = route.params.bookID;
+    const bookID = route.params.id;
 
     //customization parameters
     const [selectedBackgroundColor, setSelectedBackgroundColor] = useState<string>(Globals.COLORS.BACKGROUND_GRAY);
@@ -157,7 +157,7 @@ export default function ReadingScreen( {route} ) {
     }
 
     async function loadBookChapterContent() : Promise<void> {
-        const fetchResponse = await get_book_chapter_content(bookID, 0).then();
+        const fetchResponse = await get_book_chapter_content(bookID, chapterNumber).then();
 
         if (fetchResponse.success) {
             const receivedChapterContent: textParagraph[] = JSON.parse(fetchResponse.message);
