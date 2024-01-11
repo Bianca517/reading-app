@@ -17,7 +17,7 @@ type ContextInterface = {
 }
 
 export default function BookDraggable({ bookFields, bookCoverWidth, bookCoverHeight, bookAddedCallback }: BookProps) {
-    console.log("am primit in draggable", bookFields);
+    //console.log("am primit in draggable", bookFields);
 
     let bookFieldsJSON = JSON.parse(bookFields);
     const bookTitle = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[0]];

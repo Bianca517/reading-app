@@ -26,6 +26,7 @@ public class GlobalConstants {
 
         public final static String[] PARAGRAPH_FIELDS = {"comments", "content"};
         public final static int PARAGRAPH_CONTENT_INDEX = 1;
+        public final static int PARAGRAPH_COMMENTS_INDEX = 0;
 
         public final static String[] USERS_COLLECTION_FIELDS = { "userName", "password", "salt", "emailAddress",
                         "interests", "currentReadings", "finalizedReadings", "plannedBooks" };

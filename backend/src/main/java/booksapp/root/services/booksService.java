@@ -175,21 +175,16 @@ public class booksService {
         Map<String, Object> bookData = getBookByID(bookID);
         Object chapterContents = bookData.get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.CHAPTER_CONTENT_INDEX]);
         List<Object> chapterContentsList = (List<Object>) chapterContents;
-    
+        System.out.println("aici" + chapterNumber);
         // Ensure that the chapterNumber is within valid range
         if (chapterNumber < 0 || chapterNumber >= chapterContentsList.size()) {
             throw new IllegalArgumentException("Invalid chapterNumber");
         }
     
-        Map<String, Object> chapterData = (Map<String, Object>) chapterContentsList.get(0);
+        Map<String, Object> chapterData = (Map<String, Object>) chapterContentsList.get(chapterNumber);
         List<Object> paragraphsList = (List<Object>) chapterData.get("paragraphs");
         System.out.println("paragraphs list ");
         System.out.println(paragraphsList);
-        // Ensure that the chapterNumber is within valid range
-
-        if (chapterNumber < 0 || chapterNumber >= paragraphsList.size()) {
-            throw new IllegalArgumentException("Invalid chapterNumber");
-        }
         
         ArrayList<HashMap<String, Object>> chapterContentMap = new ArrayList<HashMap<String, Object>>();
         
@@ -225,24 +220,17 @@ public class booksService {
             throw new IllegalArgumentException("Invalid chapterNumber");
         }
     
-        Map<String, Object> chapterData = (Map<String, Object>) chapterContentsList.get(0);
-        List<Object> paragraphsList = (List<Object>) chapterData.get("paragraphs");
-        System.out.println("paragraphs list ");
-        System.out.println(paragraphsList);
-        // Ensure that the chapterNumber is within valid range
-
-        if (chapterNumber < 0 || chapterNumber >= paragraphsList.size()) {
-            throw new IllegalArgumentException("Invalid chapterNumber");
-        }
-        
-        ArrayList<HashMap<String, Object>> paragraphCommentsMap = new ArrayList<HashMap<String, Object>>();
-        
-        for (Object paragraph : paragraphsList) {
-            Map<String, Object> paragraphData =  (Map<String, Object>) paragraph;
-            paragraphCommentsMap = (ArrayList<HashMap<String, Object>>) paragraphData.get("comments");
-        }
-
-        return paragraphCommentsMap;
+        Map<String, Object> chapterData = (Map<String, Object>) chapterContentsList.get(chapterNumber);
+        System.out.println("bsscfsfsdics");
+        System.out.println(chapterData);
+        HashMap<String, Object> selectedParagraph = ((List<HashMap<String, Object>>) chapterData.get("paragraphs")).get(paragraphNumber);
+        System.out.println("bsdics");
+        System.out.println(selectedParagraph);
+        ArrayList<HashMap<String, Object>> paragraphComments = (ArrayList<HashMap<String, Object>>)selectedParagraph.get(GlobalConstants.PARAGRAPH_FIELDS[GlobalConstants.PARAGRAPH_COMMENTS_INDEX]);
+        System.out.println("paragraphs data ");
+        System.out.println(paragraphComments);
+     
+        return paragraphComments;
     }
 
 }

@@ -15,17 +15,21 @@ type ResponseType = {
 
 export default function TableOfContentsScreen({ route }) {
     const bookID: string = route.params.bookID;
+    const chapterTitlesRoute: string[] = route.params.chapterTitles;
+
     const [numberOfChapters, setNumberOfChapters] = useState<number>(0);
     const [chapterTitles, setChapterTitles] = useState<string[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const navigation = useNavigation();
 
     useEffect(() => {
-        const fetchData = async () => {
-            await loadNumberOfChapters();
-        };
-
-        fetchData();
+        if(!chapterTitlesRoute) {
+            loadNumberOfChapters();
+        }
+        else {
+            setChapterTitles(chapterTitlesRoute);
+            setLoading(false);
+        }
     }, []);
 
     useEffect(() => {
@@ -38,9 +42,10 @@ export default function TableOfContentsScreen({ route }) {
         let fetchResponse = await get_number_of_chapters_of_book(bookID);
 
         if (fetchResponse.success) {
-            const receivedNumberOfChapters: number = JSON.parse(fetchResponse.responseData);
+            const receivedNumberOfChapters: number = parseInt(fetchResponse.message);
             setNumberOfChapters(receivedNumberOfChapters);
-            console.log("numberOfChapters: " + receivedNumberOfChapters);
+            setLoading(false);
+            //console.log("numberOfChapters: " + receivedNumberOfChapters);
         }
     }
 
@@ -51,14 +56,26 @@ export default function TableOfContentsScreen({ route }) {
             let fetchResponse = await get_book_chapter_title(bookID, i);
 
             if (fetchResponse.success) {
-                const chapterTitle: string = JSON.parse(fetchResponse.message);
+                const chapterTitle: string = fetchResponse.message;
                 receivedChapterTitles.push(chapterTitle);
-                console.log("chapterTitle: " + chapterTitle);
             }
         }
 
         setChapterTitles(receivedChapterTitles);
         setLoading(false);
+    }
+
+    function handleNavigation(index: number): void {
+        navigation.navigate(
+            "Reading Screen",
+            { 
+                "id" : bookID, 
+                "chapterNumber" : index, 
+                "bookCoverImage" : "", 
+                "bookTitle": "", 
+                "bookAuthor": ""
+            }
+        )
     }
 
     return (
@@ -68,16 +85,7 @@ export default function TableOfContentsScreen({ route }) {
                     <Text style={styles.titleText}>Loading...</Text>
                 ) : (
                     chapterTitles.map((title, index) => (
-                        <TouchableOpacity key={index} style={styles.chapterContainer} onPress={() => navigation.navigate(
-                            "Reading Screen",
-                            { 
-                                "bookID" : bookID, 
-                                "chapterNumber" : index, 
-                                "bookCoverImage" : "", 
-                                "bookTitle": "", 
-                                "bookAuthor": ""
-                            }
-                        )}>
+                        <TouchableOpacity key={index} style={styles.chapterContainer} onPress={() => handleNavigation(index)}>
                             <Text style={styles.chapterText}>Chapter {index + 1}</Text>
                             <View style={styles.divider} />
                             <Text style={styles.titleText}>{title}</Text>

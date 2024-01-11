@@ -24,13 +24,12 @@ export async function get_number_of_chapters_of_book(bookID: string) {
         .then((responseData) => {
             console.log("got it");
             //console.log(JSON.stringify(responseData));
-            responseData = JSON.stringify(responseData);
-            return { success: true, responseData };
+            return { success: true, message: responseData };
         })
         .catch(async (e) => {
             console.log("intra pe catch");
             console.log(e);
-            return { success: false, e };
+            return { success: false, message: e };
         });
     return returnedNumberOfChapters
 }
@@ -78,7 +77,7 @@ export async function get_book_chapter_title(bookID: string, chapterNumber: numb
         .then((response) => response.json())
         .then((responseData) => {
             //console.log("TITLE");
-            responseData = JSON.stringify(responseData);
+            responseData = responseData.toString();
             //console.log(responseData);
             return { success: true, message: responseData };
         })
@@ -130,7 +129,7 @@ export async function get_total_nr_of_chapters(bookID: string) {
     })
         .then((response) => response.json())
         .then((responseData) => {
-            responseData = JSON.stringify(responseData);
+            //responseData = JSON.stringify(responseData);
             //console.log(responseData);
             return { success: true, message: responseData };
         })

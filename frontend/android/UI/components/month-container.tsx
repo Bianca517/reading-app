@@ -65,7 +65,7 @@ export default function MonthContainer( {index,height, inEditMode, plannedBookLi
                         inEditMode ? (
                             <EditableBook key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={150} currentMonthName={currentMonthName} onBookRemovedCallback={onBookRemovedCallback}/>
                         ) : (
-                            <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={180} />
+                            <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={180} bookWithDetails={true} />
                         )
                     ))
                 }

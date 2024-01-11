@@ -34,9 +34,6 @@ export default function BookDescriptionView({route}) {
     const [bookDescription, setBookDescription] = useState<string>("");
     const navigation = useNavigation();
 
-    console.log("bookID")
-    console.log(bookID);
-
     async function loadBookDescription() {
         const fetchResponse: ResponseType = await get_book_description(bookID).then();
 
@@ -68,8 +65,6 @@ export default function BookDescriptionView({route}) {
 
     useEffect(() => {
         loadBookDescription();
-        console.log("in prologue");
-        console.log(route.params);
     }, []);
 
     return(
@@ -98,7 +93,7 @@ export default function BookDescriptionView({route}) {
                     <TouchableOpacity style={styles.startReadingButton}  activeOpacity={0.5} onPress={() => navigation.navigate(
                             "Reading Screen",
                             { 
-                                "bookID" : bookID, 
+                                "id" : bookID, 
                                 "chapterNumber" : 1, 
                                 "bookCoverImage" : "", 
                                 "bookTitle": "", 

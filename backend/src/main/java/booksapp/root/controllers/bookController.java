@@ -86,7 +86,7 @@ public class bookController {
     @GetMapping(value = "/getbookchaptertitle")
     public String getBookChapterTitle(@RequestParam String bookID, int chapterNumber) throws InterruptedException, ExecutionException {
         System.out.println("inc ontroller");
-        String bookChapterTitle = this.booksService.getBookChapterTitle("GRav9LLWPj6ISCOGxfVZ", chapterNumber);
+        String bookChapterTitle = this.booksService.getBookChapterTitle(bookID, chapterNumber);
         Gson gson = new Gson();
         String gsonData = gson.toJson(bookChapterTitle);
         return gsonData;
@@ -95,7 +95,7 @@ public class bookController {
     @GetMapping(value = "/getbookchaptercontent")
     public String getBookChapterContent(@RequestParam String bookID, int chapterNumber) throws InterruptedException, ExecutionException {
         System.out.println("inc ontroller");
-        ArrayList<HashMap<String, Object>> bookChapterContent = this.booksService.getBookChapterContent("GRav9LLWPj6ISCOGxfVZ", chapterNumber);
+        ArrayList<HashMap<String, Object>> bookChapterContent = this.booksService.getBookChapterContent(bookID, chapterNumber);
         //bookChapterContent = bookChapterContent.substring(1, bookChapterContent.length() - 1);
         Gson gson = new Gson();
         String gsonData = gson.toJson(bookChapterContent);
