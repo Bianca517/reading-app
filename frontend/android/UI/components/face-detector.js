@@ -42,9 +42,7 @@ export default function FaceDetectionModule({ userAlreadyGavePermission, scrollR
             scrollLeftCallback();
             console.log("swiping left");
             //Alert.alert('Swipe left');
-            delay(800).then(() => {
-              setFaceTiltedLeft(false)
-            });
+            delay(800);
         }
       }
     }
@@ -62,12 +60,20 @@ export default function FaceDetectionModule({ userAlreadyGavePermission, scrollR
             //Alert.alert('Swipe right');
             scrollRightCallback();
             console.log('Swipe right');
-            delay(800).then(() => {
-              setFaceTiltedRight(false)
-            });
+            delay(800);
         }
       }
     }
+  }
+
+  function checkForFaceCentered(faceX, faceY, faceYawAngle, faceTilt) {
+      //const isFaceCentered = ((faceX > X_LIMITS[0]) && (faceX < X_LIMITS[1])) && ((faceY > Y_LIMITS[0]) && (faceY < Y_LIMITS[1]));
+      const isFaceCenteredOnScreen = ((faceX > X_LIMITS[0]) && (faceX < X_LIMITS[1]));
+      const isFaceNotRotated = (faceYawAngle > STRAIGHT_ANGLES[0]) || (faceYawAngle < STRAIGHT_ANGLES[1]);
+      const isFaceNotTilted = (faceTilt > STRAIGHT_ANGLES[0]) || (faceTilt < STRAIGHT_ANGLES[1]);
+      //console.log("face centered", isFaceCentered);
+      //console.log("face not rotated", isFaceNotRotated);
+      return (isFaceCenteredOnScreen && isFaceNotRotated && isFaceNotTilted);
   }
 
 
@@ -82,13 +88,17 @@ export default function FaceDetectionModule({ userAlreadyGavePermission, scrollR
       const faceX = face.bounds.origin.x;
       const faceY = face.bounds.origin.y;
       //console.log(faceX);
-      //const isFaceCentered = ((faceX > X_LIMITS[0]) && (faceX < X_LIMITS[1])) && ((faceY > Y_LIMITS[0]) && (faceY < Y_LIMITS[1]));
-      const isFaceCentered = ((faceX > X_LIMITS[0]) && (faceX < X_LIMITS[1]));
-      const isFaceNotRotated = (faceYawAngle > STRAIGHT_ANGLES[0]) || (faceYawAngle < STRAIGHT_ANGLES[1])
-      //console.log("face centered", isFaceCentered);
-      //console.log("face not rotated", isFaceNotRotated);
-      if(isFaceNotRotated && isFaceCentered) {
-        console.log("face centered OK");
+      const isFaceCentered = checkForFaceCentered(faceX, faceY, faceYawAngle, faceTilt);
+      
+      if(faceTiltedLeft || faceTiltedRight) {
+        if(isFaceCentered) {
+          console.log("face centered OK");
+          setFaceTiltedLeft(false);
+          setFaceTiltedRight(false);
+        }
+      }
+      else {
+        console.log("checking face tilt");
         checkFaceTiltRight(faceTilt);
         checkFaceTiltLeft(faceTilt);
       }

@@ -95,7 +95,7 @@ export default function ReadingScreen( {route} ) {
     useEffect(() => {
         updateTextInPages(paragraphsInPages);
         setTotalPageNumbers(paragraphsInPages.length);
-        console.log(paragraphsInPages);
+        //console.log(paragraphsInPages);
     }, [paragraphsInPages]);
 
     useEffect(() => {
