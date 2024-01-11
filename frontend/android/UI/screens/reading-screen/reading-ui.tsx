@@ -205,9 +205,9 @@ export default function ReadingScreen( {route} ) {
     }
 
     function navigateToPreviousChapter() {
-        if(chapterNumber > 1) {
+        if(chapterNumber > 0) {
             setChapterNumber(chapterNumber - 1);
-            console.log("navigate to previous chapter");
+            console.log("navigate to previous chapter ");
         }
     }
 
