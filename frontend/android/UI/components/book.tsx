@@ -43,7 +43,7 @@ export default function Book(props: BookProps) {
             navigation.navigate("Prologue", 
                 { 
                     "id" : bookID, 
-                    "chapterNumber" : 1, 
+                    "chapterNumber" : 0, 
                     "bookCoverImage" : bookCover, 
                     "name": bookTitle, 
                     "authorUsername": bookAuthor
@@ -53,7 +53,7 @@ export default function Book(props: BookProps) {
             navigation.navigate("Reading Screen", 
                 { 
                     "id" : bookID, 
-                    "chapterNumber" : userCurrentChapterInBook, 
+                    "chapterNumber" : 0, 
                     "bookCoverImage" : bookCover, 
                     "name": bookTitle, 
                     "authorUsername": bookAuthor

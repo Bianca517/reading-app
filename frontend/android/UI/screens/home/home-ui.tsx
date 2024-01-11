@@ -22,8 +22,6 @@ export default function HomePageUI() {
 
         if (fetchResponse.success) {
             setPopularBooks(JSON.parse(fetchResponse.message));
-            console.log('Popular books loaded successfully');
-            console.log(fetchResponse.message);
         }
     }
 

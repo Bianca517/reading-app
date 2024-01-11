@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ScrollView, Image, Dimensions, Button, FlatList } from 'react-native';
 import Globals from '../../_globals/Globals';
-import { get_book_chapter_content, get_book_chapter_title } from '../../../services/book-reading-service';
 import BottomSheet, { BottomSheetView, SCREEN_WIDTH } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
@@ -9,35 +8,20 @@ import BottomSheetContent from '../../components/bottom-sheet-content';
 import { AntDesign } from '@expo/vector-icons'; 
 import TextDistributer from '../../components/page-distribution-calculator';
 import FaceDetectionModule from '../../components/face-detector';
-import { get_total_nr_of_chapters } from '../../../services/book-reading-service';
-import { loadTotalNumberOfChapters } from '../../components/service-calls-wrapper';
+import { loadChapterTitles, loadTotalNumberOfChapters, loadBookChapterTitle, loadBookChapterContent } from '../../components/service-calls-wrapper';
 import PageView from '../../components/page-view';
+import { textParagraph } from "../../../types";
+import { useIsFocused } from "@react-navigation/native";
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
 const bodyHeight = windowHeight * 60 / 100;
 
-type ResponseType = {
-    success: boolean;
-    message: any;
-};
-
-type textParagraph = {
-    id: string;
-    content: string;
-}
-
-
-let textToDisplay: textParagraph[] =
-[ {'id': '0', 'content': "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum"},
-   {'id': '1', 'content': "Lorem Ipsum is simply dummy text of the p Lorem Ipsum"},
-   {'id': '2', 'content': "Lorem Ipsum is simply dummy text of  Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum"},
-   {'id': '3', 'content': "Lorem Ipsum is simply dummy text of  Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum"},
-   {'id': '4', 'content': "Lorem Ipsum is simply dummy text of  Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum"},
-   {'id': '5', 'content': "Lorem Ipsum is simply dummy text of  Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum"},
-]
 
 export default function ReadingScreen( {route} ) {
+    //focused screen
+    const isFocused = useIsFocused();
+
     //route params
     const bookID = route.params.id;
 
@@ -60,6 +44,7 @@ export default function ReadingScreen( {route} ) {
     const [chapterNumberToDisplay, setChapterNumberToDisplay] = useState<number>(chapterNumber + 1);
     const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
     const [navigateToNextChapterTrigger, setNavigateToNextChapterTrigger] = useState<boolean>(false);
+    const [chapterTitles, setChapterTitles] = useState<string[]>([]);
     //const [navigateToPreviousChapterTrigger, setNavigateToPreviousChapterTrigger] = useState<boolean>(false);
     const navigateToPreviousChapterTriggerRef = useRef<boolean>(false);
 
@@ -82,22 +67,27 @@ export default function ReadingScreen( {route} ) {
 
     //this executes at the beginning
     useEffect(() => {
-        const routes = navigation.getState()?.routes;
-        const prevRoute = routes[routes.length - 2]["name"]; // -2 because -1 is the current route
-        //console.log(prevRoute);
-        //if the previous screen is the prologue, it means the user is now beginning the book
-        if(prevRoute == "Prologue") {
-            setChapterNumber(0);
+        if (isFocused) {
+            checkPreviousScreen();
+
+            loadTotalNumberOfChapters(bookID).then(returnValue => {
+                setTotalNumberOfChapters(returnValue);
+                //when total number of chapter is available => safe to check for chapter titles, until then it is undefined
+                loadChapterTitles(bookID, returnValue).then(chapterTitlesReceived => {
+                    setChapterTitles(chapterTitlesReceived);
+                })
+            });
         }
-        loadTotalNumberOfChapters(bookID).then(returnValue => setTotalNumberOfChapters(returnValue));
-    }, []);
+    }, [isFocused]);
 
     useEffect(() => {
-        loadBookChapterContent();
-        loadBookChapterTitle();
-    }, [bookID, chapterNumber]);
+        loadBookChapterTitle(bookID, chapterNumber).then(chapterTitleReceived => setBookChapterTitle(chapterTitleReceived));
+        loadBookChapterContent(bookID, chapterNumber).then(chapterContentReceived => setBookChapterContent(chapterContentReceived));
+        setChapterNumberToDisplay(chapterNumber + 1);
+    }, [bookID, chapterNumber, isFocused]);
 
     useEffect(() => {
+        console.log("another content");
         const distributedParagraphs: textParagraph[][] = TextDistributer(bookChapterContent, bodyHeight, windowWidth, fontSize);
         setParagraphsInPages(distributedParagraphs);
     }, [fontSize, bookChapterContent]);
@@ -105,7 +95,6 @@ export default function ReadingScreen( {route} ) {
     useEffect(() => {
         updateTextInPages(paragraphsInPages);
         setTotalPageNumbers(paragraphsInPages.length);
-        console.log("paragraphsInPages: ");
         console.log(paragraphsInPages);
     }, [paragraphsInPages]);
 
@@ -113,6 +102,7 @@ export default function ReadingScreen( {route} ) {
          //if the last action was to go to the previous chapter, then the first page displayed shall be the last one in the chapter
          if(navigateToPreviousChapterTriggerRef.current === true) {
             console.log(totalPageNumbers);
+            console.log("here 4");
             flatlistRef.current?.scrollToIndex({
                 index: totalPageNumbers,
             });
@@ -121,7 +111,7 @@ export default function ReadingScreen( {route} ) {
     }, [totalPageNumbers]);
 
     useEffect(() => {
-        console.log("text in page", textInPages);
+        //console.log("text in page", textInPages);
     }, [textInPages]);
 
     useEffect(() => {
@@ -132,6 +122,21 @@ export default function ReadingScreen( {route} ) {
         //console.log("gesture scroll active ", isGestureScrollingActive);
     }, [isGestureScrollingActive]);
     
+    function checkPreviousScreen() {
+        const routes = navigation.getState()?.routes;
+        const prevRoute = routes[routes.length - 2]["name"]; // -2 because -1 is the current route
+        //console.log(prevRoute);
+        //if the previous screen is the prologue, it means the user is now beginning the book
+        if(prevRoute == "Prologue") {
+            console.log("coming to the prologeue");
+            setChapterNumber(0);
+        }
+        else {
+            console.log(route.params);
+            setChapterNumber(route.params.chapterNumber);
+        }
+    }
+
     function updateTextInPages(paragraphsInPages: textParagraph[][]) {
         let pagesText: string[] = [];
         let currentPageNumber: number = 0;
@@ -145,27 +150,6 @@ export default function ReadingScreen( {route} ) {
             currentPageNumber++;
         });
         setTextInPages(pagesText);
-    }
-
-    async function loadBookChapterTitle() : Promise<void> {
-        const fetchResponse: ResponseType = await get_book_chapter_title(bookID, chapterNumber).then();
-
-        if (fetchResponse.success) {
-            const receivedChapterTitle: string = JSON.parse(fetchResponse.message);
-            setBookChapterTitle(receivedChapterTitle);
-        }
-    }
-
-    async function loadBookChapterContent() : Promise<void> {
-        const fetchResponse = await get_book_chapter_content(bookID, chapterNumber).then();
-
-        if (fetchResponse.success) {
-            const receivedChapterContent: textParagraph[] = JSON.parse(fetchResponse.message);
-            //console.log("aici");
-            console.log(receivedChapterContent);
-            setBookChapterContent(receivedChapterContent);
-        }
-        //setBookChapterContent(textToDisplay);
     }
 
     function updateFontFamily (fontFamily: string): void{
@@ -208,9 +192,10 @@ export default function ReadingScreen( {route} ) {
 
     function navigateToNextChapter() {
         setNavigateToNextChapterTrigger(false);
-        if(chapterNumber < totalNumberOfChapters) {
+        if(chapterNumber < totalNumberOfChapters - 1) {
             setChapterNumber(chapterNumber + 1);
             //first page of next chapter
+            console.log("here 1");
             flatlistRef.current?.scrollToIndex({
                 index: 0,
             });
@@ -227,9 +212,10 @@ export default function ReadingScreen( {route} ) {
     }
 
     function flatListScrollToNext() {
-        console.log("scrollToNext");
+        //console.log("scrollToNext");
         //can scroll in the current chapter
         if(currentPage < totalPageNumbers - 1) {
+            console.log("here 2");
             flatlistRef.current?.scrollToIndex({
                 index: currentPage + 1,
             });
@@ -242,6 +228,7 @@ export default function ReadingScreen( {route} ) {
 
     function flatListScrollToPrevious() {
         if(currentPage > 0) {
+            console.log("here 3");
             flatlistRef.current?.scrollToIndex({
                 index: currentPage - 1,
             });
@@ -282,7 +269,7 @@ export default function ReadingScreen( {route} ) {
                 <View style={styles.table_of_contents_preview}>
                     <Text style={styles.table_of_contents_text}>Table of Contents</Text>
                   
-                    <TouchableOpacity style={styles.right_side_of_table_of_contents_preview} onPress={() => navigation.navigate("Table of Contents", {'bookID' : bookID})}>
+                    <TouchableOpacity style={styles.right_side_of_table_of_contents_preview} onPress={() => navigation.navigate("Table of Contents", {'bookID' : bookID, 'chapterTitles': chapterTitles})}>
                         <Text style={styles.table_of_contents_text}> {chapterNumberToDisplay} </Text>
                         <AntDesign name="down" size={20} color="white" />
                     </TouchableOpacity>
@@ -428,6 +415,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     chapter_title: {
+        alignSelf: 'center',
         color: 'white',
         fontWeight: '400',
         fontSize: 20,

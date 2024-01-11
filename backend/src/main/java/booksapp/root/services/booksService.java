@@ -175,21 +175,16 @@ public class booksService {
         Map<String, Object> bookData = getBookByID(bookID);
         Object chapterContents = bookData.get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.CHAPTER_CONTENT_INDEX]);
         List<Object> chapterContentsList = (List<Object>) chapterContents;
-    
+        System.out.println("aici" + chapterNumber);
         // Ensure that the chapterNumber is within valid range
         if (chapterNumber < 0 || chapterNumber >= chapterContentsList.size()) {
             throw new IllegalArgumentException("Invalid chapterNumber");
         }
     
-        Map<String, Object> chapterData = (Map<String, Object>) chapterContentsList.get(0);
+        Map<String, Object> chapterData = (Map<String, Object>) chapterContentsList.get(chapterNumber);
         List<Object> paragraphsList = (List<Object>) chapterData.get("paragraphs");
         System.out.println("paragraphs list ");
         System.out.println(paragraphsList);
-        // Ensure that the chapterNumber is within valid range
-
-        if (chapterNumber < 0 || chapterNumber >= paragraphsList.size()) {
-            throw new IllegalArgumentException("Invalid chapterNumber");
-        }
         
         ArrayList<HashMap<String, Object>> chapterContentMap = new ArrayList<HashMap<String, Object>>();
         

@@ -66,7 +66,7 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
     let fetchResponse = await get_readings_planned_for_month(currentMonthName).then();
     if (fetchResponse.success) {
         setPlannedBookList(JSON.parse(fetchResponse.message));
-        console.log("planned book list ", plannedBookList);
+        //console.log("planned book list ", plannedBookList);
     }
   }
 
@@ -77,7 +77,7 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
     const result: string[] = parsedData.filter((book: { id: string; }) => !plannedBookIDs.has(book.id));
      
     setCurrentReadingFilteredBooks(result);
-    console.log("filtered current readings: ", currentReadingFilteredBooks);
+    //console.log("filtered current readings: ", currentReadingFilteredBooks);
   }
 
   const createBook = (bookId: string, bookTitle: string, bookAuthor: string): Book => {

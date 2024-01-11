@@ -14,7 +14,7 @@ function addLastPage(pageTexts: textParagraph[][]) {
 }
 
 export default function textDistributer (textToDisplay: textParagraph[], pagesHeight: number, pagesWidth: number, fontSize: number): textParagraph[][]{
-    let charactersPerLine: number= Math.floor(pagesWidth / (fontSize * 0.6));  
+    let charactersPerLine: number= Math.floor(pagesWidth / (fontSize * 0.8));  
     let linesPerPage: number = Math.floor(pagesHeight / fontSize);
     let charactersPerPage = charactersPerLine * linesPerPage;
 

@@ -26,37 +26,39 @@ export default function PageView({ paragraphsInAPage, selectedBackgroundColor, s
     function mapTextAndButtons(): ReactNode {
         let arrayOfTextsInAPage = [];
 
-        paragraphsInAPage.forEach( paragraphMap => {
-            if(paragraphMap.content !== "End of chapter") {
-                arrayOfTextsInAPage.push(
-                    <View style={[styles.paragraph_view, {backgroundColor: selectedBackgroundColor}]}>
-                        <Text style={[styles.paragraph_text, {fontFamily: selectedFont, fontSize: fontSize, color: fontColor}]}> 
-                            {paragraphMap.content}
-                        </Text>
-                        <TouchableOpacity  
-                            style={styles.comments_button}
-                            onPress={() => {
-                                navigation.navigate('Comments', {
-                                    bookID: "GRav9LLWPj6ISCOGxfVZ",
-                                    chapterNumber: 0,
-                                    paragraphNumber: 0
-                                });
-                            }}>
-                            <FontAwesome name="commenting" size={24} color="white" />
-                        </TouchableOpacity>
-                    </View>
-                )
-            }
-            else {
-                arrayOfTextsInAPage.push(
-                    <View style={[styles.paragraph_view, {backgroundColor: selectedBackgroundColor}]}>
-                        <Text style={[styles.paragraph_text, {fontFamily: selectedFont, fontSize: fontSize, color: fontColor}]}> 
-                            {paragraphMap.content}
-                        </Text>
-                    </View>
-                )
-            }
-        })
+        if(paragraphsInAPage.length > 0) {
+            paragraphsInAPage.forEach( paragraphMap => {
+                if(paragraphMap.content !== "End of chapter") {
+                    arrayOfTextsInAPage.push(
+                        <View style={[styles.paragraph_view, {backgroundColor: selectedBackgroundColor}]}>
+                            <Text style={[styles.paragraph_text, {fontFamily: selectedFont, fontSize: fontSize, color: fontColor}]}> 
+                                {paragraphMap.content}
+                            </Text>
+                            <TouchableOpacity  
+                                style={styles.comments_button}
+                                onPress={() => {
+                                    navigation.navigate('Comments', {
+                                        bookID: "GRav9LLWPj6ISCOGxfVZ",
+                                        chapterNumber: 0,
+                                        paragraphNumber: 0
+                                    });
+                                }}>
+                                <FontAwesome name="commenting" size={24} color="white" />
+                            </TouchableOpacity>
+                        </View>
+                    )
+                }
+                else {
+                    arrayOfTextsInAPage.push(
+                        <View style={[styles.paragraph_view, {backgroundColor: selectedBackgroundColor}]}>
+                            <Text style={[styles.paragraph_text, {fontFamily: selectedFont, fontSize: fontSize, color: fontColor}]}> 
+                                {paragraphMap.content}
+                            </Text>
+                        </View>
+                    )
+                }
+            })
+        }
         return arrayOfTextsInAPage;
     }
 
