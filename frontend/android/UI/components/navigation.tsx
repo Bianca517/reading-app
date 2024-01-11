@@ -41,7 +41,7 @@ export default function Navigation() {
         <Stack.Screen name="Submit Interests" component={SubmitInterests} />
         <Stack.Screen name="Home" component={HomePageUI} />
         <Stack.Screen name="Library" component={LibraryPageCurrentReadingsUI} />
-        <Stack.Screen name="Library2" component={LibraryPageFinalizedReadingsUI} />
+        <Stack.Screen name="Finalized Books" component={LibraryPageFinalizedReadingsUI} />
         <Stack.Screen name="Reading Tracker" component={LibraryPageReadingTrackerUI} />
         <Stack.Screen name="Edit Reading Tracker" component={LibraryPageReadingTrackerEdit} initialParams={{ monthIndex: 0 }} />
         <Stack.Screen name="Reading Screen" component={ReadingScreen} />

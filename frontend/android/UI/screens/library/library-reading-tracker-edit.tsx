@@ -17,6 +17,7 @@ import { plan_book_for_month, get_readings_planned_for_month } from "../../../se
 import { LinearGradient } from "expo-linear-gradient";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useIsFocused } from "@react-navigation/native";
+import GlobalBookData from "../../_globals/GlobalBookData";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -41,7 +42,12 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
   //this executes on page load
   useEffect(() => {
     if (isFocused) {
-      loadCurrentReadingBooks();
+      if(!GlobalBookData.CURRENT_READINGS) {
+        loadCurrentReadingBooks();
+      }
+      else {
+        filterCurrentReadingBooks(GlobalBookData.CURRENT_READINGS);
+      }
       loadPlannedBooksForAMonth();
     }
   }, [isFocused]);
@@ -50,7 +56,7 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
     let fetchResponse = await get_current_readings().then();
 
     if (fetchResponse.success) {
-        const parsedData = JSON.parse(fetchResponse.responseData);
+        const parsedData = JSON.parse(fetchResponse.message);
         filterCurrentReadingBooks(parsedData); //used parsedData because if I used setCurrentReadingFilteredBooks it would take too long to filer
         //and the filter function would use an empty array
     }
@@ -59,7 +65,7 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
   async function loadPlannedBooksForAMonth() {
     let fetchResponse = await get_readings_planned_for_month(currentMonthName).then();
     if (fetchResponse.success) {
-        setPlannedBookList(JSON.parse(fetchResponse.responseData));
+        setPlannedBookList(JSON.parse(fetchResponse.message));
         console.log("planned book list ", plannedBookList);
     }
   }
@@ -138,6 +144,7 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
               </View>
 
               <View style={styles.currentReadingsContainer}>
+                <ScrollView style={styles.scrollview} contentContainerStyle={styles.scrollviewContent}>
                 {
                   /*Warning: Each child in a list should have a unique "key" prop.*/
                   currentReadingFilteredBooks.map((book, index) => (
@@ -150,7 +157,9 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
                       />
                   ))
                 }
+                </ScrollView>
               </View>
+
             </ScrollView>
           </LinearGradient>
         </View>
@@ -193,10 +202,6 @@ const styles = StyleSheet.create({
     marginTop: 0,
     height: windowHeight - 230,
     paddingHorizontal: 0,
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "flex-start",
-    alignItems: "center", // Align items to the start within each row
   },
   yourLibraryInfo: {
     width: 130,
@@ -215,4 +220,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: Globals.COLORS.PURPLE,
   },
+  scrollview: {
+
+  },
+  scrollviewContent: {
+    flexGrow: 1,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "flex-start",
+    alignItems: "center", // Align items to the start within each row
+  }
 });

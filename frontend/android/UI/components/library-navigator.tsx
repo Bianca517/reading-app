@@ -23,7 +23,7 @@ export default function LibraryPageNavigator(props: libraryPageSection) {
             </TouchableOpacity>
 
             <TouchableOpacity
-                onPress={() => { navigation.navigate('Library2' as never) }}
+                onPress={() => { navigation.navigate('Finalized Books' as never) }}
                 style={[styles.library_sections_buttons, { backgroundColor: Globals.LIBRARY_SECTIONS['FINALIZED_READINGS'] == props.librarySection ? '#6b6b6b' : 'transparent' }]}
             >
                 <Text style={styles.library_sections_buttons_text}> Finalized </Text>

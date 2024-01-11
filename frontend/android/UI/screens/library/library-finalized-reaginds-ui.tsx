@@ -14,7 +14,7 @@ export default function LibraryPageFinalizedReadingsUI() {
         const fetchResponse = await get_finalized_readings().then();
 
         if (fetchResponse.success) {
-            setFinalizedBooks(JSON.parse(fetchResponse.responseData));
+            setFinalizedBooks(JSON.parse(fetchResponse.message));
         }
     }
 
@@ -22,6 +22,9 @@ export default function LibraryPageFinalizedReadingsUI() {
     useEffect(() => {
         if(!GlobalBookData.FINALIZED_READINGS) {
             loadFinalizedReadingBooks();
+        }
+        else {
+            setFinalizedBooks(GlobalBookData.FINALIZED_READINGS);
         }
     }, []);
 
@@ -35,12 +38,14 @@ export default function LibraryPageFinalizedReadingsUI() {
             <View style={styles.whiteLine}></View>
 
             <View style={styles.booksContainer}>
+                <ScrollView contentContainerStyle={styles.booksContainerScrollView}>
                 {
                     /*Warning: Each child in a list should have a unique "key" prop.*/
                     finalizedBooks.map((book, index) => (
-                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={95} bookCoverHeight={180} />
+                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={95} bookCoverHeight={180} bookWithDetails = {true}/>
                     ))
                 }
+                </ScrollView>
             </View>
 
             <Footer />
@@ -77,6 +82,17 @@ const styles = StyleSheet.create({
         marginHorizontal: 20,
         marginTop: 10,
         marginBottom: 20,
+    },
+    booksContainerScrollView: {
+        flexGrow: 1,
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        columnGap: -7,
+        rowGap: 20,
+        height: 100, // Set a fixed height for each row
+        width: '100%',
+        justifyContent: 'flex-start', // Align rows to the start
+        alignItems: 'flex-start', // Align items to the start within each row
     }
 })
 

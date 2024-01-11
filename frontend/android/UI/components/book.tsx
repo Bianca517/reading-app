@@ -28,8 +28,6 @@ export default function Book(props: BookProps) {
 
     useEffect(() => {
         checkIfBookIsInLibrary();
-        console.log("book id")
-        console.log(bookID);
     }, []);
 
     function checkIfBookIsInLibrary() {

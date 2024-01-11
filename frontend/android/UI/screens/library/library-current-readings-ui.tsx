@@ -9,27 +9,23 @@ import GlobalBookData from '../../_globals/GlobalBookData';
 
 
 export default function LibraryPageCurrentReadingsUI() {
-    const [currentReadingBooks, setCurrentReadingBooks] = useState(GlobalBookData.CURRENT_READINGS);
+    const [currentReadingBooks, setCurrentReadingBooks] = useState([]);
 
     async function loadCurrentReadingBooks() {
         const fetchResponse = await get_current_readings().then();
 
         if (fetchResponse.success) {
-            setCurrentReadingBooks(JSON.parse(fetchResponse.responseData));
+            setCurrentReadingBooks(JSON.parse(fetchResponse.message));
         }
     }
 
     //this executes on page load
     useEffect(() => {
-        console.log("in current readings");
-        console.log(GlobalBookData.CURRENT_READINGS);
         if(!GlobalBookData.CURRENT_READINGS) {
             loadCurrentReadingBooks();
         }
         else {
-            console.log("intra aici");
             setCurrentReadingBooks(GlobalBookData.CURRENT_READINGS);
-            console.log(currentReadingBooks);
         }
     }, []);
 
@@ -43,12 +39,16 @@ export default function LibraryPageCurrentReadingsUI() {
             <View style={styles.whiteLine}></View>
 
             <View style={styles.booksContainer}>
-                {
-                    /*Warning: Each child in a list should have a unique "key" prop.*/
-                    currentReadingBooks.map((book, index) => (
-                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={95} bookCoverHeight={180} bookWithDetails={true}/>
-                    ))
-                }
+                <View style={{flex: 1}}>   
+                    <ScrollView style = {styles.scrollview} contentContainerStyle={styles.booksContainerScrollView}>
+                    {
+                        /*Warning: Each child in a list should have a unique "key" prop.*/
+                        currentReadingBooks.map((book, index) => (
+                            <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={100} bookCoverHeight={180} bookWithDetails={true}/>
+                        ))
+                    }
+                    </ScrollView>
+                </View>
             </View>
 
             <Footer />
@@ -69,13 +69,8 @@ const styles = StyleSheet.create({
     },
     booksContainer: {
         flex: 6,
-        flexDirection: 'row',
-        flexWrap: 'wrap',
         justifyContent: 'center', // Align rows to the start
         alignItems: 'flex-start', // Align items to the start within each row
-        columnGap: -3,
-        rowGap: 20,
-        height: 100, // Set a fixed height for each row
         paddingHorizontal: 7,
     },
     whiteLine: {
@@ -85,6 +80,19 @@ const styles = StyleSheet.create({
         marginHorizontal: 20,
         marginTop: 10,
         marginBottom: 20,
+    },
+    booksContainerScrollView: {
+        flexGrow: 1, //DO NOT USE Flex:1 here. it blocks the scroll
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        columnGap: -7,
+        rowGap: 20,
+        justifyContent: 'flex-start', // Align rows to the start
+        alignItems: 'flex-start', // Align items to the start within each row
+    },
+    scrollview: {
+        flex: 1,
+        width: '100%',
     }
 })
 
