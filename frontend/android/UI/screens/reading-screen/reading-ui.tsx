@@ -9,6 +9,9 @@ import BottomSheetContent from '../../components/bottom-sheet-content';
 import { AntDesign } from '@expo/vector-icons'; 
 import TextDistributer from '../../components/page-distribution-calculator';
 import FaceDetectionModule from '../../components/face-detector';
+import { get_total_nr_of_chapters } from '../../../services/book-reading-service';
+import { loadTotalNumberOfChapters } from '../../components/service-calls-wrapper';
+import PageView from '../../components/page-view';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -36,7 +39,7 @@ let textToDisplay: textParagraph[] =
 
 export default function ReadingScreen( {route} ) {
     //route params
-    const bookID = route.params.bookID;
+    const bookID = route.params.id;
 
     //customization parameters
     const [selectedBackgroundColor, setSelectedBackgroundColor] = useState<string>(Globals.COLORS.BACKGROUND_GRAY);
@@ -50,9 +53,11 @@ export default function ReadingScreen( {route} ) {
     const [bookChapterTitle, setBookChapterTitle] = useState<string>("");
     const [currentPage, setCurrentPage] = useState<number>(0);
     const [totalPageNumbers, setTotalPageNumbers] = useState<number>(0);
+    const [totalNumberOfChapters, setTotalNumberOfChapters] = useState<number>();
     const [paragraphsInPages, setParagraphsInPages] = useState<textParagraph[][]>([]);
     const [textInPages, setTextInPages] = useState<string[]>([]);
     const [chapterNumber, setChapterNumber] = useState<number>(0);
+    const [chapterNumberToDisplay, setChapterNumberToDisplay] = useState<number>(chapterNumber + 1);
     const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
     const [navigateToNextChapterTrigger, setNavigateToNextChapterTrigger] = useState<boolean>(false);
     //const [navigateToPreviousChapterTrigger, setNavigateToPreviousChapterTrigger] = useState<boolean>(false);
@@ -84,6 +89,7 @@ export default function ReadingScreen( {route} ) {
         if(prevRoute == "Prologue") {
             setChapterNumber(0);
         }
+        loadTotalNumberOfChapters(bookID).then(returnValue => setTotalNumberOfChapters(returnValue));
     }, []);
 
     useEffect(() => {
@@ -92,14 +98,15 @@ export default function ReadingScreen( {route} ) {
     }, [bookID, chapterNumber]);
 
     useEffect(() => {
-        console.log("bookchaprercontent");
-        const distributedParagraphs: textParagraph[][] = TextDistributer(textToDisplay, bodyHeight, windowWidth, fontSize);
+        const distributedParagraphs: textParagraph[][] = TextDistributer(bookChapterContent, bodyHeight, windowWidth, fontSize);
         setParagraphsInPages(distributedParagraphs);
     }, [fontSize, bookChapterContent]);
 
     useEffect(() => {
         updateTextInPages(paragraphsInPages);
         setTotalPageNumbers(paragraphsInPages.length);
+        console.log("paragraphsInPages: ");
+        console.log(paragraphsInPages);
     }, [paragraphsInPages]);
 
     useEffect(() => {
@@ -114,7 +121,7 @@ export default function ReadingScreen( {route} ) {
     }, [totalPageNumbers]);
 
     useEffect(() => {
-        //console.log("text in page", textInPages);
+        console.log("text in page", textInPages);
     }, [textInPages]);
 
     useEffect(() => {
@@ -150,14 +157,15 @@ export default function ReadingScreen( {route} ) {
     }
 
     async function loadBookChapterContent() : Promise<void> {
-        //const fetchResponse = await get_book_chapter_content(bookID, 0).then();
-//
-        //if (fetchResponse.success) {
-        //    const receivedChapterContent: string = JSON.parse(fetchResponse.responseData);
-        //    //setBookChapterContent(receivedChapterContent);
-        //}
-        setBookChapterContent(textToDisplay);
+        const fetchResponse = await get_book_chapter_content(bookID, chapterNumber).then();
 
+        if (fetchResponse.success) {
+            const receivedChapterContent: textParagraph[] = JSON.parse(fetchResponse.message);
+            //console.log("aici");
+            console.log(receivedChapterContent);
+            setBookChapterContent(receivedChapterContent);
+        }
+        //setBookChapterContent(textToDisplay);
     }
 
     function updateFontFamily (fontFamily: string): void{
@@ -200,7 +208,7 @@ export default function ReadingScreen( {route} ) {
 
     function navigateToNextChapter() {
         setNavigateToNextChapterTrigger(false);
-        if(chapterNumber < 5) {
+        if(chapterNumber < totalNumberOfChapters) {
             setChapterNumber(chapterNumber + 1);
             //first page of next chapter
             flatlistRef.current?.scrollToIndex({
@@ -275,7 +283,7 @@ export default function ReadingScreen( {route} ) {
                     <Text style={styles.table_of_contents_text}>Table of Contents</Text>
                   
                     <TouchableOpacity style={styles.right_side_of_table_of_contents_preview} onPress={() => navigation.navigate("Table of Contents", {'bookID' : bookID})}>
-                        <Text style={styles.table_of_contents_text}> {chapterNumber} </Text>
+                        <Text style={styles.table_of_contents_text}> {chapterNumberToDisplay} </Text>
                         <AntDesign name="down" size={20} color="white" />
                     </TouchableOpacity>
                    
@@ -283,7 +291,7 @@ export default function ReadingScreen( {route} ) {
 
                 <View style={styles.body}>
                     <View style={[styles.header, {backgroundColor: selectedBackgroundColor}]}>                    
-                        <Text style={[styles.chapter_number, {fontFamily: selectedFont, color: fontColor}]}>Chapter {chapterNumber}</Text>
+                        <Text style={[styles.chapter_number, {fontFamily: selectedFont, color: fontColor}]}>Chapter {chapterNumberToDisplay}</Text>
                         <Text style={[styles.chapter_title, {fontFamily: selectedFont, color: fontColor}]}>{ bookChapterTitle }</Text>
                     </View>
 
@@ -312,9 +320,13 @@ export default function ReadingScreen( {route} ) {
                             }}
                             renderItem={({ item }) => (
                                 <View style={[styles.content_view, { backgroundColor: selectedBackgroundColor }]}>
-                                    <Text style={[styles.content_text, { fontFamily: selectedFont, fontSize: fontSize, color: fontColor }]}>
-                                        {item}
-                                    </Text>
+                                    <PageView
+                                        paragraphsInAPage={paragraphsInPages[currentPage]}
+                                        selectedBackgroundColor={selectedBackgroundColor}
+                                        selectedFont={selectedFont}
+                                        fontColor={fontColor}
+                                        fontSize={fontSize}
+                                        />
                                 </View>
                             )}
                         />

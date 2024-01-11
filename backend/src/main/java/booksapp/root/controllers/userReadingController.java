@@ -89,13 +89,12 @@ public class userReadingController {
     }
 
     @PostMapping(value = "/addbooktolibrary")
-    public String planBookForMonth(@RequestParam String bookID) throws ExecutionException, InterruptedException {
-        int returnedStatus = this.userReadingService.addBookToLibrary("4zgcWtT9c3RSy5FpFI18", bookID);
-        if(returnedStatus == 0) {
-            return "Successfully added book with ID " + bookID;
-        }
-        else {
-            return "Could not add book";
-        }
+    public String addBooktolibrary(@RequestParam String userID, String bookID) throws ExecutionException, InterruptedException {
+        int returnedStatus = this.userReadingService.addBookToCurrentReadings(userID, bookID);
+        HashMap<String, String> returnJson = new HashMap<String, String>();
+        returnJson.put("status", returnedStatus == 0 ? "Successfully added book to current readings" : "Book could not be added to current readings");
+        Gson gson = new Gson();
+        String gsonData = gson.toJson(returnJson);
+        return gsonData;
     }
 }

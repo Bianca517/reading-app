@@ -5,10 +5,11 @@ import Book from '../../components/book';
 import Footer from '../../components/footer';
 import LibraryPageNavigator from '../../components/library-navigator';
 import { get_current_readings } from '../../../services/retrieve-books-service';
+import GlobalBookData from '../../_globals/GlobalBookData';
 
 
 export default function LibraryPageCurrentReadingsUI() {
-    const [currentReadingBooks, setCurrentReadingBooks] = useState([]);
+    const [currentReadingBooks, setCurrentReadingBooks] = useState(GlobalBookData.CURRENT_READINGS);
 
     async function loadCurrentReadingBooks() {
         const fetchResponse = await get_current_readings().then();
@@ -20,7 +21,16 @@ export default function LibraryPageCurrentReadingsUI() {
 
     //this executes on page load
     useEffect(() => {
-        loadCurrentReadingBooks();
+        console.log("in current readings");
+        console.log(GlobalBookData.CURRENT_READINGS);
+        if(!GlobalBookData.CURRENT_READINGS) {
+            loadCurrentReadingBooks();
+        }
+        else {
+            console.log("intra aici");
+            setCurrentReadingBooks(GlobalBookData.CURRENT_READINGS);
+            console.log(currentReadingBooks);
+        }
     }, []);
 
     return (
@@ -36,7 +46,7 @@ export default function LibraryPageCurrentReadingsUI() {
                 {
                     /*Warning: Each child in a list should have a unique "key" prop.*/
                     currentReadingBooks.map((book, index) => (
-                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={100} bookCoverHeight={180} bookWithDetails={true}/>
+                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={95} bookCoverHeight={180} bookWithDetails={true}/>
                     ))
                 }
             </View>

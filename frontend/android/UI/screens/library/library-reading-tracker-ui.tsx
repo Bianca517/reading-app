@@ -111,7 +111,7 @@ export default function LibraryPageReadingTrackerUI() {
         const promises = Globals.MONTHS_LIST.map(async (month, index) => {
             let fetchResponse = await get_readings_planned_for_month(month).then();
             if (fetchResponse.success) {
-                const booksForMonth = JSON.parse(fetchResponse.responseData);
+                const booksForMonth = JSON.parse(fetchResponse.message);
                 setMonthPlannedBooks(index, booksForMonth);
             }
         });

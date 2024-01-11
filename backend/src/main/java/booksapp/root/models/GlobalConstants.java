@@ -12,13 +12,20 @@ public class GlobalConstants {
                         "cover",
                         "readers",
                         "genre",
-                        "description" };
+                        "description",
+                        "paragraphs",
+                };
+        public final static int BOOK_ID_INDEX = 0;
         public final static int BOOK_TITLE_INDEX = 1;
         public final static int BOOK_AUTHOR_INDEX = 2;
         public final static int CHAPTER_TITLE_INDEX = 3;
         public final static int CHAPTER_CONTENT_INDEX = 4;
         public final static int NUMBER_OF_CHAPTERS_INDEX = 5;
         public final static int BOOK_DESCRIPTION_INDEX = 9;
+        public final static int BOOK_PARAGRAPHS_INDEX = 10;
+
+        public final static String[] PARAGRAPH_FIELDS = {"comments", "content"};
+        public final static int PARAGRAPH_CONTENT_INDEX = 1;
 
         public final static String[] USERS_COLLECTION_FIELDS = { "userName", "password", "salt", "emailAddress",
                         "interests", "currentReadings", "finalizedReadings", "plannedBooks" };

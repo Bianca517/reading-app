@@ -37,8 +37,8 @@ export default function MonthContainer( {index,height, inEditMode, plannedBookLi
 
     //this executes on page load
     useEffect(() => {
-        console.log('rerender moonth ' + currentMonthName);
-        console.log("am primit", plannedBookList);
+        //console.log('rerender moonth ' + currentMonthName);
+        //console.log("am primit", plannedBookList);
     }, []);
 
     useEffect(() => {
@@ -83,7 +83,7 @@ export default function MonthContainer( {index,height, inEditMode, plannedBookLi
                         <Text style={styles.monthNameAndEditText}> {currentMonthName} </Text>
                     </View>
 
-                    <TouchableHighlight style={[styles.monthTextContainer, { marginLeft: 145, width: 70 }]}
+                    <TouchableHighlight style={[styles.monthTextContainer, { marginLeft: 115, width: 70 }]}
                         underlayColor={Globals.COLORS.PURPLE}
                         onPress={() => {checkNavigationOfRightButton()}
                         }>
