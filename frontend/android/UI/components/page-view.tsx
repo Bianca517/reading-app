@@ -45,7 +45,7 @@ export default function PageView({ bookID, chapterNumber, paragraphsInAPage, sel
                                         paragraphNumber: paragraphMap.id
                                     });
                                 }}>
-                                <FontAwesome name="commenting" size={24} color="white" />
+                                <FontAwesome name="commenting" size={24} color={fontColor} />
                             </TouchableOpacity>
                         </View>
                     )

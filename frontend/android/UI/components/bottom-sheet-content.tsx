@@ -42,7 +42,7 @@ const fontStyles: FontStyles = {
 export default function BottomSheetContent( {updateFontFamily, updateFontSize, updateBackgroundColor, updateGestureScroll} : props) {
     const toggleSwitch = () => setIsGestureScrollingActive(previousState => !previousState);
 
-    const [selectedBackgroundColor, setSelectedBackgroundColor] = useState<string>(backgroundColors[1]);
+    const [selectedBackgroundColor, setSelectedBackgroundColor] = useState<string>(Globals.COLORS.BACKGROUND_GRAY);
     const [selectedFont, setSelectedFont] = useState('System');
     const [isGestureScrollingActive, setIsGestureScrollingActive] = useState<boolean>(false);
 
@@ -58,7 +58,7 @@ export default function BottomSheetContent( {updateFontFamily, updateFontSize, u
 
     useEffect(() => {
         updateBackgroundColor(selectedBackgroundColor);
-    }), [selectedBackgroundColor];
+    }, [selectedBackgroundColor]);
    
     
     return (

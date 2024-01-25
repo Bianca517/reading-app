@@ -265,7 +265,7 @@ export default function ReadingScreen( {route} ) {
                     <FaceDetectionModule userAlreadyGavePermission={true} scrollRightCallback={flatListScrollToNext} scrollLeftCallback={flatListScrollToPrevious}></FaceDetectionModule>
                 )
             }
-            <SafeAreaView style={styles.fullscreen_view}>
+            <SafeAreaView style={[styles.fullscreen_view, {backgroundColor: selectedBackgroundColor}]}>
                 <View style={styles.table_of_contents_preview}>
                     <Text style={styles.table_of_contents_text}>Table of Contents</Text>
                   
@@ -364,7 +364,6 @@ export default function ReadingScreen( {route} ) {
 
 const styles = StyleSheet.create({
     fullscreen_view: {
-        backgroundColor: Globals.COLORS.BACKGROUND_GRAY,
         flex: 1,
         flexDirection: 'column',
     },

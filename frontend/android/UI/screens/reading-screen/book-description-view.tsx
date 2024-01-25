@@ -8,13 +8,6 @@ import GlobalBookData from '../../_globals/GlobalBookData';
 
 const screenWidth = Dimensions.get("window").width;
 
-type props = {
-    bookCoverImageUrl: string,
-    bookTitle: string,
-    bookID: string,
-    bookAuthor: string,
-}
-
 type ResponseType = {
     success: boolean,
     message: string,
