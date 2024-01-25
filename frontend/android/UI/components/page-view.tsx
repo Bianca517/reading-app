@@ -52,7 +52,7 @@ export default function PageView({ bookID, chapterNumber, paragraphsInAPage, sel
                 }
                 else {
                     arrayOfTextsInAPage.push(
-                        <View style={[styles.paragraph_view, {backgroundColor: selectedBackgroundColor}]}>
+                        <View style={[styles.paragraph_view, {backgroundColor: selectedBackgroundColor, justifyContent: 'center', alignItems: 'center'}]}>
                             <Text style={[styles.paragraph_text, {fontFamily: selectedFont, fontSize: fontSize, color: fontColor}]}> 
                                 {paragraphMap.content}
                             </Text>

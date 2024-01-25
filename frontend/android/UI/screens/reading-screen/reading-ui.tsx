@@ -369,11 +369,15 @@ const styles = StyleSheet.create({
     },
     table_of_contents_preview: {
         flex: 1,
-        backgroundColor: 'black',
+        backgroundColor: Globals.COLORS.BACKGROUND_LIGHT_GRAY,
         flexDirection: 'row',
         paddingHorizontal: 50,
         alignItems: 'center',
         justifyContent: 'space-between',
+        marginHorizontal: 50,
+        borderRadius: 30,
+        height: 'auto',
+        marginBottom: 10,
     },
     right_side_of_table_of_contents_preview: {
         flexDirection: 'row'
@@ -386,21 +390,33 @@ const styles = StyleSheet.create({
         lineHeight: 20,
     },
     header: {
-        //backgroundColor: 'purple',
-        flex: 1,
+        backgroundColor: 'purple',
+        flex: 3,
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
+        marginBottom: 10,
     },
     white_line: {
+        flex: 0.1,
         width: '80%',
         height: 2,
         alignSelf: 'center',
-        marginVertical: 10,
+    },
+    body: {
+        flex: 13,
+        widht: windowWidth,
+        flexDirection: 'column',
+    },
+    text_container: {
+        flex: 20,
+        //backgroundColor: 'green',
+        height: 550,
+        width: windowWidth,
     },
     content_view: {
-        //backgroundColor: 'pink',
-        flex: 6,
+        backgroundColor: 'pink',
+        flex: 5,
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
@@ -430,14 +446,6 @@ const styles = StyleSheet.create({
     scrollview: {
         marginBottom: 20,
         //paddingBottom: 50,
-        width: windowWidth,
-    },
-    body: {
-        flex: 13,
-        widht: windowWidth,
-    },
-    text_container: {
-        height: 550,
         width: windowWidth,
     },
     nextChapterInfo: {

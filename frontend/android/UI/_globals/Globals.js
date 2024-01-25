@@ -3,6 +3,7 @@ export default {
         BACKGROUND_GRAY: '#2d2d2d',
         BACKGROUND_WHITE: '#FFFFFF',
         BACKGROUND_YELLOW: '#FFFFCC',
+        BACKGROUND_LIGHT_GRAY: '#5E5E5E',
         PURPLE: '#d807f2',
         FOR_YOU_SECTION: '#aa78cf',
         CHECKBOX_CHECKED_GREEN: '#47af2c',
