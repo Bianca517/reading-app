@@ -75,8 +75,8 @@ const styles = StyleSheet.create({
     paragraph_view: {
         //backgroundColor: 'pink',
         flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
+        //justifyContent: 'center',
+        //alignItems: 'center',
         //paddingTop: 10,
         //paddingBottom: 100,
         width: windowWidth,
