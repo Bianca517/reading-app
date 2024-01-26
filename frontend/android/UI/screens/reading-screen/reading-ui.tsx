@@ -112,6 +112,7 @@ export default function ReadingScreen( {route} ) {
     useEffect(() => {
         //updateTextInPages(paragraphsInPages);
         setTotalPageNumbers(paragraphsInPages.length);
+        console.log("updating total page numbers", totalPageNumbers);
         console.log(paragraphsInPages);
         buildPages();
     }, [paragraphsInPages]);
@@ -286,8 +287,10 @@ export default function ReadingScreen( {route} ) {
     }
 
     const onViewableItemsChanged = useCallback(({ viewableItems, changed }) => {
-        const currentPageVisible: number = viewableItems[0]["index"];
+        let currentPageVisible: number = viewableItems[0]["index"];
+        //console.log(viewableItems);
         setCurrentPage(currentPageVisible);
+        console.log("new page:" + currentPageVisible);
     }, []);
 
     function onScrollCallback (scrollOffset: number) {
@@ -346,10 +349,9 @@ export default function ReadingScreen( {route} ) {
                         
                     <FlatList
                             ref={flatlistRef}
-                            extraData={this.props}
+                            extraData={pagesWithContent}
                             horizontal={true}  
                             data={pagesWithContent}
-                            initialNumToRender={3}
                             showsHorizontalScrollIndicator={false} 
                             keyExtractor={(item, index) => index.toString()}
                             disableIntervalMomentum
