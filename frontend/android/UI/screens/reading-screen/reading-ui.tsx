@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ScrollView, Image, Dimensions, Button, FlatList } from 'react-native';
 import Globals from '../../_globals/Globals';
 import BottomSheet, { BottomSheetView, SCREEN_WIDTH } from "@gorhom/bottom-sheet";
@@ -50,6 +50,7 @@ export default function ReadingScreen( {route} ) {
     const [chapterTitles, setChapterTitles] = useState<string[]>([]);
     //const [navigateToPreviousChapterTrigger, setNavigateToPreviousChapterTrigger] = useState<boolean>(false);
     const navigateToPreviousChapterTriggerRef = useRef<boolean>(false);
+    const [debug_bi, setdebug_bi] = useState<ReactNode[]>(null);
 
     //refferences
     const flatlistRef = useRef<FlatList<string>>(null);
@@ -67,6 +68,32 @@ export default function ReadingScreen( {route} ) {
                 />
         ),
     })
+
+    function populatedebugbi() {
+        let bi = [];
+        bi.push(
+            <PageView
+                bookID={bookID}
+                chapterNumber={chapterNumber}
+                paragraphsInAPage={paragraphsInPages[0]}
+                selectedBackgroundColor={selectedBackgroundColor}
+                selectedFont={selectedFont}
+                fontColor={fontColor}
+                fontSize={fontSize}
+            />
+        );
+        bi.push(
+            <PageView
+                bookID={bookID}
+                chapterNumber={chapterNumber}
+                paragraphsInAPage={paragraphsInPages[1]}
+                selectedBackgroundColor={selectedBackgroundColor}
+                selectedFont={selectedFont}
+                fontColor={fontColor}
+                fontSize={fontSize}
+            />
+        );   
+    }
 
     //this executes at the beginning
     useEffect(() => {
@@ -315,15 +342,14 @@ export default function ReadingScreen( {route} ) {
                             renderItem={({ item }) => (
                                 
                                 <View style={[styles.content_view, { backgroundColor: selectedBackgroundColor }]}>
-                                    <PageView
-                                        bookID={bookID}
-                                        chapterNumber={chapterNumber}
-                                        paragraphsInAPage={paragraphsInPages[currentPage]}
-                                        selectedBackgroundColor={selectedBackgroundColor}
-                                        selectedFont={selectedFont}
-                                        fontColor={fontColor}
-                                        fontSize={fontSize}
-                                        />
+                                    <Text>
+                                    What is Lorem Ipsum?
+                                    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+
+                                    Why do we use it?
+                                    It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).
+
+                                    </Text>
                                 </View>
                                
                             )}
