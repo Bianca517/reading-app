@@ -20,6 +20,15 @@ const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
 const bodyHeight = windowHeight * 60 / 100;
 
+const debug_text = [
+    `What is Lorem Ipsum?
+    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+    `,
+
+    `Why do we use it?
+    It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and
+    `
+]
 
 export default function ReadingScreen( {route} ) {
     //focused screen
@@ -42,15 +51,17 @@ export default function ReadingScreen( {route} ) {
     const [totalPageNumbers, setTotalPageNumbers] = useState<number>(0);
     const [totalNumberOfChapters, setTotalNumberOfChapters] = useState<number>();
     const [paragraphsInPages, setParagraphsInPages] = useState<textParagraph[][]>([]);
-    const [textInPages, setTextInPages] = useState<string[]>([]);
+    //const [textInPages, setTextInPages] = useState<string[]>([]);
     const [chapterNumber, setChapterNumber] = useState<number>(0);
     const [chapterNumberToDisplay, setChapterNumberToDisplay] = useState<number>(chapterNumber + 1);
     const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
     const [navigateToNextChapterTrigger, setNavigateToNextChapterTrigger] = useState<boolean>(false);
     const [chapterTitles, setChapterTitles] = useState<string[]>([]);
+    const [pagesWithContent, setPagesWithContent] = useState<ReactNode[]>([]);
     //const [navigateToPreviousChapterTrigger, setNavigateToPreviousChapterTrigger] = useState<boolean>(false);
     const navigateToPreviousChapterTriggerRef = useRef<boolean>(false);
-    const [debug_bi, setdebug_bi] = useState<ReactNode[]>(null);
+    let oldScrollRef = useRef<number>(0);
+
 
     //refferences
     const flatlistRef = useRef<FlatList<string>>(null);
@@ -69,36 +80,12 @@ export default function ReadingScreen( {route} ) {
         ),
     })
 
-    function populatedebugbi() {
-        let bi = [];
-        bi.push(
-            <PageView
-                bookID={bookID}
-                chapterNumber={chapterNumber}
-                paragraphsInAPage={paragraphsInPages[0]}
-                selectedBackgroundColor={selectedBackgroundColor}
-                selectedFont={selectedFont}
-                fontColor={fontColor}
-                fontSize={fontSize}
-            />
-        );
-        bi.push(
-            <PageView
-                bookID={bookID}
-                chapterNumber={chapterNumber}
-                paragraphsInAPage={paragraphsInPages[1]}
-                selectedBackgroundColor={selectedBackgroundColor}
-                selectedFont={selectedFont}
-                fontColor={fontColor}
-                fontSize={fontSize}
-            />
-        );   
-    }
-
+    
     //this executes at the beginning
     useEffect(() => {
         if (isFocused) {
             checkPreviousScreen();
+            setCurrentPage(0);
 
             loadTotalNumberOfChapters(bookID).then(returnValue => {
                 setTotalNumberOfChapters(returnValue);
@@ -123,9 +110,10 @@ export default function ReadingScreen( {route} ) {
     }, [fontSize, bookChapterContent]);
 
     useEffect(() => {
-        updateTextInPages(paragraphsInPages);
+        //updateTextInPages(paragraphsInPages);
         setTotalPageNumbers(paragraphsInPages.length);
-        //console.log(paragraphsInPages);
+        console.log(paragraphsInPages);
+        buildPages();
     }, [paragraphsInPages]);
 
     useEffect(() => {
@@ -133,16 +121,20 @@ export default function ReadingScreen( {route} ) {
          if(navigateToPreviousChapterTriggerRef.current === true) {
             console.log(totalPageNumbers);
             console.log("here 4");
+            /*
             flatlistRef.current?.scrollToIndex({
                 index: totalPageNumbers,
             });
+            */
             navigateToPreviousChapterTriggerRef.current = false;
         }
     }, [totalPageNumbers]);
 
+    /*
     useEffect(() => {
         //console.log("text in page", textInPages);
     }, [textInPages]);
+    */
 
     useEffect(() => {
         //console.log("current page", currentPage);
@@ -167,6 +159,27 @@ export default function ReadingScreen( {route} ) {
         }
     }
 
+    function buildPages() {
+        let pages: ReactNode[] = [];
+
+        paragraphsInPages.forEach(arrayOfParagraphsInAPage => {
+            pages.push(
+                <PageView
+                        bookID={bookID}
+                        chapterNumber={chapterNumber}
+                        paragraphsInAPage={arrayOfParagraphsInAPage}
+                        selectedBackgroundColor={selectedBackgroundColor}
+                        selectedFont={selectedFont}
+                        fontColor={fontColor}
+                        fontSize={fontSize}
+                />
+            )
+        });
+
+        setPagesWithContent(pages);
+    }
+
+    /*
     function updateTextInPages(paragraphsInPages: textParagraph[][]) {
         let pagesText: string[] = [];
         let currentPageNumber: number = 0;
@@ -180,7 +193,10 @@ export default function ReadingScreen( {route} ) {
             currentPageNumber++;
         });
         setTextInPages(pagesText);
+        console.log("pages text");
+        console.log(pagesText);
     }
+    */
 
     function updateFontFamily (fontFamily: string): void{
         setSelectedFont(fontFamily)
@@ -275,6 +291,16 @@ export default function ReadingScreen( {route} ) {
     }, []);
 
     function onScrollCallback (scrollOffset: number) {
+        /*
+        if(oldScrollRef.current < scrollOffset) {
+            setCurrentPage(currentPage + 1);
+        }
+        else if(oldScrollRef.current > scrollOffset) {
+            setCurrentPage(currentPage - 1);
+        }
+        */
+
+        
         if (scrollOffset === 0) {
             //console.log("setez perv chapter trigger");
             navigateToPreviousChapterTriggerRef.current = true;
@@ -286,6 +312,8 @@ export default function ReadingScreen( {route} ) {
             //console.log("resetez perv chapter trigger");
             navigateToPreviousChapterTriggerRef.current = false;
         }
+
+        oldScrollRef.current = scrollOffset;
     }
     
     return (
@@ -319,8 +347,8 @@ export default function ReadingScreen( {route} ) {
                     <FlatList
                             ref={flatlistRef}
                             extraData={this.props}
-                            data={textInPages}
                             horizontal={true}  
+                            data={pagesWithContent}
                             initialNumToRender={3}
                             showsHorizontalScrollIndicator={false} 
                             keyExtractor={(item, index) => index.toString()}
@@ -339,19 +367,10 @@ export default function ReadingScreen( {route} ) {
                                     setNavigateToNextChapterTrigger(true);
                                 }
                             }}
-                            renderItem={({ item }) => (
-                                
+                            renderItem={({index}) => (
                                 <View style={[styles.content_view, { backgroundColor: selectedBackgroundColor }]}>
-                                    <Text>
-                                    What is Lorem Ipsum?
-                                    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-
-                                    Why do we use it?
-                                    It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).
-
-                                    </Text>
+                                    {pagesWithContent[index]}
                                 </View>
-                               
                             )}
                         />
                             
