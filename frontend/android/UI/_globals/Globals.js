@@ -8,6 +8,10 @@ export default {
         FOR_YOU_SECTION: '#aa78cf',
         CHECKBOX_CHECKED_GREEN: '#47af2c',
         INTEREST_CONTAINER_BACKGROUND_LIGHT_PINK: '#db81f1',
+        INTEREST_CONTAINER_BACKGROUND_COLOR_1: '#c56cf0',
+        INTEREST_CONTAINER_BACKGROUND_COLOR_2: '#f39be5',
+        INTEREST_CONTAINER_BACKGROUND_COLOR_3: '#a450c9',
+        INTEREST_CONTAINER_BACKGROUND_COLOR_4: '#f7a8ff',
     },
     LIBRARY_SECTIONS: {
         CURRENT_READINGS: 0,
@@ -27,7 +31,6 @@ export default {
         "January",
         "February",
         "March",
-
         "April",
         "May",
         "June",
@@ -44,7 +47,6 @@ export default {
     Y_INDEX_OF_BEGINNING_MONTH_CONTAINER: -190,
     INTERESTS_LIST: [
         "Fiction",
-        "Non-Fiction",
         "Science Fiction",
         "Romance",
         "Comedy",
@@ -54,6 +56,8 @@ export default {
         "History",
         "Music",
         "Biography",
+        "Drama",
+        "Fan-Fiction"
     ],
     DEFAULT_FONT_FAMILY: 'System',
     DEFAULT_FONT_SIZE: 15,

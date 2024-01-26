@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, Alert, SafeAreaView, StatusBar, TextInput, TouchableOpacity, Image } from 'react-native';
 import { login_user_service } from '../../../services/login-service';
 import { useNavigation } from '@react-navigation/native';
+import { useFonts } from 'expo-font';
+import Globals from '../../_globals/Globals';
 
 const PAGE_SECTIONS: string[] = ["Login", "Register"]
 
@@ -117,6 +119,9 @@ export default function LoginPageUI() {
   const [pageSection, setPageSection] = useState(PAGE_SECTIONS[0]);
   //const [userEmail, setUserEmail] = useState("");
   //const [userPassword, setUserPassword] = useState("");
+  const [fontsLoaded, fontError] = useFonts({
+    'DancingScript': require('../../../assets/fonts/DancingScript-Medium.ttf'),
+  });
 
   function onPressNavigationButton(buttonText: string): void {
     //Alert.alert('You pressed the button ' + buttonText + ' !');
@@ -137,10 +142,10 @@ export default function LoginPageUI() {
     <SafeAreaView style={styles.fullscreen_container}>
 
       <View style={styles.header}>
-        <Text style={styles.email_password_text}>Logo</Text>
         <Image
           style={styles.logo_image}
-          source={require('../../../assets/logo.png')} />
+          source={require('../../../assets/logo.jpeg')} />
+        <Text style={styles.application_name_text}>BookHub</Text>
       </View>
 
       <View style={styles.navigator_part_view}>
@@ -203,10 +208,10 @@ const styles = StyleSheet.create({
   //fullscr container is divided into 6+1+1 = 8 parts. header takes 1/8
   header: {
     flex: 1,
-    //backgroundColor: 'white',
     marginHorizontal: '12%',
-    marginTop: '2%',
-    paddingHorizontal: '7%'
+    paddingTop: 40,
+    paddingHorizontal: '7%',
+    flexDirection: 'row',
   },
   content_part: {
     flex: 6,
@@ -226,7 +231,7 @@ const styles = StyleSheet.create({
     //backgroundColor: 'pink',
     alignItems: 'flex-start',
     paddingHorizontal: '12%',
-    marginTop: 25,
+    marginTop: 10,
     marginBottom: 50,
     marginLeft: 12
   },
@@ -297,9 +302,17 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   logo_image: {
-    width: 55,
-    height: 55,
+    width: 70,
+    height: 70,
     marginTop: 3,
+    borderRadius: 20,
+  },
+  application_name_text: {
+    fontFamily: 'DancingScript',
+    color: Globals.COLORS.PURPLE,
+    fontSize: 45,
+    marginLeft: 20,
+    marginTop: 5,
   },
   sign_in_options_container: {
     flexDirection: 'row',

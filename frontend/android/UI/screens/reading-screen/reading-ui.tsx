@@ -12,6 +12,9 @@ import { loadChapterTitles, loadTotalNumberOfChapters, loadBookChapterTitle, loa
 import PageView from '../../components/page-view';
 import { textParagraph } from "../../../types";
 import { useIsFocused } from "@react-navigation/native";
+import { Animated } from 'react-native';
+
+const scrollX = new Animated.Value(0);
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -286,15 +289,19 @@ export default function ReadingScreen( {route} ) {
 
                     <View style = {styles.text_container}>
                         
-                        <FlatList
+                    <FlatList
                             ref={flatlistRef}
+                            extraData={this.props}
                             data={textInPages}
                             horizontal={true}  
+                            initialNumToRender={3}
                             showsHorizontalScrollIndicator={false} 
                             keyExtractor={(item, index) => index.toString()}
                             disableIntervalMomentum
                             pagingEnabled={true}
-                            decelerationRate={'fast'}
+                            removeClippedSubviews={true}
+                            windowSize={1}
+                            decelerationRate={'normal'}
                             onViewableItemsChanged={onViewableItemsChanged}
                             onScroll={(event) => {
                                 const scrollOffset = event.nativeEvent.contentOffset.x;
@@ -306,6 +313,7 @@ export default function ReadingScreen( {route} ) {
                                 }
                             }}
                             renderItem={({ item }) => (
+                                
                                 <View style={[styles.content_view, { backgroundColor: selectedBackgroundColor }]}>
                                     <PageView
                                         bookID={bookID}
@@ -317,6 +325,7 @@ export default function ReadingScreen( {route} ) {
                                         fontSize={fontSize}
                                         />
                                 </View>
+                               
                             )}
                         />
                             
