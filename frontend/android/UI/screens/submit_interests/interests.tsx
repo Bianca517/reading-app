@@ -92,15 +92,15 @@ const styles = StyleSheet.create({
     rightLineThrough: {
         flex: 4,
         backgroundColor: 'white',
-        height: 2,
-        marginTop: 17,
+        height: 1.7,
+        marginTop: 20,
         marginLeft: 0
     },
     leftLineThrough: {
         flex: 1,
         backgroundColor: 'white',
-        height: 2,
-        marginTop: 17,
+        height: 1.7,
+        marginTop: 20,
         marginRight: 0
     },
     headerTextContainer: {
