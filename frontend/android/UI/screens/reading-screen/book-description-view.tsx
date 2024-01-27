@@ -87,7 +87,7 @@ export default function BookDescriptionView({route}) {
                             "Reading Screen",
                             { 
                                 "id" : bookID, 
-                                "chapterNumber" : 1, 
+                                "chapterNumber" : 0, 
                                 "bookCoverImage" : "", 
                                 "bookTitle": "", 
                                 "bookAuthor": ""

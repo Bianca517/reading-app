@@ -20,15 +20,6 @@ const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
 const bodyHeight = windowHeight * 60 / 100;
 
-const debug_text = [
-    `What is Lorem Ipsum?
-    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-    `,
-
-    `Why do we use it?
-    It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and
-    `
-]
 
 export default function ReadingScreen( {route} ) {
     //focused screen
@@ -36,6 +27,7 @@ export default function ReadingScreen( {route} ) {
 
     //route params
     const bookID = route.params.id;
+    const chapterNumberFromRoute = route.params.chapterNumber;
 
     //customization parameters
     const [selectedBackgroundColor, setSelectedBackgroundColor] = useState<string>(Globals.COLORS.BACKGROUND_GRAY);
@@ -47,20 +39,23 @@ export default function ReadingScreen( {route} ) {
     //local variables
     const [bookChapterContent, setBookChapterContent] = useState<textParagraph[]>([]);
     const [bookChapterTitle, setBookChapterTitle] = useState<string>("");
-    const [currentPage, setCurrentPage] = useState<number>(0);
     const [totalPageNumbers, setTotalPageNumbers] = useState<number>(0);
     const [totalNumberOfChapters, setTotalNumberOfChapters] = useState<number>();
     const [paragraphsInPages, setParagraphsInPages] = useState<textParagraph[][]>([]);
     //const [textInPages, setTextInPages] = useState<string[]>([]);
-    const [chapterNumber, setChapterNumber] = useState<number>(0);
+    const [chapterNumber, setChapterNumber] = useState<number>(chapterNumberFromRoute);
     const [chapterNumberToDisplay, setChapterNumberToDisplay] = useState<number>(chapterNumber + 1);
     const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-    const [navigateToNextChapterTrigger, setNavigateToNextChapterTrigger] = useState<boolean>(false);
     const [chapterTitles, setChapterTitles] = useState<string[]>([]);
     const [pagesWithContent, setPagesWithContent] = useState<ReactNode[]>([]);
-    //const [navigateToPreviousChapterTrigger, setNavigateToPreviousChapterTrigger] = useState<boolean>(false);
-    const navigateToPreviousChapterTriggerRef = useRef<boolean>(false);
+    const [isDataReady, setIsDataReady] = useState<boolean>(false);
+    
+    const [navigateToPreviousChapterTrigger, setNavigateToPreviousChapterTrigger] = useState<boolean>(false);
+    const [navigateToNextChapterTrigger, setNavigateToNextChapterTrigger] = useState<boolean>(false);
+    const [navigatedToPreviousChapter, setNavigatedToPreviousChapter] = useState<boolean>(false);
+
     let oldScrollRef = useRef<number>(0);
+    let currentPage = useRef<number>(0);
 
 
     //refferences
@@ -84,8 +79,9 @@ export default function ReadingScreen( {route} ) {
     //this executes at the beginning
     useEffect(() => {
         if (isFocused) {
-            checkPreviousScreen();
-            setCurrentPage(0);
+            //console.log("Focused");
+            //checkPreviousScreen();
+            //setCurrentPage(0);
 
             loadTotalNumberOfChapters(bookID).then(returnValue => {
                 setTotalNumberOfChapters(returnValue);
@@ -104,7 +100,6 @@ export default function ReadingScreen( {route} ) {
     }, [bookID, chapterNumber, isFocused]);
 
     useEffect(() => {
-        console.log("another content");
         const distributedParagraphs: textParagraph[][] = TextDistributer(bookChapterContent, bodyHeight, windowWidth, fontSize);
         setParagraphsInPages(distributedParagraphs);
     }, [fontSize, bookChapterContent]);
@@ -112,24 +107,27 @@ export default function ReadingScreen( {route} ) {
     useEffect(() => {
         //updateTextInPages(paragraphsInPages);
         setTotalPageNumbers(paragraphsInPages.length);
-        console.log("updating total page numbers", totalPageNumbers);
-        console.log(paragraphsInPages);
+        //console.log("updating total page numbers", totalPageNumbers);
+        //console.log(paragraphsInPages);
         buildPages();
+        setIsDataReady(true);
+        if(navigatedToPreviousChapter === true) {
+            console.log("de aici pornesc erorile???");
+            flatlistRef.current?.scrollToEnd();
+            setNavigatedToPreviousChapter(false);
+        }
     }, [paragraphsInPages]);
 
     useEffect(() => {
-         //if the last action was to go to the previous chapter, then the first page displayed shall be the last one in the chapter
-         if(navigateToPreviousChapterTriggerRef.current === true) {
-            console.log(totalPageNumbers);
-            console.log("here 4");
-            /*
-            flatlistRef.current?.scrollToIndex({
-                index: totalPageNumbers,
-            });
-            */
-            navigateToPreviousChapterTriggerRef.current = false;
+        //if the last action was to go to the previous chapter, then the first page displayed shall be the last one in the chapter
+        /*
+        if(navigatedToPreviousChapter === true) {
+            console.log("de aici pornesc erorile???");
+            flatlistRef.current?.scrollToEnd();
+            setNavigatedToPreviousChapter(false);
         }
-    }, [totalPageNumbers]);
+        */
+    }, [chapterNumber]);
 
     /*
     useEffect(() => {
@@ -145,20 +143,32 @@ export default function ReadingScreen( {route} ) {
         //console.log("gesture scroll active ", isGestureScrollingActive);
     }, [isGestureScrollingActive]);
     
+
     function checkPreviousScreen() {
+        /*
         const routes = navigation.getState()?.routes;
         const prevRoute = routes[routes.length - 2]["name"]; // -2 because -1 is the current route
         //console.log(prevRoute);
         //if the previous screen is the prologue, it means the user is now beginning the book
         if(prevRoute == "Prologue") {
-            console.log("coming to the prologeue");
+            console.log("coming from the prologue. setting chapter number to 0");
             setChapterNumber(0);
         }
         else {
-            console.log(route.params);
             setChapterNumber(route.params.chapterNumber);
+            console.log("not coming from the prologue. setting chapter number to 0" + chapterNumber);
+        }*/
+
+        const chapterNumberFromRoute = route.params.chapterNumber;
+        if(chapterNumberFromRoute) {
+            setChapterNumber(chapterNumberFromRoute);
         }
+        else {
+            setChapterNumber(0);
+        }
+        console.log("0setting chapter number to ", chapterNumber);
     }
+
 
     function buildPages() {
         let pages: ReactNode[] = [];
@@ -237,36 +247,42 @@ export default function ReadingScreen( {route} ) {
         setIsBottomSheetOpen(true);
     }, []);
 
+
     function navigateToNextChapter() {
+
         setNavigateToNextChapterTrigger(false);
+
         if(chapterNumber < totalNumberOfChapters - 1) {
-            setChapterNumber(chapterNumber + 1);
-            //first page of next chapter
-            console.log("here 1");
-            flatlistRef.current?.scrollToIndex({
+            console.log("navigate to next chapter. before ", chapterNumber);
+            const incrementedChapterNumber = chapterNumber + 1;
+            setChapterNumber(incrementedChapterNumber);
+            console.log("1setting chapter number to: ", incrementedChapterNumber);
+
+            flatlistRef.current?.scrollToIndex({ //first page of next chapter
                 index: 0,
             });
-            setCurrentPage(0);
-            console.log("navigate to next chapter");
         }
     }
 
     function navigateToPreviousChapter() {
         if(chapterNumber > 0) {
-            setChapterNumber(chapterNumber - 1);
-            console.log("navigate to previous chapter ");
+            const previousChapterNumber = chapterNumber - 1;
+            setChapterNumber(previousChapterNumber);
+            console.log("2setting chapter number to ", chapterNumber);
+            //console.log("navigate to previous chapter ");
+            setNavigatedToPreviousChapter(true);
         }
     }
 
     function flatListScrollToNext() {
         //console.log("scrollToNext");
         //can scroll in the current chapter
-        if(currentPage < totalPageNumbers - 1) {
+        if(currentPage.current < totalPageNumbers - 1) {
             console.log("here 2");
             flatlistRef.current?.scrollToIndex({
-                index: currentPage + 1,
+                index: currentPage.current + 1,
             });
-            setCurrentPage(currentPage+1);
+            //setCurrentPage(currentPage+1);
         }
         if(navigateToNextChapterTrigger) {
             navigateToNextChapter();
@@ -274,49 +290,53 @@ export default function ReadingScreen( {route} ) {
     }
 
     function flatListScrollToPrevious() {
-        if(currentPage > 0) {
+        if(currentPage.current > 0) {
             console.log("here 3");
             flatlistRef.current?.scrollToIndex({
-                index: currentPage - 1,
+                index: currentPage.current - 1,
             });
-            setCurrentPage(currentPage-1);
+            //setCurrentPage(currentPage-1);
         }
-        if(navigateToPreviousChapterTriggerRef.current) {
+        if(navigateToPreviousChapterTrigger){
             navigateToPreviousChapter();
         }
     }
 
+
     const onViewableItemsChanged = useCallback(({ viewableItems, changed }) => {
-        let currentPageVisible: number = viewableItems[0]["index"];
-        //console.log(viewableItems);
-        setCurrentPage(currentPageVisible);
-        console.log("new page:" + currentPageVisible);
-    }, []);
+        if (viewableItems && viewableItems.length > 0) {
+            let currentPageVisible: number = viewableItems[0]["index"];
+            //console.log(viewableItems);
+            currentPage.current = currentPageVisible;
+            //console.log("new page", currentPageVisible);
+            //console.log("chapter number", chapterNumber);
 
-    function onScrollCallback (scrollOffset: number) {
-        /*
-        if(oldScrollRef.current < scrollOffset) {
-            setCurrentPage(currentPage + 1);
-        }
-        else if(oldScrollRef.current > scrollOffset) {
-            setCurrentPage(currentPage - 1);
-        }
-        */
-
-        
-        if (scrollOffset === 0) {
-            //console.log("setez perv chapter trigger");
-            navigateToPreviousChapterTriggerRef.current = true;
-        }
-        else {
-            if((totalPageNumbers - 1) * windowWidth !== scrollOffset) { //this is how scr0ll offset is calculated
-                setNavigateToNextChapterTrigger(false);
+            if (currentPageVisible == 0) {
+                if(chapterNumber != 0) {
+                    //console.log("setez prev chapter trigger");
+                    setNavigateToPreviousChapterTrigger(true);
+                }
             }
-            //console.log("resetez perv chapter trigger");
-            navigateToPreviousChapterTriggerRef.current = false;
+            else {
+                setNavigateToPreviousChapterTrigger(false);
+                if(currentPage.current == (totalPageNumbers-1)) {
+                    //do not go to next chapter if this is the last chapter
+                    if(chapterNumber != (totalNumberOfChapters-1)) {
+                        setNavigateToNextChapterTrigger(true);
+                        //console.log("setez next chapter trigger after: ", navigateToNextChapterTrigger);
+                    }
+                }
+                else {
+                    //console.log("resetting next chapter trigger");
+                    setNavigateToNextChapterTrigger(false);
+                }
+            }
         }
+    }, [chapterNumber, totalNumberOfChapters, totalPageNumbers]); //!!!an empty dependency array means that the function will capture the initial values of the variables used inside it.
 
-        oldScrollRef.current = scrollOffset;
+
+    function onScrollCallback () {
+        //console.log("chapter number", chapterNumber); //here chapterNumber has the correct value
     }
     
     return (
@@ -346,7 +366,8 @@ export default function ReadingScreen( {route} ) {
                     <View style={[styles.white_line, {backgroundColor: fontColor}]}/>
 
                     <View style = {styles.text_container}>
-                        
+                    
+                    { isDataReady &&
                     <FlatList
                             ref={flatlistRef}
                             extraData={pagesWithContent}
@@ -361,21 +382,20 @@ export default function ReadingScreen( {route} ) {
                             decelerationRate={'normal'}
                             onViewableItemsChanged={onViewableItemsChanged}
                             onScroll={(event) => {
-                                const scrollOffset = event.nativeEvent.contentOffset.x;
-                                onScrollCallback(scrollOffset);
+                                onScrollCallback();
                             }}
                             onEndReached={() => {
-                                if(currentPage !== 0) {
+                                if(currentPage.current !== 0) { //because of this i added the end page for all chapter
                                     setNavigateToNextChapterTrigger(true);
                                 }
                             }}
                             renderItem={({index}) => (
-                                <View style={[styles.content_view, { backgroundColor: selectedBackgroundColor }]}>
+                                <View style={[styles.content_view]}>
                                     {pagesWithContent[index]}
                                 </View>
                             )}
                         />
-                            
+                    }
                     </View>
                 </View>
 
@@ -395,7 +415,11 @@ export default function ReadingScreen( {route} ) {
                     navigateToNextChapterTrigger &&
 
                     <View style={styles.nextChapterInfo}>
-                        <TouchableOpacity activeOpacity={0.5} onPress={() => navigateToNextChapter()}>
+                        <TouchableOpacity activeOpacity={0.5} onPress={() => 
+                            { 
+                                navigateToNextChapter(); 
+                                setIsDataReady(false);
+                            }}>
                             <AntDesign name="arrowright" size={20} color={Globals.COLORS.PURPLE} />
                             <Text style={styles.changeChaptersText}> Next Chapter </Text>
                         </TouchableOpacity>
@@ -403,10 +427,12 @@ export default function ReadingScreen( {route} ) {
                 }
 
                 {
-                    navigateToPreviousChapterTriggerRef.current &&
+                    navigateToPreviousChapterTrigger &&
 
                     <View style={styles.previousChapterInfo}>
-                        <TouchableOpacity activeOpacity={0.5} onPress={() => navigateToPreviousChapter()}>
+                        <TouchableOpacity activeOpacity={0.5} onPress={() => {
+                            navigateToPreviousChapter();
+                        }}>
                             <AntDesign name="arrowleft" size={20} color={Globals.COLORS.PURPLE} />
                             <Text style={styles.changeChaptersText}> Previous Chapter </Text>
                         </TouchableOpacity>
@@ -446,7 +472,7 @@ const styles = StyleSheet.create({
         lineHeight: 20,
     },
     header: {
-        backgroundColor: 'purple',
+        //backgroundColor: 'purple',
         flex: 3,
         flexDirection: 'column',
         justifyContent: 'center',
@@ -471,7 +497,7 @@ const styles = StyleSheet.create({
         width: windowWidth,
     },
     content_view: {
-        backgroundColor: 'pink',
+        //backgroundColor: 'pink',
         flex: 5,
         flexDirection: 'column',
         justifyContent: 'center',
@@ -506,9 +532,9 @@ const styles = StyleSheet.create({
     },
     nextChapterInfo: {
         position: 'absolute',
-        height: windowHeight * 0.3,
+        height: windowHeight * 0.2,
         width: windowWidth * 0.3,
-        top: windowHeight * 0.35,
+        top: windowHeight * 0.40,
         right: 0,
         backgroundColor: 'rgba(0, 0, 0, 0.5)', // Set the alpha value (0.5) for transparency
         flexDirection: 'column',
@@ -524,9 +550,9 @@ const styles = StyleSheet.create({
     },
     previousChapterInfo: {
         position: 'absolute',
-        height: windowHeight * 0.3,
+        height: windowHeight * 0.2,
         width: windowWidth * 0.3,
-        top: windowHeight * 0.35,
+        top: windowHeight * 0.40,
         left: 0,
         backgroundColor: 'rgba(0, 0, 0, 0.5)', // Set the alpha value (0.5) for transparency
         flexDirection: 'column',
