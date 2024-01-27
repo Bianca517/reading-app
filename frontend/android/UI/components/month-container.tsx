@@ -22,7 +22,7 @@ type Props = {
     onBookRemovedCallback: (bookID: string, bookTitle: string, bookAuthor: string) => void,
 };
 
-export default function MonthContainer( {index,height, inEditMode, plannedBookList, onBookRemovedCallback}: Props) {
+export default function MonthContainer( {index, height, inEditMode, plannedBookList, onBookRemovedCallback}: Props) {
     const navigation = useNavigation();
     let [statePlannedBookList, setStatePlannedBookList] = useState([]);
 
@@ -32,6 +32,7 @@ export default function MonthContainer( {index,height, inEditMode, plannedBookLi
     currentMonthName = currentMonthName[0].toUpperCase() + currentMonthName.substring(1);
     //build firebase storage uri
     const monthImagePath = Globals.MONTHS_BACKGROUND_IMAGES.replace('MONTH', currentMonthName.toLowerCase());
+    console.log(monthImagePath);
 
     let rightButtonText = inEditMode === true ? 'Done' : 'Edit';
 
