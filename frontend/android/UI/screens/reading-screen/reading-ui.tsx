@@ -1,4 +1,4 @@
-import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import React, { ReactElement, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ScrollView, Image, Dimensions, Button, FlatList } from 'react-native';
 import Globals from '../../_globals/Globals';
 import BottomSheet, { BottomSheetView, SCREEN_WIDTH } from "@gorhom/bottom-sheet";
@@ -18,7 +18,7 @@ const scrollX = new Animated.Value(0);
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
-const bodyHeight = windowHeight * 60 / 100;
+const bodyHeight = windowHeight * 50 / 100;
 
 
 export default function ReadingScreen( {route} ) {
@@ -102,7 +102,7 @@ export default function ReadingScreen( {route} ) {
     useEffect(() => {
         const distributedParagraphs: textParagraph[][] = TextDistributer(bookChapterContent, bodyHeight, windowWidth, fontSize);
         setParagraphsInPages(distributedParagraphs);
-    }, [fontSize, bookChapterContent]);
+    }, [fontSize, selectedBackgroundColor, selectedFont, bookChapterContent]);
 
     useEffect(() => {
         //updateTextInPages(paragraphsInPages);
@@ -143,6 +143,26 @@ export default function ReadingScreen( {route} ) {
         //console.log("gesture scroll active ", isGestureScrollingActive);
     }, [isGestureScrollingActive]);
     
+    /*
+    useEffect(() => {
+        console.log("font changed to", selectedFont);
+        setPagesWithContent(prevPages => {
+            return prevPages.map(page => {
+                // Clone the PageView component and update the style prop
+                return React.cloneElement(page, { style: { selectedFont: selectedFont } });
+            });
+        });
+    }, [selectedFont]);
+
+    useEffect(() => {
+        setPagesWithContent(prevPages => {
+            return prevPages.map(page => {
+                // Clone the PageView component and update the style prop
+                return React.cloneElement(page, { style: { fontColor: fontColor } });
+            });
+        });
+    }, [fontColor]);
+    */
 
     function checkPreviousScreen() {
         /*
@@ -179,7 +199,6 @@ export default function ReadingScreen( {route} ) {
                         bookID={bookID}
                         chapterNumber={chapterNumber}
                         paragraphsInAPage={arrayOfParagraphsInAPage}
-                        selectedBackgroundColor={selectedBackgroundColor}
                         selectedFont={selectedFont}
                         fontColor={fontColor}
                         fontSize={fontSize}
@@ -236,6 +255,7 @@ export default function ReadingScreen( {route} ) {
                 setFontColor(Globals.FONT_COLOR_2);
                 break;
         }
+        console.log("font color should change to ", fontColor);
     }
 
     function updateGestureScroll (isEnabled: boolean): void{

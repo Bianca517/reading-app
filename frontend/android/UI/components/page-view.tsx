@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ReactNode } from 'react';
+import React, { useState, useEffect, ReactNode, ReactElement } from 'react';
 import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions } from 'react-native';
 import Globals from '../_globals/Globals';
 import { useNavigation } from '@react-navigation/native';
@@ -16,23 +16,22 @@ type props = {
     bookID: string;
     chapterNumber: number;
     paragraphsInAPage: textParagraph[];
-    selectedBackgroundColor: string;
     selectedFont: string;
     fontSize: number;
     fontColor: string;
 }
 
-export default function PageView({ bookID, chapterNumber, paragraphsInAPage, selectedBackgroundColor, selectedFont, fontSize, fontColor} : props) {
+export default function PageView({ bookID, chapterNumber, paragraphsInAPage, selectedFont, fontSize, fontColor} : props) {
     const navigation = useNavigation();
 
-    function mapTextAndButtons(): ReactNode {
+    function mapTextAndButtons(): ReactNode[] {
         let arrayOfTextsInAPage = [];
 
         if(paragraphsInAPage.length > 0) {
             paragraphsInAPage.forEach( paragraphMap => {
                 if(paragraphMap.content !== "End of chapter") {
                     arrayOfTextsInAPage.push(
-                        <View style={[styles.paragraph_view, {backgroundColor: selectedBackgroundColor}]}>
+                        <View style={[styles.paragraph_view]}>
                             <Text style={[styles.paragraph_text, {fontFamily: selectedFont, fontSize: fontSize, color: fontColor}]}> 
                                 {paragraphMap.content}
                             </Text>
@@ -52,7 +51,7 @@ export default function PageView({ bookID, chapterNumber, paragraphsInAPage, sel
                 }
                 else {
                     arrayOfTextsInAPage.push(
-                        <View style={[styles.paragraph_view, {backgroundColor: selectedBackgroundColor, justifyContent: 'center', alignItems: 'center'}]}>
+                        <View style={[styles.paragraph_view, {justifyContent: 'center', alignItems: 'center'}]}>
                             <Text style={[styles.paragraph_text, {fontFamily: selectedFont, fontSize: fontSize, color: fontColor}]}> 
                                 {paragraphMap.content}
                             </Text>
