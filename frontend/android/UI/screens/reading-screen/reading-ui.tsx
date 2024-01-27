@@ -515,6 +515,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
+        textAlign: 'center',
         marginBottom: 10,
     },
     white_line: {
@@ -553,6 +554,7 @@ const styles = StyleSheet.create({
     },
     chapter_title: {
         alignSelf: 'center',
+        textAlign: 'center',
         color: 'white',
         fontWeight: '400',
         fontSize: 20,
