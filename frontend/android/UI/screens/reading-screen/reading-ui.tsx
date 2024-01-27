@@ -82,7 +82,7 @@ export default function ReadingScreen( {route} ) {
     useEffect(() => {
         if (isFocused) {
             //console.log("Focused");
-            //checkPreviousScreen();
+            checkPreviousScreen();
             //setCurrentPage(0);
 
             loadTotalNumberOfChapters(bookID).then(returnValue => {
@@ -182,6 +182,7 @@ export default function ReadingScreen( {route} ) {
         }*/
 
         const chapterNumberFromRoute = route.params.chapterNumber;
+        console.log("am primit chapter number", chapterNumberFromRoute);
         if(chapterNumberFromRoute) {
             setChapterNumber(chapterNumberFromRoute);
         }
@@ -333,6 +334,8 @@ export default function ReadingScreen( {route} ) {
             //console.log("new page", currentPageVisible);
             console.log("chapter number", chapterNumber);
             console.log("total chapter numbers", totalNumberOfChapters);
+            console.log("total pages: " + totalPageNumbers);
+            console.log("current page: " + currentPage.current);
 
             if (currentPageVisible == 0) {
                 if(chapterNumber != 0) {
@@ -342,8 +345,6 @@ export default function ReadingScreen( {route} ) {
             }
             else {
                 setNavigateToPreviousChapterTrigger(false);
-                console.log("total pages: " + totalPageNumbers);
-                console.log("current page: " + currentPage.current);
                 if(currentPage.current == (totalPageNumbers-1)) {
                     //do not go to next chapter if this is the last chapter
                     if(chapterNumber !== (totalNumberOfChapters-1)) {
