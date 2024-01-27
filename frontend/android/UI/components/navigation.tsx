@@ -14,6 +14,7 @@ import BookDescriptionView from '../screens/reading-screen/book-description-view
 import CommentsView from '../screens/comments_screen/comments-screen';
 import WriteABookUI from '../screens/write_a_book/write-book-ui';
 import WriteNewBookUI from '../screens/write_a_book/write-new-book-ui';
+import SearchBookUI from '../screens/search-book/search-book-ui';
 import Globals from '../_globals/Globals';
 
 const Stack = createNativeStackNavigator();
@@ -52,6 +53,7 @@ export default function Navigation() {
         <Stack.Screen name="Comments" component={CommentsView} />
         <Stack.Screen name="Write a Book" component={WriteABookUI} />
         <Stack.Screen name="Write New Book" component={WriteNewBookUI} />
+        <Stack.Screen name="Search" component={SearchBookUI} />
         <Stack.Screen name="Test" component={FaceDetector} />
       </Stack.Navigator>
     </NavigationContainer>
