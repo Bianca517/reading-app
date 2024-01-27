@@ -2,7 +2,7 @@ import { StyleSheet, Text, View, Switch, Modal, ScrollView, TouchableHighlight }
 import Globals from '../_globals/Globals';
 
 export const FontPicker = ({ visible, onSelect, onClose }: { visible: boolean; onSelect: (font: string) => void; onClose: () => void }) => {
-    const fonts = ['System', 'Arial', 'Georgia', 'Times New Roman', 'Verdana', 'Courier New', 'Helvetica', 'Palatino'];
+    const fonts = ['normal', 'sans-serif', 'sans-serif-light', 'sans-serif-medium', 'sans-serif-condensed', 'serif', 'monospace'];
 
     return (
         <Modal transparent animationType="slide" visible={visible} onRequestClose={onClose}>
@@ -18,7 +18,7 @@ export const FontPicker = ({ visible, onSelect, onClose }: { visible: boolean; o
                                 onClose();
                             }}
                         >
-                            <Text style={styles.fontText}>{font}</Text>
+                            <Text style={[styles.fontText, {fontFamily: font}]}>{font}</Text>
                         </TouchableHighlight>
                     ))}
                 </ScrollView>

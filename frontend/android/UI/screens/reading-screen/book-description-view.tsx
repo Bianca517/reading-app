@@ -8,13 +8,6 @@ import GlobalBookData from '../../_globals/GlobalBookData';
 
 const screenWidth = Dimensions.get("window").width;
 
-type props = {
-    bookCoverImageUrl: string,
-    bookTitle: string,
-    bookID: string,
-    bookAuthor: string,
-}
-
 type ResponseType = {
     success: boolean,
     message: string,
@@ -94,7 +87,7 @@ export default function BookDescriptionView({route}) {
                             "Reading Screen",
                             { 
                                 "id" : bookID, 
-                                "chapterNumber" : 1, 
+                                "chapterNumber" : 0, 
                                 "bookCoverImage" : "", 
                                 "bookTitle": "", 
                                 "bookAuthor": ""

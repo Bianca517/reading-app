@@ -5,13 +5,19 @@ import Globals from "../_globals/Globals";
 import Checkbox from 'expo-checkbox';
 
 type Props = {
+    key: number;
     genreName: string;
     onChosenInterest: (genreName: string) => void;
     onRemovedInterest: (genreName: string) => void;
 }
 
-function InterestContainer( {genreName, onChosenInterest, onRemovedInterest} : Props) {
+function InterestContainer( {key, genreName, onChosenInterest, onRemovedInterest} : Props) {
   const [isChecked, setIsChecked] = useState(false);
+  const [containerColor, setContainerColor] = useState<string>(Globals.COLORS.INTEREST_CONTAINER_BACKGROUND_LIGHT_PINK);
+
+  useEffect(() => {
+    setContainerColor(chooseContainerColor(getPositionInInterestsList()));
+  }, []);
 
   useEffect(() => {
     if(isChecked) {
@@ -24,6 +30,34 @@ function InterestContainer( {genreName, onChosenInterest, onRemovedInterest} : P
     }
   } , [isChecked]);
 
+  function getPositionInInterestsList(): number {
+    let i: number = 0;
+
+    for(i = 0; i < Globals.INTERESTS_LIST.length; i++) {
+        if(Globals.INTERESTS_LIST[i] === genreName) {
+            return i;
+        }
+    }
+    return 0;
+  }
+
+    function chooseContainerColor(containerNumber: number): string {
+        let index = containerNumber % 5;
+        switch (index) {
+            case 0:
+                return Globals.COLORS.INTEREST_CONTAINER_BACKGROUND_LIGHT_PINK;
+            case 1:
+                return Globals.COLORS.INTEREST_CONTAINER_BACKGROUND_COLOR_1;
+            case 2:
+                return Globals.COLORS.INTEREST_CONTAINER_BACKGROUND_COLOR_2;
+            case 3:
+                return Globals.COLORS.INTEREST_CONTAINER_BACKGROUND_COLOR_3;
+            case 4:
+                return Globals.COLORS.INTEREST_CONTAINER_BACKGROUND_COLOR_4;
+        }
+        return Globals.COLORS.INTEREST_CONTAINER_BACKGROUND_LIGHT_PINK;
+    }
+
   return (
     <View >
     <TouchableOpacity 
@@ -31,7 +65,7 @@ function InterestContainer( {genreName, onChosenInterest, onRemovedInterest} : P
         activeOpacity={0.5}
         >
         
-        <View style={styles.genreContainer}>
+        <View style={[styles.genreContainer, {backgroundColor: containerColor}]}>
             <Text style={styles.genreName}>{genreName}</Text>
             <Checkbox
                 style={[styles.checkbox, { opacity: isChecked ? 1 : 0 }]}
@@ -48,8 +82,7 @@ function InterestContainer( {genreName, onChosenInterest, onRemovedInterest} : P
 
 const styles = StyleSheet.create({
     genreContainer: {
-        backgroundColor: Globals.COLORS.INTEREST_CONTAINER_BACKGROUND_LIGHT_PINK,
-        width: 150,
+        width: 140,
         height: 90,
         borderRadius: 20,
         flexDirection: 'row',

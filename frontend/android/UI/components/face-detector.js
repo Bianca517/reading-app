@@ -8,6 +8,7 @@ export default function FaceDetectionModule({ userAlreadyGavePermission, scrollR
   const [faceData, setFaceData] = React.useState([]);
   const [faceTiltedRight, setFaceTiltedRight] = React.useState(false);
   const [faceTiltedLeft, setFaceTiltedLeft] = React.useState(false);
+  const [checkingOK, setCheckingOK] = React.useState(false);
   const STRAIGHT_ANGLES = [355, 5];
   const TILTED_RIGHT_ANGLE = 10;
   const TILTED_LEFT_ANGLE = 350;
@@ -90,40 +91,54 @@ export default function FaceDetectionModule({ userAlreadyGavePermission, scrollR
       //console.log(faceX);
       const isFaceCentered = checkForFaceCentered(faceX, faceY, faceYawAngle, faceTilt);
       
+      if(!isFaceCentered) {
+        setCheckingOK(false);
+      }
+
       if(faceTiltedLeft || faceTiltedRight) {
         if(isFaceCentered) {
           console.log("face centered OK");
           setFaceTiltedLeft(false);
           setFaceTiltedRight(false);
+          setCheckingOK(false); 
         }
       }
       else {
         console.log("checking face tilt");
         checkFaceTiltRight(faceTilt);
         checkFaceTiltLeft(faceTilt);
+        setCheckingOK(true); 
       }
+    }
+    else {
+      setCheckingOK(false);
     }
   }
 
   return (
-    <Camera 
-      type={Camera.Constants.Type.front}
-      style={styles.camera}
-      onFacesDetected={handleFacesDetected}
-      faceDetectorSettings={{
-        mode: FaceDetector.FaceDetectorMode.accurate,
-        detectLandmarks: FaceDetector.FaceDetectorLandmarks.all,
-        runClassifications: FaceDetector.FaceDetectorClassifications.all,
-        minDetectionInterval: 300,
-        tracking: false
-      }}>
-    </Camera>
+    <View style={[styles.backgroundView, {backgroundColor: checkingOK ? 'green' : 'white'}]}>
+      <Camera 
+        type={Camera.Constants.Type.front}
+        style={styles.camera}
+        onFacesDetected={handleFacesDetected}
+        faceDetectorSettings={{
+          mode: FaceDetector.FaceDetectorMode.accurate,
+          detectLandmarks: FaceDetector.FaceDetectorLandmarks.all,
+          runClassifications: FaceDetector.FaceDetectorClassifications.all,
+          minDetectionInterval: 300,
+          tracking: false
+        }}>
+      </Camera>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   camera: {
-    height: 1, //to make it invisible
-    width: 1
+    height: 0.7, //to make it invisible
+    width: 1,
   },
+  backgroundView: {
+    height: 0.7, //to make it invisible
+  }
 });
