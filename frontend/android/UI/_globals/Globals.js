@@ -4,6 +4,8 @@ export default {
         BACKGROUND_WHITE: '#FFFFFF',
         BACKGROUND_YELLOW: '#FFFFCC',
         BACKGROUND_LIGHT_GRAY: '#5E5E5E',
+        TEXT_INPUTS: '#3c3a3a',
+        PLACEHOLDER_TEXT_COLOR: '#8e8c8d',
         PURPLE: '#d807f2',
         FOR_YOU_SECTION: '#aa78cf',
         CHECKBOX_CHECKED_GREEN: '#47af2c',

@@ -12,7 +12,7 @@ export default function Footer() {
             { height: 50, borderRadius: 10, justifyContent: 'center', alignItems: 'center' }]}>
             <FontAwesome.Button name="home" style={styles.menu_button} onPress={() => navigation.navigate('Home' as never)} />
             <FontAwesome.Button name="search" style={styles.menu_button} />
-            <FontAwesome.Button name="edit" style={styles.menu_button} />
+            <FontAwesome.Button name="edit" style={styles.menu_button} onPress={() => navigation.navigate('Write a Book' as never)}/>
             <FontAwesome.Button name="book" style={styles.menu_button} onPress={() => navigation.navigate('Library' as never)} />
         </View>
     );
