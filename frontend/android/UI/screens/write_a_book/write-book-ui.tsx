@@ -3,11 +3,28 @@ import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, SafeAreaVi
 import Globals from '../../_globals/Globals';
 import { useNavigation } from '@react-navigation/native';
 import { ResponseType } from '../../../types';
+import Book from '../../components/book';
 
 const windowWidth = Dimensions.get('window').width;
 
 export default function WriteABookUI() {
     const navigation = useNavigation();
+
+    const book1 = {
+        "name": "EpicHistories",
+        "authorUsername": "peteparker",
+        "id": "6iRD4c2apbP9PzvwucBI",
+        "bookCoverImage": "https://firebasestorage.googleapis.com/v0/b/reading-app-d23dc.appspot.com/o/book_covers%2Fepichistories_peteparker.png?alt=media&token=c4e908c1-4ea1-4fb1-9a34-a83da3c7876f"
+    };
+       
+    const book2 =  {
+        "name": "SerenityFalls",
+        "authorUsername": "laylahill",
+        "id": "jnQME8lI4mCDjLsA9bP8",
+        "bookCoverImage": "https://firebasestorage.googleapis.com/v0/b/reading-app-d23dc.appspot.com/o/book_covers%2Fserenityfalls_laylahill.png?alt=media&token=5d004ba3-62e8-44ff-bca7-9db485c2fd59"
+    };
+
+
     return(
         <SafeAreaView style={styles.fullscreen_container}>
             
@@ -24,8 +41,9 @@ export default function WriteABookUI() {
                 </View> 
 
                 <View style={styles.written_books_grid}>
-                    <Text> book1</Text>
-                    <Text> book2</Text>
+                    <Book bookFields={JSON.stringify(book1)} bookCoverWidth={105} bookCoverHeight={155} bookWithDetails={false}/>
+                    <Book bookFields={JSON.stringify(book2)} bookCoverWidth={105} bookCoverHeight={155} bookWithDetails={false}/>
+                    <Book bookFields={JSON.stringify(book2)} bookCoverWidth={105} bookCoverHeight={155} bookWithDetails={false}/>
                 </View>   
                  
             </View>
@@ -51,7 +69,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
     },
     continue_writing_container: {
-        backgroundColor: 'grey',
+        //backgroundColor: 'grey',
     },
     header_info: {
         //backgroundColor: 'green',
@@ -68,10 +86,10 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         justifyContent: 'flex-start', // Align rows to the start
         alignItems: 'flex-start', // Align items to the start within each row
-        columnGap: -3,
-        rowGap: 20,
-        height: 100, // Set a fixed height for each row
+        columnGap: 0,
+        rowGap: 10,
         paddingHorizontal: 7,
+        marginBottom: 30,
     },
     write_new_book_button: {
         backgroundColor: 'white',
