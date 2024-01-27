@@ -57,6 +57,8 @@ export default function ReadingScreen( {route} ) {
     let oldScrollRef = useRef<number>(0);
     let currentPage = useRef<number>(0);
 
+    var currentScrollOffset: number = 0;
+
 
     //refferences
     const flatlistRef = useRef<FlatList<string>>(null);
@@ -329,7 +331,8 @@ export default function ReadingScreen( {route} ) {
             //console.log(viewableItems);
             currentPage.current = currentPageVisible;
             //console.log("new page", currentPageVisible);
-            //console.log("chapter number", chapterNumber);
+            console.log("chapter number", chapterNumber);
+            console.log("total chapter numbers", totalNumberOfChapters);
 
             if (currentPageVisible == 0) {
                 if(chapterNumber != 0) {
@@ -339,11 +342,16 @@ export default function ReadingScreen( {route} ) {
             }
             else {
                 setNavigateToPreviousChapterTrigger(false);
+                console.log("total pages: " + totalPageNumbers);
+                console.log("current page: " + currentPage.current);
                 if(currentPage.current == (totalPageNumbers-1)) {
                     //do not go to next chapter if this is the last chapter
-                    if(chapterNumber != (totalNumberOfChapters-1)) {
+                    if(chapterNumber !== (totalNumberOfChapters-1)) {
                         setNavigateToNextChapterTrigger(true);
-                        //console.log("setez next chapter trigger after: ", navigateToNextChapterTrigger);
+                        console.log("setez next chapter trigger after: ", navigateToNextChapterTrigger);
+                    }
+                    else {
+                        setNavigateToNextChapterTrigger(false);
                     }
                 }
                 else {
@@ -356,6 +364,7 @@ export default function ReadingScreen( {route} ) {
 
 
     function onScrollCallback () {
+        
         //console.log("chapter number", chapterNumber); //here chapterNumber has the correct value
     }
     
@@ -402,12 +411,20 @@ export default function ReadingScreen( {route} ) {
                             decelerationRate={'normal'}
                             onViewableItemsChanged={onViewableItemsChanged}
                             onScroll={(event) => {
-                                onScrollCallback();
+                                let direction = event.nativeEvent.contentOffset.x > currentScrollOffset ? 'right' : 'left';
+                                currentScrollOffset = event.nativeEvent.contentOffset.x;
+                                console.log(direction); // up or down accordingly
                             }}
+                            ItemSeparatorComponent={(props) => {
+                                //console.log('props', props); // here you can access the trailingItem with props.trailingItem
+                                return (<View style={{height: 5, backgroundColor: props.highlighted ? 'green' : 'gray'}} />);
+                              }}
                             onEndReached={() => {
+                                /*
                                 if(currentPage.current !== 0) { //because of this i added the end page for all chapter
                                     setNavigateToNextChapterTrigger(true);
                                 }
+                                */
                             }}
                             renderItem={({index}) => (
                                 <View style={[styles.content_view]}>
@@ -432,28 +449,28 @@ export default function ReadingScreen( {route} ) {
                 </BottomSheet>
                                 
                 {
-                    navigateToNextChapterTrigger &&
+                    navigateToNextChapterTrigger && !isBottomSheetOpen &&
 
                     <View style={styles.nextChapterInfo}>
-                        <TouchableOpacity activeOpacity={0.5} onPress={() => 
+                        <TouchableOpacity activeOpacity={0.5} style={styles.nextChapterButton} onPress={() => 
                             { 
                                 navigateToNextChapter(); 
                                 setIsDataReady(false);
                             }}>
-                            <AntDesign name="arrowright" size={20} color={Globals.COLORS.PURPLE} />
+                            <AntDesign name="arrowright" size={25} color={Globals.COLORS.PURPLE} />
                             <Text style={styles.changeChaptersText}> Next Chapter </Text>
                         </TouchableOpacity>
                     </View>
                 }
 
                 {
-                    navigateToPreviousChapterTrigger &&
+                    navigateToPreviousChapterTrigger && !isBottomSheetOpen &&
 
                     <View style={styles.previousChapterInfo}>
-                        <TouchableOpacity activeOpacity={0.5} onPress={() => {
+                        <TouchableOpacity activeOpacity={0.5} style={styles.previousChapterButton} onPress={() => {
                             navigateToPreviousChapter();
                         }}>
-                            <AntDesign name="arrowleft" size={20} color={Globals.COLORS.PURPLE} />
+                            <AntDesign name="arrowleft" size={25} color={Globals.COLORS.PURPLE} />
                             <Text style={styles.changeChaptersText}> Previous Chapter </Text>
                         </TouchableOpacity>
                     </View>
@@ -552,34 +569,46 @@ const styles = StyleSheet.create({
     },
     nextChapterInfo: {
         position: 'absolute',
-        height: windowHeight * 0.2,
-        width: windowWidth * 0.3,
-        top: windowHeight * 0.40,
+        height: 40,
+        width: windowWidth / 2,
+        //top: windowHeight * 0.40,
         right: 0,
+        bottom: 0,
+        paddingRight: 10,
         backgroundColor: 'rgba(0, 0, 0, 0.5)', // Set the alpha value (0.5) for transparency
-        flexDirection: 'column',
         justifyContent: 'center',
-        alignItems: 'center',
         borderBottomLeftRadius: 10,
         borderTopLeftRadius: 10,
     },
     changeChaptersText: {
-        backgroundColor: 'black',
+        //backgroundColor: 'black',
         color: Globals.COLORS.PURPLE,
         fontWeight: 'bold',
     },
     previousChapterInfo: {
         position: 'absolute',
-        height: windowHeight * 0.2,
-        width: windowWidth * 0.3,
-        top: windowHeight * 0.40,
-        left: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Set the alpha value (0.5) for transparency
-        flexDirection: 'column',
+        height: 40,
+        width: windowWidth / 2,
+        paddingLeft: 10,
+        //top: windowHeight * 0.40,
         justifyContent: 'center',
-        alignItems: 'center',
+        left: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Set the alpha value (0.5) for transparency
         borderTopRightRadius: 10,
         borderBottomRightRadius: 10,
+    },
+    previousChapterButton: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+    },
+    nextChapterButton: {
+        display: 'flex',
+        flexDirection: 'row-reverse',
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
     }
 });
 
