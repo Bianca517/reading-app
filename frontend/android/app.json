@@ -45,6 +45,12 @@
         {
           "fonts": ["./assets/fonts/DancingScript-Medium.ttf"]
         }
+      ],
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
+        }
       ]
     ]
   }
