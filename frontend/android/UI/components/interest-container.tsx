@@ -9,9 +9,10 @@ type Props = {
     genreName: string;
     onChosenInterest: (genreName: string) => void;
     onRemovedInterest: (genreName: string) => void;
+    interestWithCheckbox: boolean;
 }
 
-function InterestContainer( {key, genreName, onChosenInterest, onRemovedInterest} : Props) {
+function InterestContainer( {key, genreName, onChosenInterest, onRemovedInterest, interestWithCheckbox} : Props) {
   const [isChecked, setIsChecked] = useState(false);
   const [containerColor, setContainerColor] = useState<string>(Globals.COLORS.INTEREST_CONTAINER_BACKGROUND_LIGHT_PINK);
 
@@ -67,12 +68,15 @@ function InterestContainer( {key, genreName, onChosenInterest, onRemovedInterest
         
         <View style={[styles.genreContainer, {backgroundColor: containerColor}]}>
             <Text style={styles.genreName}>{genreName}</Text>
+            { 
+            interestWithCheckbox ??
             <Checkbox
                 style={[styles.checkbox, { opacity: isChecked ? 1 : 0 }]}
                 value={isChecked}
                 onValueChange={() => setIsChecked(!isChecked)}
                 color={isChecked ? Globals.COLORS.CHECKBOX_CHECKED_GREEN : undefined}
             />
+            }
         </View>
 
     </TouchableOpacity>
