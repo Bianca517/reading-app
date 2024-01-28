@@ -3,14 +3,15 @@ package booksapp.root.services;
 import booksapp.root.models.Book;
 import booksapp.root.models.GlobalConstants;
 import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.Query;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.WriteResult;
 import com.google.gson.Gson;
 import com.google.cloud.firestore.Query.Direction;
+import com.google.firebase.cloud.StorageClient;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.origin.SystemEnvironmentOrigin;
@@ -25,12 +26,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import javax.swing.text.html.ImageView;
+
 @Service
 public class booksService {
     private Firestore DB;
     private final CollectionReference booksCollectionDB;
     private userReadingService userReadingService;
-
+   
     public booksService(Firestore firestore) {
         this.DB = firestore;
         this.booksCollectionDB = DB.collection(GlobalConstants.BOOKS_COLLECTION_NAME);
@@ -197,8 +200,7 @@ public class booksService {
     }
 
     public void addBooks(Book book) {
-
-
+        
         Map<String, Object> bookMap = new HashMap<>();
         bookMap.put("authorUsername", book.getAuthorUsername());
         bookMap.put("chaptersContents", book.getChaptersContents());
@@ -304,6 +306,25 @@ public class booksService {
         System.out.println(paragraphComments);
      
         return paragraphComments;
+    }
+
+    public void addNewBook(String bookTitle, String authorUsername, String description, String bookGenre) {
+        Map<String, Object> bookMap = new HashMap<>();
+
+        bookMap.put("authorUsername", authorUsername);
+        bookMap.put("chaptersContents", "");
+        bookMap.put("chaptersTitles", "");
+        bookMap.put("description", description);
+        bookMap.put("genre", bookGenre);
+        bookMap.put("name", bookTitle);
+        bookMap.put("numberOfChapters", 0);
+        bookMap.put("readers", 0);
+          
+        booksCollectionDB.add(bookMap);
+    }
+
+    public void uploadBookCoverToStorage(ImageView image) {
+
     }
 
 }

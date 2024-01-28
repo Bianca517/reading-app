@@ -1,12 +1,13 @@
 import React, { useState, useEffect, ReactNode } from 'react';
-import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, SafeAreaView, TextInput , ScrollView} from 'react-native';
+import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, SafeAreaView, TextInput , ScrollView, Alert} from 'react-native';
 import Globals from '../../_globals/Globals';
 import { useNavigation } from '@react-navigation/native';
 import { ResponseType } from '../../../types';
 import { SelectList } from 'react-native-dropdown-select-list';
 import * as ImagePicker from 'expo-image-picker';
 import { AntDesign } from '@expo/vector-icons';
-import {Keyboard} from 'react-native'
+import {Keyboard} from 'react-native';
+import { add_new_book } from '../../../services/write-book-service';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -61,6 +62,13 @@ export default function WriteNewBookUI() {
           setBookCoverImage(result.assets[0].uri);
         }
     };
+
+    function handlePostChapter() {
+        add_new_book(bookTitle, "eusuntautor", bookDescrption, selectedBookGnere).then();
+        console.log("am trm request");
+        navigation.navigate('Write New Chapter');
+        Alert.alert("New Book Added Successfully!");
+    }
 
     return(
         <SafeAreaView style={styles.fullscreen_container}>
@@ -131,7 +139,7 @@ export default function WriteNewBookUI() {
                 <TouchableOpacity 
                     activeOpacity={0.8} 
                     style={styles.post_chapter_button}
-                    onPress={() => navigation.navigate('Write New Chapter')}>
+                    onPress={() => handlePostChapter()}>
                     <Text style = {styles.post_chapter_text}>
                         + Post the First Chapter
                     </Text>

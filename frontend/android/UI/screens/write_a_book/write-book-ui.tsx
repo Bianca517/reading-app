@@ -43,7 +43,6 @@ export default function WriteABookUI() {
                 <View style={styles.written_books_grid}>
                     <Book bookFields={JSON.stringify(book1)} bookCoverWidth={105} bookCoverHeight={155} bookWithDetails={false}/>
                     <Book bookFields={JSON.stringify(book2)} bookCoverWidth={105} bookCoverHeight={155} bookWithDetails={false}/>
-                    <Book bookFields={JSON.stringify(book2)} bookCoverWidth={105} bookCoverHeight={155} bookWithDetails={false}/>
                 </View>   
                  
             </View>
