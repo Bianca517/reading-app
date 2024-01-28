@@ -89,6 +89,7 @@ export default function HomePageUI() {
                         <View style={[styles.books_container, { backgroundColor: '#81179b' }]}>
                         <ScrollView horizontal={true}>
                                 {
+                                    currentReadingBooks &&
                                     /*Warning: Each child in a list should have a unique "key" prop.*/
                                     currentReadingBooks.map((book, index) => (
                                         <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={175} bookWithDetails={false}/>
@@ -114,6 +115,7 @@ export default function HomePageUI() {
                         <View style={[styles.books_container, { backgroundColor: Globals.COLORS.FOR_YOU_SECTION }]}>
                             <ScrollView horizontal={true}>
                                 {
+                                    recommendedBooks && 
                                     /*Warning: Each child in a list should have a unique "key" prop.*/
                                     recommendedBooks.map((book, index) => (
                                         <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={175} bookWithDetails={false}/>
@@ -139,9 +141,10 @@ export default function HomePageUI() {
                         <View style={[styles.books_container, { backgroundColor: '#b9bff3' }]}>
                             <ScrollView horizontal={true}>
                                 {
+                                    popularBooks &&
                                     /*Warning: Each child in a list should have a unique "key" prop.*/
                                     popularBooks.map((book, index) => (
-                                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={175} />
+                                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={175} bookWithDetails={true}/>
                                     ))
                                 }
                             </ScrollView>

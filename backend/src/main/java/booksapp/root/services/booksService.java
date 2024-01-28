@@ -74,8 +74,8 @@ public class booksService {
 
         ArrayList<HashMap<String, String>> booksToReturn = new ArrayList<HashMap<String, String>>(
                 GlobalConstants.DISPLAYED_BOOKS_IN_HOME_SCREEN);
-        Integer numberOfBooksOfEachGenre = Math.floorDiv(GlobalConstants.DISPLAYED_BOOKS_IN_HOME_SCREEN,
-                usersInterests.size());
+        //Integer numberOfBooksOfEachGenre = Math.floorDiv(GlobalConstants.DISPLAYED_BOOKS_IN_HOME_SCREEN, usersInterests.size());
+        Integer numberOfBooksOfEachGenre = 3;
         // for GlobalConstants.DISPLAYED_BOOKS_IN_HOME_SCREEN number / user interests ->
         // choose a random book with that genre
         for (String genre : usersInterests) {
@@ -99,6 +99,9 @@ public class booksService {
         collectionDocumentsQuery = collectionDocumentsQuery
                 .whereEqualTo(GlobalConstants.BOOK_COLLECTION_FIELDS[8], genre);
 
+        //keep track of book ID's
+        ArrayList<String> bookIds = new ArrayList<String>();
+
         // get a random book from the resulted books
         List<QueryDocumentSnapshot> resultedBooks = collectionDocumentsQuery.get().get().getDocuments();
 
@@ -109,15 +112,21 @@ public class booksService {
 
             QueryDocumentSnapshot book = resultedBooks.get(randomIndex);
 
-            HashMap<String, String> bookFields = new HashMap<String, String>();
-            // book id
-            bookFields.put(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_ID_INDEX], book.getId().toString());
-            // book name
-            bookFields.put(GlobalConstants.BOOK_COLLECTION_FIELDS[1], book.get(GlobalConstants.BOOK_COLLECTION_FIELDS[1]).toString());
-            // book author
-            bookFields.put(GlobalConstants.BOOK_COLLECTION_FIELDS[2], book.get(GlobalConstants.BOOK_COLLECTION_FIELDS[2]).toString());
+            if(!bookIds.contains(book.getId().toString())) {
+                bookIds.add(book.getId().toString());
+                HashMap<String, String> bookFields = new HashMap<String, String>();
+                // book id
+                bookFields.put(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_ID_INDEX], book.getId().toString());
+                // book name
+                bookFields.put(GlobalConstants.BOOK_COLLECTION_FIELDS[1], book.get(GlobalConstants.BOOK_COLLECTION_FIELDS[1]).toString());
+                // book author
+                bookFields.put(GlobalConstants.BOOK_COLLECTION_FIELDS[2], book.get(GlobalConstants.BOOK_COLLECTION_FIELDS[2]).toString());
 
-            booksToReturn.add(bookFields);
+                booksToReturn.add(bookFields);
+            }
+            else {
+                i--;
+            }
         }
         return booksToReturn;
     }
