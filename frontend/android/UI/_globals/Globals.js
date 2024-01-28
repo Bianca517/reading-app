@@ -5,6 +5,7 @@ export default {
         BACKGROUND_YELLOW: '#FFFFCC',
         BACKGROUND_LIGHT_GRAY: '#5E5E5E',
         TEXT_INPUTS: '#3c3a3a',
+        WRITING_SCREEN_TEXT_INPUTS: '#252424',
         PLACEHOLDER_TEXT_COLOR: '#8e8c8d',
         PURPLE: '#d807f2',
         FOR_YOU_SECTION: '#aa78cf',

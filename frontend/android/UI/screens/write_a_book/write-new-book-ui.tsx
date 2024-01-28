@@ -128,7 +128,10 @@ export default function WriteNewBookUI() {
                    
                 </View>   
 
-                <TouchableOpacity activeOpacity={0.8} style={styles.post_chapter_button}>
+                <TouchableOpacity 
+                    activeOpacity={0.8} 
+                    style={styles.post_chapter_button}
+                    onPress={() => navigation.navigate('Write New Chapter')}>
                     <Text style = {styles.post_chapter_text}>
                         + Post the First Chapter
                     </Text>

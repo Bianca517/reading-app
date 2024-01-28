@@ -21,7 +21,7 @@ export default function SearchBookUI() {
     useEffect(() => {
         console.log("Searched book", searchedBook);
     }, [searchedBook]);
-    
+
     return(
         <SafeAreaView style={styles.fullscreen_container}>
             <View style={styles.search_by_name_container}>
@@ -33,7 +33,11 @@ export default function SearchBookUI() {
                 >
                 </TextInput>
 
-                <TouchableOpacity style={styles.search_button}>
+                <TouchableOpacity 
+                    style={styles.search_button} 
+                    onPress={() => {
+                        console.log("navi", searchedBook);
+                        navigation.navigate("Results", {'searchedBook': searchedBook})}}>
                 <Ionicons name="search-circle-sharp" size={40} color="white" />
                 </TouchableOpacity>
             </View>
