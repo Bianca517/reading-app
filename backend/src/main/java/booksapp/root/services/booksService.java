@@ -131,6 +131,70 @@ public class booksService {
         return booksToReturn;
     }
 
+    public ArrayList<HashMap<String, String>> getBooksWithGenre(String genre) throws ExecutionException, InterruptedException {
+        // get all documents from the book collection
+        Query collectionDocumentsQuery = booksCollectionDB.get().get().getQuery();
+
+        // the genre shall have the first letter capital
+        genre = genre.substring(0, 1).toUpperCase() + genre.substring(1);
+
+        // get documents which contain the specified book genre
+        collectionDocumentsQuery = collectionDocumentsQuery
+                .whereEqualTo(GlobalConstants.BOOK_COLLECTION_FIELDS[8], genre);
+        
+        // get resulted books
+        List<QueryDocumentSnapshot> resultedBooks = collectionDocumentsQuery.get().get().getDocuments();
+        System.out.println(resultedBooks);
+
+        ArrayList<HashMap<String, String>> booksToReturn = new ArrayList<HashMap<String, String>>();
+
+        for (int i = 0; i < resultedBooks.size(); i++) {
+            QueryDocumentSnapshot book = resultedBooks.get(i);
+            HashMap<String, String> bookFields = new HashMap<String, String>();
+            String bookID = book.getId().toString();
+
+            bookFields.put(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_ID_INDEX], bookID);
+            // book name
+            bookFields.put(GlobalConstants.BOOK_COLLECTION_FIELDS[1], book.get(GlobalConstants.BOOK_COLLECTION_FIELDS[1]).toString());
+            // book author
+            bookFields.put(GlobalConstants.BOOK_COLLECTION_FIELDS[2], book.get(GlobalConstants.BOOK_COLLECTION_FIELDS[2]).toString());
+
+            booksToReturn.add(bookFields);
+        }
+
+        return booksToReturn;
+    }
+
+    public ArrayList<HashMap<String, String>> getBooksWithName(String name) throws ExecutionException, InterruptedException {
+        // get all documents from the book collection
+        Query collectionDocumentsQuery = booksCollectionDB.get().get().getQuery();
+        
+        // get resulted books
+        List<QueryDocumentSnapshot> resultedBooks = collectionDocumentsQuery.get().get().getDocuments();
+        System.out.println(resultedBooks);
+
+        ArrayList<HashMap<String, String>> booksToReturn = new ArrayList<HashMap<String, String>>();
+
+
+        for (int i = 0; i < resultedBooks.size(); i++) {
+            QueryDocumentSnapshot book = resultedBooks.get(i);
+            String bookID = book.getId().toString();
+            String bookName = book.get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_TITLE_INDEX]).toString();
+            if(name.toLowerCase().contains(bookName.toLowerCase())) {
+                HashMap<String, String> bookFields = new HashMap<String, String>();
+
+                bookFields.put(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_ID_INDEX], bookID);
+                // book name
+                bookFields.put(GlobalConstants.BOOK_COLLECTION_FIELDS[1], bookName);
+                // book author
+                bookFields.put(GlobalConstants.BOOK_COLLECTION_FIELDS[2], book.get(GlobalConstants.BOOK_COLLECTION_FIELDS[2]).toString());
+    
+                booksToReturn.add(bookFields);
+            }
+        }
+
+        return booksToReturn;
+    }
 
     public void addBooks(Book book) {
 

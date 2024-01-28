@@ -111,12 +111,30 @@ public class bookController {
         return gsonData;
     }
     
-     @GetMapping(value = "/getbookparagraphcomments")
+    @GetMapping(value = "/getbookparagraphcomments")
     public String getBookParagraphComments(@RequestParam String bookID, int chapterNumber, int paragraphNumber) throws InterruptedException, ExecutionException {
         System.out.println("in controller for comments");
         ArrayList<HashMap<String, Object>> paragraphComments = this.booksService.getBookParagraphComments(bookID, chapterNumber, paragraphNumber);
         Gson gson = new Gson();
         String gsonData = gson.toJson(paragraphComments);
+        return gsonData;
+    }
+
+    @GetMapping(value = "/getbookwithgenre")
+    public String getBookWithGenre(@RequestParam String genre) throws InterruptedException, ExecutionException {
+        System.out.println("in controller for comments");
+        ArrayList<HashMap<String, String>> booksWithSpecifiedGenre = this.booksService.getBooksWithGenre(genre);
+        Gson gson = new Gson();
+        String gsonData = gson.toJson(booksWithSpecifiedGenre);
+        return gsonData;
+    }
+
+    @GetMapping(value = "/getbookwithname")
+    public String getBookWithName(@RequestParam String name) throws InterruptedException, ExecutionException {
+        System.out.println("in controller for comments");
+        ArrayList<HashMap<String, String>> booksWithSpecifiedGenre = this.booksService.getBooksWithName(name);
+        Gson gson = new Gson();
+        String gsonData = gson.toJson(booksWithSpecifiedGenre);
         return gsonData;
     }
 

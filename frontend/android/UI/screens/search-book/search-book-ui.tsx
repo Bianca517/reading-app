@@ -11,7 +11,7 @@ export default function SearchBookUI() {
     const [searchedBook, setSearchedBook] = useState<string>("");
     
     function onChosenGenre(genreName: string) {
-
+        navigation.navigate("Results", {'searchCriteriaIsGenre': true ,'searchedBook': genreName});
     }
 
     function onRemovedGenre(genreName: string) {
@@ -37,7 +37,7 @@ export default function SearchBookUI() {
                     style={styles.search_button} 
                     onPress={() => {
                         console.log("navi", searchedBook);
-                        navigation.navigate("Results", {'searchedBook': searchedBook})}}>
+                        navigation.navigate("Results", {'searchCriteriaIsGenre': false ,'searchedBook': searchedBook})}}>
                 <Ionicons name="search-circle-sharp" size={40} color="white" />
                 </TouchableOpacity>
             </View>
@@ -57,7 +57,7 @@ export default function SearchBookUI() {
                 {
                     Globals.INTERESTS_LIST.map((genre, index) => {
                         return (
-                            <InterestContainer key={index} genreName={genre} onChosenInterest={onChosenGenre} onRemovedInterest={onRemovedGenre}/>
+                            <InterestContainer key={index} genreName={genre} onChosenInterest={onChosenGenre} onRemovedInterest={onRemovedGenre} interestWithCheckbox={false}/>
                         );
                     })
                 }
