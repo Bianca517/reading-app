@@ -1,6 +1,6 @@
 //import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Alert, SafeAreaView, StatusBar, TextInput, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, Text, View, Alert, SafeAreaView, StatusBar, TextInput, TouchableOpacity, Image, KeyboardAvoidingView } from 'react-native';
 import { login_user_service } from '../../../services/login-service';
 import { useNavigation } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
@@ -80,20 +80,20 @@ function Section({ naviagtionButtonPressed }: { naviagtionButtonPressed: string 
 
         <View style={styles.email_password_part}>
           <Text style={styles.email_password_text}>User name</Text>
-          <TextInput style={[styles.email_password_text_input, { height: '50%' }]} placeholder='Your User name' placeholderTextColor='#8e8c8d'>
+          <TextInput style={[styles.email_password_text_input, { height: 50 }]} placeholder='Your User name' placeholderTextColor='#8e8c8d'>
           </TextInput>
         </View>
 
         <View style={styles.email_password_part}>
           <Text style={styles.email_password_text}>Email address</Text>
-          <TextInput style={[styles.email_password_text_input, { height: '50%' }]} placeholder='email@abc.com' placeholderTextColor='#8e8c8d'>
+          <TextInput style={[styles.email_password_text_input, { height: 50 }]} placeholder='email@abc.com' placeholderTextColor='#8e8c8d'>
           </TextInput>
         </View>
 
         <View style={styles.email_password_part}>
           <Text style={styles.email_password_text}>Password</Text>
           <TextInput
-            style={[styles.email_password_text_input, { height: '50%' }]}
+            style={[styles.email_password_text_input, { height: 50 }]}
             placeholder='Your Password'
             placeholderTextColor='#8e8c8d'
             secureTextEntry
@@ -138,7 +138,6 @@ export default function LoginPageUI() {
 
   StatusBar.setBarStyle('light-content', true);
   return (
-
     <SafeAreaView style={styles.fullscreen_container}>
 
       <View style={styles.header}>
@@ -194,7 +193,7 @@ export default function LoginPageUI() {
         </View>
       </View>
 
-    </SafeAreaView >
+    </SafeAreaView>
   );
 }
 
@@ -212,6 +211,7 @@ const styles = StyleSheet.create({
     paddingTop: 40,
     paddingHorizontal: '7%',
     flexDirection: 'row',
+    marginBottom: 10,
   },
   content_part: {
     flex: 6,
@@ -240,13 +240,15 @@ const styles = StyleSheet.create({
     //backgroundColor: 'green',
     flexDirection: 'column',
     alignItems: 'flex-start',
-    paddingHorizontal: '11%'
+    paddingHorizontal: '11%',
+    marginBottom: 10,
   },
   sign_in_button_part: {
     flex: 1,
     //backgroundColor: 'red',
     alignItems: 'center', //vertically
     justifyContent: 'center', //horizontally
+    marginTop: 5,
   },
   navigator_buttons_container: {
     backgroundColor: '#3c3a3a',
@@ -254,7 +256,7 @@ const styles = StyleSheet.create({
     //marginLeft: '12%',
     borderRadius: 15,
     width: '85%',
-    height: '85%',
+    height: 60,
     //paddingHorizontal: '5%',
     flexDirection: 'row',
     alignItems: 'center',
@@ -276,7 +278,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     borderRadius: 15,
     width: '100%',
-    height: '39%',
+    height: 50,
     paddingHorizontal: '5%'
   },
   email_password_text: {
