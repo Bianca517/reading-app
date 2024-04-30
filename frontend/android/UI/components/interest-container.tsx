@@ -18,6 +18,7 @@ function InterestContainer( {key, genreName, onChosenInterest, onRemovedInterest
 
   useEffect(() => {
     setContainerColor(chooseContainerColor(getPositionInInterestsList()));
+    console.log("iar", interestWithCheckbox);
   }, []);
 
   useEffect(() => {
@@ -68,15 +69,14 @@ function InterestContainer( {key, genreName, onChosenInterest, onRemovedInterest
         
         <View style={[styles.genreContainer, {backgroundColor: containerColor}]}>
             <Text style={styles.genreName}>{genreName}</Text>
-            { 
-            interestWithCheckbox ??
+           
             <Checkbox
                 style={[styles.checkbox, { opacity: isChecked ? 1 : 0 }]}
                 value={isChecked}
                 onValueChange={() => setIsChecked(!isChecked)}
                 color={isChecked ? Globals.COLORS.CHECKBOX_CHECKED_GREEN : undefined}
             />
-            }
+            
         </View>
 
     </TouchableOpacity>

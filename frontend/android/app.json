@@ -22,6 +22,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "softwareKeyboardLayoutMode": "adjustPan",
       "package": "com.biancateregan.facerecognition",
       "permissions": ["CAMERA"]
     },
@@ -44,6 +45,12 @@
         "expo-font",
         {
           "fonts": ["./assets/fonts/DancingScript-Medium.ttf"]
+        }
+      ],
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
         }
       ]
     ]

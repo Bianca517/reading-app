@@ -64,9 +64,9 @@ export default function WriteNewBookUI() {
     };
 
     function handlePostChapter() {
-        add_new_book(bookTitle, "eusuntautor", bookDescrption, selectedBookGnere).then();
+        add_new_book(bookTitle, "lia", bookDescrption, selectedBookGnere).then();
         console.log("am trm request");
-        navigation.navigate('Write New Chapter');
+        navigation.navigate('Home');
         Alert.alert("New Book Added Successfully!");
     }
 

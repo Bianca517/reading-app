@@ -5,7 +5,10 @@ import Globals from '../_globals/Globals';
 import { FontPicker } from './font-picker';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { TouchableOpacity } from '@gorhom/bottom-sheet';
-
+import { Audio } from 'expo-av';
+import { FontAwesome6 } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
+import { SoundObject } from 'expo-av/build/Audio';
 
 const backgroundColors: { [key: string]: string } = {
     [Globals.BACKGROUND_COLOR_0]: Globals.COLORS.BACKGROUND_WHITE,
@@ -47,6 +50,12 @@ export default function BottomSheetContent( {updateFontFamily, updateFontSize, u
     const [isGestureScrollingActive, setIsGestureScrollingActive] = useState<boolean>(false);
 
     const [isFontPickerVisible, setIsFontPickerVisible] = useState(false);
+    
+    const [sound, setSound] = useState<SoundObject>(null);
+
+    const status = {
+        shouldPlay: false,
+    }
 
     useEffect(() => {
         updateGestureScroll(isGestureScrollingActive);
@@ -59,12 +68,46 @@ export default function BottomSheetContent( {updateFontFamily, updateFontSize, u
     useEffect(() => {
         updateBackgroundColor(selectedBackgroundColor);
     }, [selectedBackgroundColor]);
-   
+    
+    useEffect( () => {
+        Audio.setAudioModeAsync({
+            //interruptionModeAndroid: Audio.INTERR,
+            shouldDuckAndroid: true,
+            staysActiveInBackground: true,
+            playThroughEarpieceAndroid: true
+        })
+        //sound.loadAsync(require('../../assets/songs/adele_rolling_in_the_deep.mp3'), status, false);
+        loadSound();
+    }, []);
+
+    async function loadSound() {
+        console.log('Loading Sound');
+        const song_from_firebase = await Audio.Sound.createAsync(require('../../assets/songs/adele_rolling_in_the_deep.mp3'));
+        setSound(song_from_firebase);
+    } 
+
+    async function playSound() {
+        console.log('Playing Sound');
+        if(sound) {
+            if(sound.sound) {
+                await sound.sound.playAsync();
+            }
+        }
+    }
+
+    async function stopSound() {
+        console.log("Pausing Sound");
+        if(sound) {
+            if(sound.sound) {
+                await sound.sound.stopAsync();
+            }
+        }
+    }
     
     return (
         <View style={styles.container}> 
             <View style={styles.gesture_scroll_container}>
-                <Text style={styles.text_styles}> Activate gesture Scrolling </Text>
+                <Text style={styles.text_styles}> Activate Gesture Scrolling </Text>
                 <Switch
                     trackColor={{false: Globals.COLORS.BACKGROUND_GRAY, true: Globals.COLORS.PURPLE}}
                     thumbColor={'white'}
@@ -72,6 +115,21 @@ export default function BottomSheetContent( {updateFontFamily, updateFontSize, u
                     onValueChange={toggleSwitch}
                     value={isGestureScrollingActive}
                  />
+            </View>
+
+            <View style={styles.music_player_container}>
+                <Text style={styles.text_styles}>
+                    Control Music Player
+                </Text>
+                <View style={styles.music_player_controllers}>
+                    <TouchableOpacity onPress={() => playSound()}>
+                        <FontAwesome6 name="play-circle" size={24} color="black" />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress={() => stopSound()}>
+                        <Ionicons name="pause-circle" size={29} color="black" />
+                    </TouchableOpacity>
+                </View>
             </View>
 
             <View style={styles.background_color_container}>
@@ -155,6 +213,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         width: '100%',
         paddingVertical: 10
+   },
+   music_player_container: {
+        //backgroundColor: 'pink',
+        width: '100%',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 10,
+        paddingLeft: 3,
    },
    background_color_container: {
         //backgroundColor: 'pink',
@@ -252,5 +319,11 @@ const styles = StyleSheet.create({
         fontSize: 17,
         fontWeight: '400',
     },
+    music_player_controllers: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingRight: 70,
+    }
 })
 

@@ -7,9 +7,10 @@ import Book from '../../components/book';
 
 const windowWidth = Dimensions.get('window').width;
 
+
 export default function WriteABookUI() {
     const navigation = useNavigation();
-
+    
     const book1 = {
         "name": "EpicHistories",
         "authorUsername": "peteparker",

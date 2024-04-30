@@ -64,7 +64,7 @@ export default function ReadingScreen( {route} ) {
     const flatlistRef = useRef<FlatList<string>>(null);
     const sheetRef = useRef<BottomSheet>(null);
     
-    const snapPoints = ["45%"];
+    const snapPoints = ["55%"];
 
     const navigation = useNavigation();
     navigation.setOptions({
