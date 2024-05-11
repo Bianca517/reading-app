@@ -1,9 +1,11 @@
 package booksapp.root.services;
 
+import booksapp.root.database.FirebaseInitializer;
 import booksapp.root.models.GlobalConstants;
 import booksapp.root.models.User;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
+import com.google.firebase.auth.FirebaseAuthException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
@@ -12,19 +14,37 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.UserRecord;
+import com.google.firebase.auth.UserRecord.CreateRequest;
+import org.springframework.stereotype.Service;
+
 //business logic
 @Service
 public class userRegisterService {
     private Firestore DB;
     private final CollectionReference userCollectionDB;
+    private FirebaseAuth auth;
 
     @Autowired // this is how dependency injection works
     public userRegisterService(Firestore firestore) {
         this.DB = firestore;
         userCollectionDB = DB.collection(GlobalConstants.USERS_COLLECTION_NAME);
+        auth = FirebaseAuth.getInstance();
     }
 
     public String hello() {
+        //final User user = new User("tralala@gmail.com", "Hawaii");
+        CreateRequest request = new CreateRequest()
+                .setEmail("email@fdklvmd.com")
+                .setPassword("password");
+
+        try {
+            UserRecord userRecord = auth.createUser(request);
+        } catch (FirebaseAuthException e) {
+            throw new RuntimeException(e);
+        }
+
         return "hello bee";
     }
 

@@ -19,8 +19,12 @@ public class userLoginService {
     public userLoginService(Firestore firestore) {
         this.DB = firestore;
         userCollectionDB = DB.collection(GlobalConstants.USERS_COLLECTION_NAME);
+
+        // Initialize Firebase Authentication and get a reference to the service
+         
     }
 
+    
     public int loginUserWithEmail(String userEmail, String userPassword) {
         DocumentSnapshot userStoredInDB = searchForExistingUserWithEmailInDB(userEmail);
         System.out.println("hello");
@@ -58,4 +62,7 @@ public class userLoginService {
         }
         return null;
     }
+    
+
+
 }

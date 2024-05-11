@@ -1,10 +1,19 @@
 //import { StatusBar } from 'expo-status-bar';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Alert, SafeAreaView, StatusBar, TextInput, TouchableOpacity, Image, KeyboardAvoidingView } from 'react-native';
 import { login_user_service } from '../../../services/login-service';
 import { useNavigation } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import Globals from '../../_globals/Globals';
+import * as WebBrowser from "expo-web-browser";
+import * as Google from "expo-auth-session/providers/google";
+//import AsyncStorage from '@react-native-async-storage/async-storage';
+import { makeRedirectUri, useAuthRequest, AuthSessionRedirectUriOptions } from 'expo-auth-session';
+import * as JWTDecoder from 'jwt-decode';
+import { login_user_with_google_service } from '../../../services/google-auth-service';
+import { ResponseType } from '../../../types';
+
+WebBrowser.maybeCompleteAuthSession();
 
 const PAGE_SECTIONS: string[] = ["Login", "Register"]
 
@@ -117,11 +126,62 @@ function Section({ naviagtionButtonPressed }: { naviagtionButtonPressed: string 
 
 export default function LoginPageUI() {
   const [pageSection, setPageSection] = useState(PAGE_SECTIONS[0]);
-  //const [userEmail, setUserEmail] = useState("");
-  //const [userPassword, setUserPassword] = useState("");
   const [fontsLoaded, fontError] = useFonts({
     'DancingScript': require('../../../assets/fonts/DancingScript-Medium.ttf'),
   });
+
+  /* ======================================================= */
+  /* ---------------- GOOGLE AUTH PART ----------------------*/
+  /* ======================================================= */
+
+  const [request, response, promptAsync] = Google.useAuthRequest({
+      //responseType: ResponseType.Token,
+      androidClientId: '767042885599-3rr5cohpu1mmmfoapjmof89anq2q9n51.apps.googleusercontent.com',
+      scopes: ['email', 'profile'],
+      //redirectUri: 'face-recognition://',
+    },
+  );
+
+  useEffect(() => {
+    console.log("received response from google");
+  
+    if (response) {
+      console.log(JSON.stringify(response, null, 2));
+      if(response.type === 'success') {
+        const token = response.params.id_token;
+        console.log(token);
+        getUserInfoFromToken(token);
+      }
+    }
+  }, [response]);
+
+  // Function to decode the Google ID token and extract user information
+  async function getUserInfoFromToken (idToken) {
+    const parts = idToken.split('.');
+    var base64 = require('base-64');
+    const decodedToken = JSON.parse(base64.decode(parts[1]));
+    console.log("decoded token");
+    console.log(decodedToken);
+    // Extract user information from the decoded token
+    const userEmail = decodedToken.email;
+    const userName =  decodedToken.name;
+    
+    const fetchResponse: ResponseType = await login_user_with_google_service(userEmail, userName).then();
+    const navigation = useNavigation();
+    navigation.setOptions({
+      headerShown: false,
+    })
+  
+    if (fetchResponse.success) {
+      navigation.navigate('Home' as never);
+    }
+  };
+ 
+
+  /* ======================================================= */
+  /* ---------------- END - GOOGLE AUTH PART ----------------------*/
+  /* ======================================================= */
+ 
 
   function onPressNavigationButton(buttonText: string): void {
     //Alert.alert('You pressed the button ' + buttonText + ' !');
@@ -179,7 +239,7 @@ export default function LoginPageUI() {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity>
+          <TouchableOpacity disabled={!request} onPress={() => {promptAsync()}}>
             <View style={styles.sign_in_option}>
               <Image style={styles.sign_in_option_image_google} source={require('../../../assets/google-icon.png')} />
             </View>
@@ -348,3 +408,4 @@ const styles = StyleSheet.create({
   }
 
 });
+
