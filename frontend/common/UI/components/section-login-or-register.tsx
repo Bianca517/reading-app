@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { UserAuthenticationResponseType } from '../../types';
 import { login_user_service } from '../../services/login-service';
 import Globals from '../_globals/Globals';
+import { register_user_service } from '../../services/register-service';
 
 const PAGE_SECTIONS: string[] = ["Login", "Register"]
 
@@ -31,10 +32,31 @@ async function handleLogin(userEmail: string, userPassword: string, navigation) 
     }
 }
 
+async function handleRegister(userEmail: string, userPassword: string, userName: string, navigation) {
+  const fetchResponse: UserAuthenticationResponseType = await register_user_service(userEmail, userPassword, userName).then();
+
+  const HttpStatus: number = fetchResponse.HttpStatus;
+
+  if(HttpStatus === 200) {
+    Globals.LOGGED_IN_USER_DATA.uid = fetchResponse.Data.user_id;
+    const statusCode = fetchResponse.Data.success_code;
+   
+    //console.log(Globals.LOGGED_IN_USER_DATA.uid);
+    //console.log(fetchResponse.Data.success_code);
+    if(Globals.STATUS_CODES.USER_CREATED === statusCode) {
+      navigation.navigate('Submit Interests' as never)
+    }
+    else {
+      //TODO: inform user about error
+    }
+  }
+}
+
 export function Section({ naviagtionButtonPressed }: Props) {
     const navigation = useNavigation();
     let [userEmail, setUserEmail] = useState<string>();
     let [userPassword, setUserPassword] = useState<string>();
+    let [userName, setUserName] = useState<string>();
 
     if (PAGE_SECTIONS[0] == naviagtionButtonPressed) {
       return (
@@ -89,13 +111,24 @@ export function Section({ naviagtionButtonPressed }: Props) {
   
           <View style={styles.email_password_part}>
             <Text style={styles.email_password_text}>User name</Text>
-            <TextInput style={[styles.email_password_text_input, { height: 50 }]} placeholder='Your User name' placeholderTextColor='#8e8c8d'>
+            <TextInput 
+              style={[styles.email_password_text_input, { height: 50 }]} 
+              placeholder='Your User name' 
+              placeholderTextColor='#8e8c8d'
+              onChangeText={(text) => setUserName(text)}
+              value={userName}>
             </TextInput>
           </View>
   
           <View style={styles.email_password_part}>
             <Text style={styles.email_password_text}>Email address</Text>
-            <TextInput style={[styles.email_password_text_input, { height: 50 }]} placeholder='email@abc.com' placeholderTextColor='#8e8c8d'>
+            <TextInput 
+              style={[styles.email_password_text_input, { height: 50 }]} 
+              placeholder='email@abc.com' 
+              placeholderTextColor='#8e8c8d'
+              onChangeText={(text) => setUserEmail(text)}
+              value={userEmail}
+              >
             </TextInput>
           </View>
   
@@ -106,13 +139,16 @@ export function Section({ naviagtionButtonPressed }: Props) {
               placeholder='Your Password'
               placeholderTextColor='#8e8c8d'
               secureTextEntry
+              onChangeText={(text) => setUserPassword(text)}
+              value={userPassword}
             //</View>right={<TextInput.Icon name="eye" />}
             >
             </TextInput>
           </View>
   
           <View style={styles.sign_in_button_part}>
-            <TouchableOpacity onPress={() => navigation.navigate('Submit Interests' as never)}>
+            <TouchableOpacity 
+              onPress={() => handleRegister(userEmail, userPassword, userName, navigation)}>
               <View style={[styles.sign_in_button, { marginTop: 15 }]}>
                 <Text style={styles.login_signup_signin_text}>Register Now</Text>
               </View>

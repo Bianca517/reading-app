@@ -14,18 +14,18 @@ function SubmitInterests() {
     const temp: string[] = chosenInterests;
     temp.push(genreName);
     setChosenInterests(temp);
-    console.log("chosenInterests are ", chosenInterests);
+    //console.log("chosenInterests are ", chosenInterests);
   }
 
   function onRemovedInterest(genreName: string) {
     const temp: string[] = chosenInterests;
     temp.splice(chosenInterests.indexOf(genreName), 1);
     setChosenInterests(temp);
-    console.log("chosenInterests are ", chosenInterests);
+    //console.log("chosenInterests are ", chosenInterests);
   }
 
   useEffect(() => {
-    console.log("chosenInterests are ", chosenInterests);
+    //console.log("chosenInterests are ", chosenInterests);
   },chosenInterests)
 
   return (

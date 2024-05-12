@@ -50,19 +50,22 @@ public class userRegisterController {
 
         switch (errorCode) {
             case GlobalConstants.EMAIL_NOT_MEETING_CRITERIA_ERROR_CODE:
-                response.addProperty("message", "Email has wrong format!");
+                response.addProperty("success_code", GlobalConstants.EMAIL_NOT_MEETING_CRITERIA_ERROR_CODE);
+                response.addProperty("user_id", "");
                 return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
 
             case GlobalConstants.PASSWORD_NOT_MEETING_CRITERIA_ERROR_CODE:
-                response.addProperty("message", "Password does not meet criteria!");
+                response.addProperty("success_code", GlobalConstants.PASSWORD_NOT_MEETING_CRITERIA_ERROR_CODE);
+                response.addProperty("user_id", "");
                 return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
 
             case GlobalConstants.EMAIL_OR_USERNAME_ALREADY_USED_ERROR_CODE:
-                response.addProperty("message", "An account with this email already exists!");
+                response.addProperty("success_code", GlobalConstants.EMAIL_OR_USERNAME_ALREADY_USED_ERROR_CODE);
+                response.addProperty("user_id", "");
                 return new ResponseEntity<String>(response.toString(), HttpStatus.IM_USED);
 
             default:
-                response.addProperty("message", "User registered successfully! :)");
+                response.addProperty("success_code", GlobalConstants.USER_CREATED);
                 response.addProperty("user_id", UID);
                 return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
         }
