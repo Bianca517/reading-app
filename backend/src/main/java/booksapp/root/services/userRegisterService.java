@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -48,26 +49,53 @@ public class userRegisterService {
         return "hello bee";
     }
 
-    public int saveUser(User user) {
+    public ArrayList<String> saveUser(User user, boolean loggedInWithGoogle) {
         final String salt = BCrypt.gensalt();
         user.setSalt(salt);
         Map<String, Object> userMap = user.toHashMap();
 
+        String UID = "";
+        String errorCode = "";
+        ArrayList<String> returnList = new ArrayList<String>();
+
         if (!this.isUserEmailOK(user.getEmailAddress())) {
-            return GlobalConstants.EMAIL_NOT_MEETING_CRITERIA_ERROR_CODE;
-        } else if (!this.isUserPasswordOK(user.getPassword())) {
-            return GlobalConstants.PASSWORD_NOT_MEETING_CRITERIA_ERROR_CODE;
-        } else if (this.emailAlreadyExistsInDB(user.getEmailAddress())) {
-            return GlobalConstants.EMAIL_ALREADY_USED_ERROR_CODE;
-        } else {
+            errorCode = Integer.toString(GlobalConstants.EMAIL_NOT_MEETING_CRITERIA_ERROR_CODE);
+        } 
+        else if (!loggedInWithGoogle && !this.isUserPasswordOK(user.getPassword())) {
+            //password will be null if user authenticates with google
+            errorCode = Integer.toString(GlobalConstants.PASSWORD_NOT_MEETING_CRITERIA_ERROR_CODE);
+        } 
+        else if (this.emailAlreadyExistsInDB(user.getEmailAddress())) {
+            errorCode = Integer.toString(GlobalConstants.EMAIL_OR_USERNAME_ALREADY_USED_ERROR_CODE);
+        } 
+        else if (this.userNameAlreadyExistsInDB(user.getUserName())) {
+            errorCode = Integer.toString(GlobalConstants.EMAIL_OR_USERNAME_ALREADY_USED_ERROR_CODE);
+        } 
+        else {
             user.setPassword(BCrypt.hashpw(user.getPassword(), salt));
 
             userMap.put(GlobalConstants.USERS_COLLECTION_FIELDS[1], user.getPassword());
 
             ApiFuture<DocumentReference> addedDocRef = userCollectionDB.add(userMap);
+            
+            errorCode = Integer.toString(GlobalConstants.USER_CREATED);
 
-            return 0;
+            //save user ID
+            try {
+                UID = addedDocRef.get().get().get().getId();
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
+
+        returnList.add(errorCode);
+        returnList.add(UID);
+
+        return returnList;
     }
 
     public boolean isUserEmailOK(String userEmail) {
@@ -103,7 +131,7 @@ public class userRegisterService {
         return false;
     }
 
-    private boolean emailAlreadyExistsInDB(String userEmail) {
+    public boolean emailAlreadyExistsInDB(String userEmail) {
         // asynchronously retrieve multiple documents
         ApiFuture<QuerySnapshot> usersWithSameEmailQuery = userCollectionDB
                 .whereEqualTo(GlobalConstants.USERS_COLLECTION_FIELDS[3], userEmail).get();

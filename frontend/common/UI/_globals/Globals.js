@@ -72,4 +72,7 @@ export default {
     FONT_COLOR_1: 'white',
     BACKGROUND_COLOR_2: 'yellow',
     FONT_COLOR_2: "#333333",
+    LOGGED_IN_USER_DATA: {
+        uid: "",
+    }
 }

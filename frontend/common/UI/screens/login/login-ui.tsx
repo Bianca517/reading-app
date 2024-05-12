@@ -11,7 +11,8 @@ import * as Google from "expo-auth-session/providers/google";
 import { makeRedirectUri, useAuthRequest, AuthSessionRedirectUriOptions } from 'expo-auth-session';
 import * as JWTDecoder from 'jwt-decode';
 import { login_user_with_google_service } from '../../../services/google-auth-service';
-import { ResponseType } from '../../../types';
+import { ResponseType, UserAuthenticationResponseType } from '../../../types';
+import { Section } from '../../components/section-login-or-register';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -21,7 +22,7 @@ let userEmail: string;
 let userPassword: string;
 
 function setUserEmail(text: string) {
-  console.warn("user email changed " + userEmail);
+  //console.warn("user email changed " + userEmail);
   userEmail = text;
 }
 
@@ -29,106 +30,15 @@ function setUserPassword(text: string) {
   userPassword = text;
 }
 
-function Section({ naviagtionButtonPressed }: { naviagtionButtonPressed: string }) {
-  const navigation = useNavigation();
-  navigation.setOptions({
-    headerShown: false,
-  })
-
-  if (PAGE_SECTIONS[0] == naviagtionButtonPressed) {
-    return (
-      <View style={styles.content_part}>
-
-        <View style={styles.email_password_part}>
-          <Text style={styles.email_password_text}>Email address</Text>
-          <TextInput
-            style={styles.email_password_text_input}
-            placeholder='email@abc.com'
-            placeholderTextColor='#8e8c8d'
-            onChangeText={(text) => setUserEmail(text)}
-            value={userEmail}
-          >
-          </TextInput>
-        </View>
-
-        <View style={styles.email_password_part}>
-          <Text style={styles.email_password_text}>Password</Text>
-          <TextInput
-            style={styles.email_password_text_input}
-            placeholder='Your Password'
-            placeholderTextColor='#8e8c8d'
-            secureTextEntry
-            onChangeText={(text) => setUserPassword(text)}
-            value={userPassword}
-          //</View>right={<TextInput.Icon name="eye" />}
-          >
-          </TextInput>
-        </View>
-
-        <View style={styles.sign_in_button_part}>
-          <TouchableOpacity
-            onPress={() => {
-              console.log("apasat " + userEmail);
-              {/* login_user_service(userEmail, userPassword) */ }
-              navigation.navigate('Home' as never);
-            }}>
-            <View style={styles.sign_in_button}>
-              <Text style={styles.login_signup_signin_text}>Sign In</Text>
-            </View>
-          </TouchableOpacity>
-          <Text style={[
-            styles.login_signup_signin_text, { color: "#cc00ff" }]}>Forgot Password?</Text>
-        </View>
-
-      </View>
-    )
-  }
-  else {
-    return (
-      <View style={styles.content_part}>
-
-        <View style={styles.email_password_part}>
-          <Text style={styles.email_password_text}>User name</Text>
-          <TextInput style={[styles.email_password_text_input, { height: 50 }]} placeholder='Your User name' placeholderTextColor='#8e8c8d'>
-          </TextInput>
-        </View>
-
-        <View style={styles.email_password_part}>
-          <Text style={styles.email_password_text}>Email address</Text>
-          <TextInput style={[styles.email_password_text_input, { height: 50 }]} placeholder='email@abc.com' placeholderTextColor='#8e8c8d'>
-          </TextInput>
-        </View>
-
-        <View style={styles.email_password_part}>
-          <Text style={styles.email_password_text}>Password</Text>
-          <TextInput
-            style={[styles.email_password_text_input, { height: 50 }]}
-            placeholder='Your Password'
-            placeholderTextColor='#8e8c8d'
-            secureTextEntry
-          //</View>right={<TextInput.Icon name="eye" />}
-          >
-          </TextInput>
-        </View>
-
-        <View style={styles.sign_in_button_part}>
-          <TouchableOpacity onPress={() => navigation.navigate('Submit Interests' as never)}>
-            <View style={[styles.sign_in_button, { marginTop: 15 }]}>
-              <Text style={styles.login_signup_signin_text}>Register Now</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-
-      </View>
-    )
-  }
-}
-
 export default function LoginPageUI() {
   const [pageSection, setPageSection] = useState(PAGE_SECTIONS[0]);
   const [fontsLoaded, fontError] = useFonts({
     'DancingScript': require('../../../assets/fonts/DancingScript-Medium.ttf'),
   });
+  const navigation = useNavigation();
+  navigation.setOptions({
+    headerShown: false,
+  })
 
   /* ======================================================= */
   /* ---------------- GOOGLE AUTH PART ----------------------*/
@@ -166,14 +76,26 @@ export default function LoginPageUI() {
     const userEmail = decodedToken.email;
     const userName =  decodedToken.name;
     
-    const fetchResponse: ResponseType = await login_user_with_google_service(userEmail, userName).then();
-    const navigation = useNavigation();
-    navigation.setOptions({
-      headerShown: false,
-    })
+    const fetchResponse: UserAuthenticationResponseType = await login_user_with_google_service(userEmail, userName).then();
+    console.log("blublub");
+    console.log(fetchResponse.Data);
+    
+    const statusCode_LOGGED_IN: number = 0;
+    const statusCode_USER_CREATED: number = 3; 
+    const HttpStatus: number = fetchResponse.HttpStatus;
   
-    if (fetchResponse.success) {
-      navigation.navigate('Home' as never);
+    if(HttpStatus === 200) {
+      Globals.LOGGED_IN_USER_DATA.uid = fetchResponse.Data.user_id;
+      const statusCode = fetchResponse.Data.success_code;
+      console.log("yay!");
+      console.log(Globals.LOGGED_IN_USER_DATA.uid);
+      console.log(fetchResponse.Data.success_code);
+      if(statusCode_USER_CREATED === statusCode) {
+        navigation.navigate('Submit Interests' as never);
+      }
+      else {
+        navigation.navigate('Home' as never)
+      }
     }
   };
  
@@ -227,7 +149,12 @@ export default function LoginPageUI() {
       </View>
 
       <Section
-        naviagtionButtonPressed={pageSection}></Section>
+        naviagtionButtonPressed={pageSection}
+        userEmail={userEmail}
+        userPassword={userPassword}
+        setUserEmail={setUserEmail}
+        setUserPassword={setUserPassword}
+        ></Section>
 
       <View style={styles.footer}>
         <Text style={[styles.email_password_text, { color: "white" }]}>{pageSection} with</Text>
@@ -273,12 +200,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginBottom: 10,
   },
-  content_part: {
-    flex: 6,
-    //backgroundColor: 'purple',
-    flexDirection: 'column',
-    marginHorizontal: '5%',
-  },
   footer: {
     flex: 2,
     //backgroundColor: 'black',
@@ -295,21 +216,7 @@ const styles = StyleSheet.create({
     marginBottom: 50,
     marginLeft: 12
   },
-  email_password_part: {
-    flex: 1,
-    //backgroundColor: 'green',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    paddingHorizontal: '11%',
-    marginBottom: 10,
-  },
-  sign_in_button_part: {
-    flex: 1,
-    //backgroundColor: 'red',
-    alignItems: 'center', //vertically
-    justifyContent: 'center', //horizontally
-    marginTop: 5,
-  },
+  
   navigator_buttons_container: {
     backgroundColor: '#3c3a3a',
     marginTop: 30,
@@ -330,38 +237,6 @@ const styles = StyleSheet.create({
     width: '43%',
     height: 40,
     alignItems: 'center'
-  },
-  email_password_text_input: {
-    backgroundColor: '#3c3a3a',
-    color: 'white',
-    fontWeight: '200',
-    fontSize: 17,
-    borderRadius: 15,
-    width: '100%',
-    height: 50,
-    paddingHorizontal: '5%'
-  },
-  email_password_text: {
-    color: 'white',
-    fontSize: 18,
-    marginTop: '5%',
-    marginLeft: 7,
-    fontWeight: '200'
-  },
-  sign_in_button: {
-    backgroundColor: '#cc00ff',
-    marginBottom: 7,
-    width: 270,
-    height: 50,
-    borderRadius: 15,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  login_signup_signin_text: {
-    color: 'white',
-    fontStyle: 'normal',
-    fontWeight: 'bold',
-    fontSize: 20,
   },
   logo_image: {
     width: 70,
@@ -405,7 +280,19 @@ const styles = StyleSheet.create({
   debug_text: {
     color: "white",
     fontSize: 15,
-  }
-
+  },
+  login_signup_signin_text: {
+    color: 'white',
+    fontStyle: 'normal',
+    fontWeight: 'bold',
+    fontSize: 20,
+  },
+  email_password_text: {
+    color: 'white',
+    fontSize: 18,
+    marginTop: '5%',
+    marginLeft: 7,
+    fontWeight: '200'
+},
 });
 

@@ -38,8 +38,12 @@ public class userInterestsController {
     @PostMapping(value = "/addinterests", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> registerUser(@RequestBody UserInterests requestedUserInterests) {
         String[] userInterestsExtracted = requestedUserInterests.getUserInterests();
+        String UID = requestedUserInterests.getUserID();
+        
         //System.out.println(Arrays.toString(userInterestsExtracted));
-        interestsService.saveUserInterests("4zgcWtT9c3RSy5FpFI18", List.of(userInterestsExtracted));
+        //System.out.println(UID);
+
+        interestsService.saveUserInterests(UID, List.of(userInterestsExtracted));
 
         JsonObject response = new JsonObject();
         response.addProperty("message", "User interests successfully added! :)");
