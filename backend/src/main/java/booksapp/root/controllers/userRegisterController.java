@@ -3,6 +3,9 @@ package booksapp.root.controllers;
 import booksapp.root.models.GlobalConstants;
 import booksapp.root.models.User;
 import booksapp.root.services.userRegisterService;
+
+import java.util.ArrayList;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -38,24 +41,32 @@ public class userRegisterController {
         System.out.println("in controller");
         System.out.println(user);
 
-        int registerStatus = userRegisterService.saveUser(user);
+        ArrayList<String> registerStatus = userRegisterService.saveUser(user, false);
+        
+        int errorCode = Integer.valueOf(registerStatus.get(0));
+        String UID = registerStatus.get(1);
+
         JsonObject response = new JsonObject();
 
-        switch (registerStatus) {
+        switch (errorCode) {
             case GlobalConstants.EMAIL_NOT_MEETING_CRITERIA_ERROR_CODE:
-                response.addProperty("message", "Email has wrong format!");
+                response.addProperty("success_code", GlobalConstants.EMAIL_NOT_MEETING_CRITERIA_ERROR_CODE);
+                response.addProperty("user_id", "");
                 return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
 
             case GlobalConstants.PASSWORD_NOT_MEETING_CRITERIA_ERROR_CODE:
-                response.addProperty("message", "Password does not meet criteria!");
+                response.addProperty("success_code", GlobalConstants.PASSWORD_NOT_MEETING_CRITERIA_ERROR_CODE);
+                response.addProperty("user_id", "");
                 return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
 
-            case GlobalConstants.EMAIL_ALREADY_USED_ERROR_CODE:
-                response.addProperty("message", "An account with this email already exists!");
+            case GlobalConstants.EMAIL_OR_USERNAME_ALREADY_USED_ERROR_CODE:
+                response.addProperty("success_code", GlobalConstants.EMAIL_OR_USERNAME_ALREADY_USED_ERROR_CODE);
+                response.addProperty("user_id", "");
                 return new ResponseEntity<String>(response.toString(), HttpStatus.IM_USED);
 
             default:
-                response.addProperty("message", "User registered successfully! :)");
+                response.addProperty("success_code", GlobalConstants.USER_CREATED);
+                response.addProperty("user_id", UID);
                 return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
         }
     }

@@ -3,6 +3,9 @@ package booksapp.root.controllers;
 import booksapp.root.models.GlobalConstants;
 import booksapp.root.models.User;
 import booksapp.root.services.userLoginService;
+
+import java.util.ArrayList;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.api.client.json.Json;
+
 
 @CrossOrigin(origins = "http://localhost:8080")
 @RestController
@@ -31,23 +35,30 @@ public class userLoginController {
     public ResponseEntity<String> loginUser(@RequestBody User user) {
         String emailAddress = user.getEmailAddress();
         String password = user.getPassword();
-        int loginStatus = this.userLoginService.loginUserWithEmail(emailAddress, password);
+
+        ArrayList<String> loginStatus = this.userLoginService.loginUserWithEmail(emailAddress, password);
+        int loginStatusCode = Integer.valueOf(loginStatus.get(0));
+        String UID = loginStatus.get(1);
+
         System.out.println("aici");
         System.out.println(emailAddress + " " + password);
 
         JsonObject response = new JsonObject();
-        switch (loginStatus) {
+        switch (loginStatusCode) {
             case GlobalConstants.EMAIL_DOES_NOT_EXIST:
-                response.addProperty("message", "Cannot find user with given email!");
-                System.out.println("raspuns " + response);
+                response.addProperty("success_code", GlobalConstants.EMAIL_DOES_NOT_EXIST);
+                response.addProperty("user_id", "");
+                //System.out.println("raspuns " + response);
                 return new ResponseEntity<String>(response.toString(), HttpStatus.NOT_FOUND);
             case GlobalConstants.PASSWORDS_DO_NOT_MATCH:
-                response.addProperty("message", "Passwords do not match!");
-                System.out.println("raspuns " + response);
+                response.addProperty("success_code", GlobalConstants.PASSWORDS_DO_NOT_MATCH);
+                response.addProperty("user_id", "");
+                //System.out.println("raspuns " + response);
                 return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
             default:
-                response.addProperty("message", "User successfully logged in! :)");
-                System.out.println("raspuns " + response);
+                response.addProperty("success_code", GlobalConstants.USER_LOGGED_IN);
+                response.addProperty("user_id", UID);
+                //System.out.println("raspuns " + response);
                 return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
         }
     }

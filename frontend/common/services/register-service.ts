@@ -1,10 +1,10 @@
 import Globals from "../UI/_globals/Globals"
 import { UserAuthenticationResponseType } from "../types"
 import { processResponse } from "./API-process-response"
-const LOGIN_ENDPOINT: string = "/"
+const REGISTER_ENDPOINT: string = "/register"
 
-export async function login_user_service(userEmail: string, userPassword: string): Promise<UserAuthenticationResponseType> {
-    const HTTPS_REQUEST = Globals.BACKEND_HTTP + LOGIN_ENDPOINT;
+export async function register_user_service(userEmail: string, userPassword: string, userName: string): Promise<UserAuthenticationResponseType> {
+    const HTTPS_REQUEST = Globals.BACKEND_HTTP + REGISTER_ENDPOINT;
     //console.log("aici " + userEmail + " " + userPassword + " " + HTTPS_REQUEST)
     
     var returnValue: UserAuthenticationResponseType = { HttpStatus: -1,  Data: {success_code: -1, user_id: ""}};
@@ -17,7 +17,8 @@ export async function login_user_service(userEmail: string, userPassword: string
         },
         body: JSON.stringify({
             emailAddress: userEmail,
-            password: userPassword
+            password: userPassword,
+            userName: userName
         }),
     })
         .then(processResponse)
@@ -28,7 +29,7 @@ export async function login_user_service(userEmail: string, userPassword: string
             returnValue.Data = data;
         })
         .catch(async (e) => {
-            console.log("login failed");
+            console.log("register failed");
             console.log(e);
             returnValue.HttpStatus = 404;
             returnValue.Data = e;
