@@ -74,5 +74,9 @@ export default {
     FONT_COLOR_2: "#333333",
     LOGGED_IN_USER_DATA: {
         uid: "",
+    },
+    STATUS_CODES: {
+        USER_LOGGED_IN: 0,
+        USER_CREATED: 3,
     }
 }

@@ -46,17 +46,19 @@ public class userLoginController {
         JsonObject response = new JsonObject();
         switch (loginStatusCode) {
             case GlobalConstants.EMAIL_DOES_NOT_EXIST:
-                response.addProperty("message", "Cannot find user with given email!");
-                System.out.println("raspuns " + response);
+                response.addProperty("success_code", GlobalConstants.EMAIL_DOES_NOT_EXIST);
+                response.addProperty("user_id", "");
+                //System.out.println("raspuns " + response);
                 return new ResponseEntity<String>(response.toString(), HttpStatus.NOT_FOUND);
             case GlobalConstants.PASSWORDS_DO_NOT_MATCH:
-                response.addProperty("message", "Passwords do not match!");
-                System.out.println("raspuns " + response);
+                response.addProperty("success_code", GlobalConstants.PASSWORDS_DO_NOT_MATCH);
+                response.addProperty("user_id", "");
+                //System.out.println("raspuns " + response);
                 return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
             default:
-                response.addProperty("message", "User successfully logged in! :)");
-                response.addProperty("UID", UID);
-                System.out.println("raspuns " + response);
+                response.addProperty("success_code", GlobalConstants.USER_LOGGED_IN);
+                response.addProperty("user_id", UID);
+                //System.out.println("raspuns " + response);
                 return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
         }
     }

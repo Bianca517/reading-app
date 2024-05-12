@@ -18,17 +18,7 @@ WebBrowser.maybeCompleteAuthSession();
 
 const PAGE_SECTIONS: string[] = ["Login", "Register"]
 
-let userEmail: string;
-let userPassword: string;
 
-function setUserEmail(text: string) {
-  //console.warn("user email changed " + userEmail);
-  userEmail = text;
-}
-
-function setUserPassword(text: string) {
-  userPassword = text;
-}
 
 export default function LoginPageUI() {
   const [pageSection, setPageSection] = useState(PAGE_SECTIONS[0]);
@@ -53,8 +43,6 @@ export default function LoginPageUI() {
   );
 
   useEffect(() => {
-    console.log("received response from google");
-  
     if (response) {
       console.log(JSON.stringify(response, null, 2));
       if(response.type === 'success') {
@@ -80,20 +68,18 @@ export default function LoginPageUI() {
     console.log("blublub");
     console.log(fetchResponse.Data);
     
-    const statusCode_LOGGED_IN: number = 0;
-    const statusCode_USER_CREATED: number = 3; 
     const HttpStatus: number = fetchResponse.HttpStatus;
   
     if(HttpStatus === 200) {
       Globals.LOGGED_IN_USER_DATA.uid = fetchResponse.Data.user_id;
       const statusCode = fetchResponse.Data.success_code;
-      console.log("yay!");
-      console.log(Globals.LOGGED_IN_USER_DATA.uid);
-      console.log(fetchResponse.Data.success_code);
-      if(statusCode_USER_CREATED === statusCode) {
+    
+      //console.log(Globals.LOGGED_IN_USER_DATA.uid);
+      //console.log(fetchResponse.Data.success_code);
+      if(Globals.STATUS_CODES.USER_CREATED === statusCode) {
         navigation.navigate('Submit Interests' as never);
       }
-      else {
+      else if(Globals.STATUS_CODES.USER_LOGGED_IN === statusCode) {
         navigation.navigate('Home' as never)
       }
     }
@@ -150,10 +136,6 @@ export default function LoginPageUI() {
 
       <Section
         naviagtionButtonPressed={pageSection}
-        userEmail={userEmail}
-        userPassword={userPassword}
-        setUserEmail={setUserEmail}
-        setUserPassword={setUserPassword}
         ></Section>
 
       <View style={styles.footer}>

@@ -48,8 +48,9 @@ public class userLoginService {
             } else {
                 returnedCode = GlobalConstants.PASSWORDS_DO_NOT_MATCH;
             }
+        } else {
+            returnedCode = GlobalConstants.EMAIL_DOES_NOT_EXIST;
         }
-        returnedCode = GlobalConstants.EMAIL_DOES_NOT_EXIST;
 
         returnedList.add(Integer.toString(returnedCode));
         returnedList.add(UID);
