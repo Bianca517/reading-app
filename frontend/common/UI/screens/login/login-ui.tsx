@@ -1,6 +1,6 @@
 //import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Alert, SafeAreaView, StatusBar, TextInput, TouchableOpacity, Image, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, Text, View, Alert, SafeAreaView, StatusBar, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import { login_user_service } from '../../../services/login-service';
 import { useNavigation } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
@@ -17,8 +17,7 @@ import { Section } from '../../components/section-login-or-register';
 WebBrowser.maybeCompleteAuthSession();
 
 const PAGE_SECTIONS: string[] = ["Login", "Register"]
-
-
+const isAndroid: boolean = Platform.OS === 'ios' ? false : true;
 
 export default function LoginPageUI() {
   const [pageSection, setPageSection] = useState(PAGE_SECTIONS[0]);
@@ -138,30 +137,21 @@ export default function LoginPageUI() {
         naviagtionButtonPressed={pageSection}
         ></Section>
 
-      <View style={styles.footer}>
-        <Text style={[styles.email_password_text, { color: "white" }]}>{pageSection} with</Text>
+      { isAndroid && (<View style={styles.footer}>
+        <View style={styles.google_auth_container}>
+          <Text style={[styles.email_password_text, { color: "white" }]}>{pageSection} with</Text>
 
-        <View style={styles.sign_in_options_container}>
-          <TouchableOpacity>
-            <View style={styles.sign_in_option}>
-              <Image style={styles.sign_in_option_image_apple} source={require('../../../assets/apple-icon.png')} />
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity disabled={!request} onPress={() => {promptAsync()}}>
-            <View style={styles.sign_in_option}>
-              <Image style={styles.sign_in_option_image_google} source={require('../../../assets/google-icon.png')} />
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity>
-            <View style={styles.sign_in_option}>
-              <Image style={styles.sign_in_option_image_facebook} source={require('../../../assets/facebook-icon.png')} />
-            </View>
-          </TouchableOpacity>
+          <View style={styles.sign_in_options_container}> 
+            <TouchableOpacity disabled={!request} onPress={() => {promptAsync()}}>
+              <View style={styles.sign_in_option}>
+                <Image style={styles.sign_in_option_image_google} source={require('../../../assets/google-icon.png')} />
+              </View>
+            </TouchableOpacity>
+        </View>
         </View>
       </View>
-
+      )}
+      
     </SafeAreaView>
   );
 }
@@ -184,10 +174,15 @@ const styles = StyleSheet.create({
   },
   footer: {
     flex: 2,
-    //backgroundColor: 'black',
+    //backgroundColor: 'brown',
     marginHorizontal: '5%',
-    justifyContent: 'center',
-    alignItems: 'center'
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    flexDirection: 'column',
+  },
+  google_auth_container: {
+    alignItems: 'center',
+    flexDirection: 'row',
   },
   navigator_part_view: {
     flex: 1,
@@ -237,7 +232,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     //backgroundColor: 'blue',
     marginTop: 15,
-    height: 40
+    height: 35,
+    marginLeft: 4
   },
   sign_in_option: {
     flex: 1,
