@@ -6,14 +6,18 @@ import java.util.ArrayList;
 public class GlobalConstants {
         public final static String USERS_COLLECTION_NAME = "users";
         public final static String BOOKS_COLLECTION_NAME = "books";
-        public final static String[] BOOK_COLLECTION_FIELDS = { "id", "name", "authorUsername", "chaptersTitles", 
-                        "chaptersContents",
-                        "numberOfChapters",
-                        "cover",
-                        "readers",
-                        "genre",
-                        "description",
-                        "paragraphs",
+        public final static String[] BOOK_COLLECTION_FIELDS = { 
+                        "id", //0
+                        "name",  //1
+                        "authorUsername", //2 
+                        "chaptersTitles", //3
+                        "chaptersContents", //4
+                        "numberOfChapters", //5
+                        "cover", //6
+                        "readers",//7,
+                        "genre", //8
+                        "description", //9
+                        "paragraphs",//10
                 };
         public final static int BOOK_ID_INDEX = 0;
         public final static int BOOK_TITLE_INDEX = 1;
@@ -47,4 +51,7 @@ public class GlobalConstants {
         public final static int PASSWORDS_DO_NOT_MATCH = 1;
         public final static int EMAIL_DOES_NOT_EXIST = 2;
         public final static int DISPLAYED_BOOKS_IN_HOME_SCREEN = 20;
+
+        public final static int STATUS_SUCCESSFUL = 0;
+        public final static int STATUS_FAILED = 1;
 }
