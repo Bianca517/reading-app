@@ -5,6 +5,15 @@ export type ResponseType = {
     }
 
 
+export type UserAuthenticationResponseType = {
+    HttpStatus: number;
+    Data: {
+        success_code: number;
+        user_id: string;
+    }
+}
+
+
 export type textParagraph = {
         id: string;
         content: string;

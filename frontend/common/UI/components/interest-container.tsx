@@ -18,7 +18,7 @@ function InterestContainer( {key, genreName, onChosenInterest, onRemovedInterest
 
   useEffect(() => {
     setContainerColor(chooseContainerColor(getPositionInInterestsList()));
-    console.log("iar", interestWithCheckbox);
+    //console.log("iar", interestWithCheckbox);
   }, []);
 
   useEffect(() => {

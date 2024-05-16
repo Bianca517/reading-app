@@ -13,6 +13,7 @@ export async function save_user_interests(userInterests: string[]) {
         },
         body: JSON.stringify({
             userInterests: userInterests,
+            userID: Globals.LOGGED_IN_USER_DATA.uid
         }),
     })
         .then((response) => response.json())

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -19,12 +20,21 @@ public class userLoginService {
     public userLoginService(Firestore firestore) {
         this.DB = firestore;
         userCollectionDB = DB.collection(GlobalConstants.USERS_COLLECTION_NAME);
+
+        // Initialize Firebase Authentication and get a reference to the service
+         
     }
 
-    public int loginUserWithEmail(String userEmail, String userPassword) {
+    
+    public ArrayList<String> loginUserWithEmail(String userEmail, String userPassword) {
         DocumentSnapshot userStoredInDB = searchForExistingUserWithEmailInDB(userEmail);
-        System.out.println("hello");
+        int returnedCode;
+        String UID = "";
+
+        ArrayList<String> returnedList = new ArrayList<String>();
+        
         if (null != userStoredInDB) {
+            UID = userStoredInDB.getId();
             String userPasswordInDB = (String) userStoredInDB.get(GlobalConstants.USERS_COLLECTION_FIELDS[1]);
             String userSalt = (String) userStoredInDB.get(GlobalConstants.USERS_COLLECTION_FIELDS[2]);
 
@@ -34,12 +44,17 @@ public class userLoginService {
 
             if (match) {
                 System.out.println("user logged in");
-                return GlobalConstants.USER_LOGGED_IN;
+                returnedCode = GlobalConstants.USER_LOGGED_IN;
             } else {
-                return GlobalConstants.PASSWORDS_DO_NOT_MATCH;
+                returnedCode = GlobalConstants.PASSWORDS_DO_NOT_MATCH;
             }
+        } else {
+            returnedCode = GlobalConstants.EMAIL_DOES_NOT_EXIST;
         }
-        return GlobalConstants.EMAIL_DOES_NOT_EXIST;
+
+        returnedList.add(Integer.toString(returnedCode));
+        returnedList.add(UID);
+        return returnedList;
     }
 
     public DocumentSnapshot searchForExistingUserWithEmailInDB(String userEmail) {
@@ -58,4 +73,7 @@ public class userLoginService {
         }
         return null;
     }
+    
+
+
 }

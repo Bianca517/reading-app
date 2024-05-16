@@ -52,7 +52,9 @@
         {
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
         }
-      ]
-    ]
+      ],
+      ["@react-native-google-signin/google-signin"]
+    ],
+    "scheme": "face-recognition"
   }
 }
