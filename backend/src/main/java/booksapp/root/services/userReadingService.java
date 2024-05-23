@@ -17,7 +17,11 @@ import com.google.firebase.cloud.StorageClient;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Blob;
 
-import booksapp.root.models.GlobalConstants;
+import booksapp.root.models.Book;
+import booksapp.root.models.User;
+import booksapp.root.models.GlobalConstants.BookCollectionFields;
+import booksapp.root.models.GlobalConstants.GlobalConstants;
+import booksapp.root.models.GlobalConstants.UserCollectionFields;
 
 @Service
 public class userReadingService {
@@ -31,77 +35,84 @@ public class userReadingService {
         this.userCollectionDB = DB.collection(GlobalConstants.USERS_COLLECTION_NAME);
     }
 
+    @SuppressWarnings("unchecked")
     public ArrayList<String> getUsersGeneresInterests(String userID) throws InterruptedException, ExecutionException {
         ArrayList<String> userInterests = new ArrayList<String>();
 
         userInterests = (ArrayList<String>) userCollectionDB.document(userID).get().get()
-                .get(GlobalConstants.USERS_COLLECTION_FIELDS[4]);
+                .get(UserCollectionFields.INTERESTS.getFieldName());
 
-        System.out.println("interese user\n");
+        System.out.println("interests user\n");
         System.out.println(userInterests);
         return userInterests;
     }
 
-    public ArrayList<HashMap<String, String>> getUserCurrentReadings(String userID)
-            throws InterruptedException, ExecutionException {
+   @SuppressWarnings("unchecked")
+    public ArrayList<HashMap<String, String>> getUserCurrentReadings(String userID) {
         ArrayList<String> userCurrentReadings = new ArrayList<String>();
         booksService localBookService = new booksService(DB);
-
-        userCurrentReadings = (ArrayList<String>) userCollectionDB.document(userID).get().get()
-                .get(GlobalConstants.USERS_COLLECTION_FIELDS[5]);
-
         ArrayList<HashMap<String, String>> booksToReturn = new ArrayList<HashMap<String, String>>();
 
-        for (String bookID : userCurrentReadings) {
-            HashMap<String, String> book = new HashMap<String, String>();
+        DocumentReference userDoc = userCollectionDB.document(userID);
+        User foundUser;
+        try {
+            foundUser = userDoc.get().get().toObject(User.class);
+            userCurrentReadings = foundUser.getCurrentReadings();
+          System.out.println(userCurrentReadings);
+            if(userCurrentReadings != null) {
+                for (String bookID : userCurrentReadings) {
+                    HashMap<String, String> book = new HashMap<String, String>();
+    
+                    Book foundBook = localBookService.getBookByID(bookID);
 
-            Map<String, Object> bookfields = localBookService.getBookByID(bookID);
-            // retrieve only relevant fields: book id, book name, author
-            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[0],
-                    bookID);
-            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[1],
-                    bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[1]).toString());
-            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[2],
-                    bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[2]).toString());
-            // book.add(bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[3]).toString());
-
-            booksToReturn.add(book);
+                    if(foundBook != null) {
+                        // retrieve only relevant fields: book id, book name, author
+                        book.put(BookCollectionFields.ID.getFieldName(),
+                                bookID);
+                        book.put(BookCollectionFields.NAME.getFieldName(),
+                                foundBook.getName());
+                        book.put(BookCollectionFields.AUTHOR_USERNAME.getFieldName(),
+                                foundBook.getAuthorUsername());
+                        // book.add(bookfields.get(UserCollectionFields.INTERESTS.getFieldName()).toString());
+        
+                        booksToReturn.add(book);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        ;
+
         return booksToReturn;
     }
 
-    public ArrayList<HashMap<String, String>> getUserFinalizedReadings(String userID)
-            throws InterruptedException, ExecutionException {
-        ArrayList<String> userCurrentReadings = new ArrayList<String>();
+
+    public ArrayList<HashMap<String, String>> getUserFinalizedReadings(String userID) {
         booksService localBookService = new booksService(DB);
-
-        userCurrentReadings = (ArrayList<String>) userCollectionDB.document(userID).get().get()
-                .get(GlobalConstants.USERS_COLLECTION_FIELDS[6]);
-
         ArrayList<HashMap<String, String>> booksToReturn = new ArrayList<HashMap<String, String>>();
 
-        for (String bookID : userCurrentReadings) {
-            HashMap<String, String> book = new HashMap<String, String>();
+        User user;
+        try {
+            user = userCollectionDB.document(userID).get().get().toObject(User.class);
+            //System.out.println(user.getFinalizedReadings());
+            for (String bookID : user.getFinalizedReadings()) {
+                HashMap<String, String> book = new HashMap<String, String>();
 
-            Map<String, Object> bookfields = localBookService.getBookByID(bookID);
-            // retrieve only relevant fields: book id, book name, author, cover
-            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[0],  bookID);
+                Book foundBook = localBookService.getBookByID(bookID);
+                // retrieve only relevant fields: book id, book name, author, cover
+                book.put(BookCollectionFields.ID.getFieldName(),  bookID);
 
-            String bookName = bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[1]).toString();
-            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_TITLE_INDEX], bookName);
+                book.put(BookCollectionFields.NAME.getFieldName(), foundBook.getName());
 
-            String author = bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[2]).toString();
-            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_AUTHOR_INDEX], author);
+                book.put(BookCollectionFields.AUTHOR_USERNAME.getFieldName(), foundBook.getAuthorUsername());
 
-            //String coverRefference = bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[4]).toString();
-            //coverRefference = new booksService(DB).makeCompleteRefferenceToBook(bookName, author, coverRefference);
-            // coverRefference = getDownloadURL(coverRefference);
-            //book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[4], coverRefference);
-
-            booksToReturn.add(book);
+                booksToReturn.add(book);
+            }
+        } 
+        catch (Exception e) {
+            e.printStackTrace();
         }
-        ;
+        
         return booksToReturn;
     }
 
@@ -115,14 +126,14 @@ public class userReadingService {
     }
 
 
-      public ArrayList<HashMap<String, String>> getUserPlannedReadingsForMonth(String userID, String monthName) throws InterruptedException, ExecutionException {
+    public ArrayList<HashMap<String, String>> getUserPlannedReadingsForMonth(String userID, String monthName) throws InterruptedException, ExecutionException {
         HashMap<String, ArrayList<String>> userPlannedReadingsForCurrentMonth = new HashMap<String, ArrayList<String>>();
 
         userPlannedReadingsForCurrentMonth = (HashMap<String, ArrayList<String>>) userCollectionDB.document(userID).get().get()
-                .get(GlobalConstants.USERS_COLLECTION_FIELDS[7]);
+                .get(UserCollectionFields.PLANNED_BOOKS.getFieldName());
 
         System.out.println(userCollectionDB.document(userID).get().get()
-                .get(GlobalConstants.USERS_COLLECTION_FIELDS[7]).toString());
+                .get(UserCollectionFields.PLANNED_BOOKS.getFieldName()).toString());
 
         System.out.println(userPlannedReadingsForCurrentMonth.get(monthName));
 
@@ -137,20 +148,21 @@ public class userReadingService {
     }
 
 
+
     public HashMap<String, String> getBookJSONfromBookID(String bookID) throws InterruptedException, ExecutionException {
         HashMap<String, String> book = new HashMap<String, String>();
         booksService localBookService = new booksService(DB);
 
-        Map<String, Object> bookfields = localBookService.getBookByID(bookID);
+        Book foundBook = localBookService.getBookByID(bookID);
         // retrieve only relevant fields: book name, author, cover
-        if(bookfields != null) {
-            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[0], bookID);
+        if(foundBook != null) {
+            book.put(BookCollectionFields.ID.getFieldName(), bookID);
 
-            String bookName = bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[1]).toString();
-            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[1], bookName);
+            String bookName = foundBook.getName();
+            book.put(BookCollectionFields.NAME.getFieldName(), bookName);
 
-            String author = bookfields.get(GlobalConstants.BOOK_COLLECTION_FIELDS[2]).toString();
-            book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[2], author);
+            String author = foundBook.getAuthorUsername();
+            book.put(BookCollectionFields.AUTHOR_USERNAME.getFieldName(), author);
         }
 
         return book;
@@ -158,7 +170,7 @@ public class userReadingService {
 
     public int addBookAsPlannedForMonth(String userID, String monthName, String bookID) throws InterruptedException, ExecutionException {
         DocumentReference userDocument = userCollectionDB.document(userID);
-        String planningFieldName = GlobalConstants.USERS_COLLECTION_FIELDS[7]; 
+        String planningFieldName = UserCollectionFields.PLANNED_BOOKS.getFieldName(); 
         String formattedUpdateString = "" + planningFieldName + "." + monthName + "";
         ApiFuture<WriteResult> updateResult = userDocument.update(formattedUpdateString, FieldValue.arrayUnion(bookID));
 
@@ -169,7 +181,7 @@ public class userReadingService {
 
     public int removeBookAsPlannedForMonth(String userID, String monthName, String bookID) throws InterruptedException, ExecutionException {
         DocumentReference userDocument = userCollectionDB.document(userID);
-        String planningFieldName = GlobalConstants.USERS_COLLECTION_FIELDS[7]; 
+        String planningFieldName = UserCollectionFields.PLANNED_BOOKS.getFieldName(); 
         String formattedUpdateString = "" + planningFieldName + "." + monthName + "";
         ApiFuture<WriteResult> updateResult = userDocument.update(formattedUpdateString, FieldValue.arrayRemove(bookID));
 
@@ -180,7 +192,7 @@ public class userReadingService {
 
     public int addBookToCurrentReadings(String userID, String bookID) throws InterruptedException, ExecutionException {
         DocumentReference userDocument = userCollectionDB.document(userID);
-        userDocument.update(GlobalConstants.USERS_COLLECTION_FIELDS[GlobalConstants.USER_CURRENT_READINGS_INDEX], FieldValue.arrayUnion(bookID));
+        userDocument.update(UserCollectionFields.CURRENT_READINGS.getFieldName(), FieldValue.arrayUnion(bookID));
         return 0;
     }
 

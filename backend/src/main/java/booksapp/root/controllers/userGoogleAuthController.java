@@ -1,6 +1,5 @@
 package booksapp.root.controllers;
 
-import booksapp.root.models.GlobalConstants;
 import booksapp.root.services.userGoogleAuthService;
 import booksapp.root.services.userRegisterService;
 
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.google.gson.JsonObject;
 import booksapp.root.models.UserFromGoogleAuth;
+import booksapp.root.models.GlobalConstants.GlobalConstants;
 
 //this class has all User Resources for the application
 //API

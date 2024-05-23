@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
 
-import booksapp.root.models.GlobalConstants;
+import booksapp.root.models.GlobalConstants.GlobalConstants;
 import booksapp.root.services.booksCommentsService;
 import booksapp.root.services.userDataService;
 import booksapp.root.services.userReadingService;
@@ -36,43 +36,41 @@ public class userReadingController {
     }
 
     @GetMapping(value = "/getuserinterests")
-    public String getUserBookInterests() throws ExecutionException, InterruptedException {
-        ArrayList<String> userInterests = this.userReadingService.getUsersGeneresInterests("4zgcWtT9c3RSy5FpFI18");
+    public String getUserBookInterests(@RequestParam String UID) throws ExecutionException, InterruptedException {
+        ArrayList<String> userInterests = this.userReadingService.getUsersGeneresInterests(UID);
         return userInterests.toString();
     }
 
     @GetMapping(value = "/getusercurrentreadings")
-    public String getUserCurrentReadings() throws ExecutionException, InterruptedException {
+    public String getUserCurrentReadings(@RequestParam String UID) throws ExecutionException, InterruptedException {
         ArrayList<HashMap<String, String>> books = this.userReadingService
-                .getUserCurrentReadings("4zgcWtT9c3RSy5FpFI18");
+                .getUserCurrentReadings(UID);
         Gson gson = new Gson();
         String gsonData = gson.toJson(books);
         return gsonData;
     }
 
     @GetMapping(value = "/getusersfinalizedreadings")
-    public String getUserFinalizedReadings() throws ExecutionException, InterruptedException {
-        System.out.println("in backend");
-        ArrayList<HashMap<String, String>> books = this.userReadingService
-                .getUserFinalizedReadings("4zgcWtT9c3RSy5FpFI18");
+    public String getUserFinalizedReadings(@RequestParam String UID) {
+        ArrayList<HashMap<String, String>> books = this.userReadingService.getUserFinalizedReadings(UID);
         Gson gson = new Gson();
         String gsonData = gson.toJson(books);
         return gsonData;
     }
 
     @GetMapping(value = "/getusersplannedreadings")
-    public String getUserPlannedReadings(@RequestParam String monthName) throws ExecutionException, InterruptedException {
+    public String getUserPlannedReadings(@RequestParam String UID, String monthName) throws ExecutionException, InterruptedException {
         System.out.println("in backend");
         ArrayList<HashMap<String, String>> books = this.userReadingService
-                .getUserPlannedReadingsForMonth("4zgcWtT9c3RSy5FpFI18", monthName);
+                .getUserPlannedReadingsForMonth(UID, monthName);
         Gson gson = new Gson();
         String gsonData = gson.toJson(books);
         return gsonData;
     }
 
     @PostMapping(value = "/planbookformonth")
-    public String planBookForMonth(@RequestParam String monthName, String bookID) throws ExecutionException, InterruptedException {
-        int returnedStatus = this.userReadingService.addBookAsPlannedForMonth("4zgcWtT9c3RSy5FpFI18", monthName, bookID);
+    public String planBookForMonth(@RequestParam String UID, String monthName, String bookID) throws ExecutionException, InterruptedException {
+        int returnedStatus = this.userReadingService.addBookAsPlannedForMonth(UID, monthName, bookID);
         if(returnedStatus == 0) {
             return "Successfully planned book with ID " + bookID + " for month " + monthName;
         }

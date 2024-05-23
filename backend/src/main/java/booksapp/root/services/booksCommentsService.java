@@ -9,7 +9,8 @@ import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
 
 import booksapp.root.models.Book;
-import booksapp.root.models.GlobalConstants;
+import booksapp.root.models.GlobalConstants.GlobalConstants;
+import booksapp.root.models.bookcomponents.BookChapter;
 
 @Service
 public class booksCommentsService {
@@ -56,7 +57,11 @@ public class booksCommentsService {
             bookDoc = booksCollectionDB.document(bookID);
             Book foundBook = bookDoc.get().get().toObject(Book.class);
             
-            comments = foundBook.getBookContent().getChapters().get(chapterNumber.toString()).getParagraph(paragraphID).getComments();
+            BookChapter chapter = foundBook.getBookContent().getChapters().get(chapterNumber.toString());
+            if(chapter != null){
+                comments = chapter.getParagraph(paragraphID).getComments();
+            }
+            
         }
         catch (Exception e) {
             e.printStackTrace();

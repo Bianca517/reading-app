@@ -1,6 +1,6 @@
 package booksapp.root.controllers;
 
-import booksapp.root.models.GlobalConstants;
+import booksapp.root.models.GlobalConstants.GlobalConstants;
 import booksapp.root.services.writingBookService;
 
 import org.springframework.beans.factory.annotation.Autowired;

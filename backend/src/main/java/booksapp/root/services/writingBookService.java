@@ -1,8 +1,7 @@
 package booksapp.root.services;
 
 import booksapp.root.models.Book;
-
-import booksapp.root.models.GlobalConstants;
+import booksapp.root.models.GlobalConstants.GlobalConstants;
 import booksapp.root.models.bookcomponents.BookChapter;
 import booksapp.root.models.bookcomponents.BookContent;
 import booksapp.root.models.bookcomponents.BookParagraph;

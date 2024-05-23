@@ -1,7 +1,9 @@
 package booksapp.root.services;
 
-import booksapp.root.models.GlobalConstants;
 import com.google.cloud.firestore.*;
+
+import booksapp.root.models.GlobalConstants.GlobalConstants;
+import booksapp.root.models.GlobalConstants.UserCollectionFields;
 
 import java.util.List;
 
@@ -21,7 +23,7 @@ public class userInterestsService {
 
     public void saveUserInterests(String userID, List<String> userInterests) {
         DocumentReference userReference = userCollectionDB.document(userID);
-        userReference.update(GlobalConstants.USERS_COLLECTION_FIELDS[4], userInterests);
+        userReference.update(UserCollectionFields.INTERESTS.getFieldName(), userInterests);
         System.out.println("User Interests added");
     }
 }

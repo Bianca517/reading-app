@@ -6,6 +6,8 @@ import java.util.List;
 
 import com.google.cloud.firestore.DocumentSnapshot;
 
+import booksapp.root.models.GlobalConstants.BookCollectionFields;
+import booksapp.root.models.GlobalConstants.GlobalConstants;
 import booksapp.root.models.bookcomponents.BookChapter;
 import booksapp.root.models.bookcomponents.BookContent;
 
@@ -23,12 +25,13 @@ public class Book {
     // Constructors
 
     public Book() {
+        this.bookContent = new BookContent();
     }
 
-    public Book(String authorUsername, BookContent cali, List<String> chaptersTitles,
+    public Book(String authorUsername, BookContent bookcontent, List<String> chaptersTitles,
                 String description, String genre, String name, int numberOfChapters, int readers) {
         this.authorUsername = authorUsername;
-        this.bookContent = cali;
+        this.bookContent = bookcontent;
         this.chaptersTitles = chaptersTitles;
         this.description = description;
         this.genre = genre;
@@ -39,16 +42,16 @@ public class Book {
 
     @SuppressWarnings("unchecked")
     public Book(DocumentSnapshot bookSnapshot) {
-        this.authorUsername = bookSnapshot.get(GlobalConstants.BOOK_COLLECTION_FIELDS[2]).toString();
+        this.authorUsername = bookSnapshot.get(BookCollectionFields.AUTHOR_USERNAME.getFieldName()).toString();
 
-        this.bookContent = new BookContent((HashMap<String, BookChapter>)bookSnapshot.getData().get(GlobalConstants.BOOK_COLLECTION_FIELDS[4]));
+        this.bookContent = new BookContent((HashMap<String, BookChapter>)bookSnapshot.getData().get(BookCollectionFields.BOOK_CONTENT.getFieldName()));
    
-        this.chaptersTitles = (ArrayList<String>)bookSnapshot.get(GlobalConstants.BOOK_COLLECTION_FIELDS[3]);
-        this.description = bookSnapshot.get(GlobalConstants.BOOK_COLLECTION_FIELDS[9]).toString();
-        this.genre = bookSnapshot.get(GlobalConstants.BOOK_COLLECTION_FIELDS[8]).toString();
-        this.name = bookSnapshot.get(GlobalConstants.BOOK_COLLECTION_FIELDS[1]).toString();
-        this.numberOfChapters = Integer.parseInt(bookSnapshot.get(GlobalConstants.BOOK_COLLECTION_FIELDS[5]).toString());
-        this.readers = Integer.parseInt(bookSnapshot.get(GlobalConstants.BOOK_COLLECTION_FIELDS[7]).toString());
+        this.chaptersTitles = (ArrayList<String>)bookSnapshot.get(BookCollectionFields.CHAPTERS_TITLES.getFieldName());
+        this.description = bookSnapshot.get(BookCollectionFields.DESCRIPTION.getFieldName()).toString();
+        this.genre = bookSnapshot.get(BookCollectionFields.GENRE.getFieldName()).toString();
+        this.name = bookSnapshot.get(BookCollectionFields.NAME.getFieldName()).toString();
+        this.numberOfChapters = Integer.parseInt(bookSnapshot.get(BookCollectionFields.NUMBER_OF_CHAPTERS.getFieldName()).toString());
+        this.readers = Integer.parseInt(bookSnapshot.get(BookCollectionFields.READERS.getFieldName()).toString());
     }
 
     // Getters
@@ -127,6 +130,11 @@ public class Book {
     }
 
     public void incrementNumberOfChapters() {
+        this.numberOfChapters++;
+    }
+
+    public void addChapter(BookChapter newChapter) {
+        bookContent.addChapter(newChapter);
         this.numberOfChapters++;
     }
 }

@@ -6,7 +6,9 @@ import org.springframework.stereotype.Service;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
-import booksapp.root.models.GlobalConstants;
+
+import booksapp.root.models.GlobalConstants.GlobalConstants;
+import booksapp.root.models.GlobalConstants.UserCollectionFields;
 
 @Service
 public class userDataService {
@@ -25,7 +27,7 @@ public class userDataService {
         try {
             userDoc = userCollectionDB.document(userId).get().get();
             if (userDoc.exists()) {
-                username = userDoc.getString(GlobalConstants.USERS_COLLECTION_FIELDS[0]);
+                username = userDoc.getString(UserCollectionFields.USERNAME.getFieldName());
             }
         } catch (Exception e) {
             e.printStackTrace();

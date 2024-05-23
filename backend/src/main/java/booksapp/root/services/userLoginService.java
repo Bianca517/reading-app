@@ -1,8 +1,11 @@
 package booksapp.root.services;
 
-import booksapp.root.models.GlobalConstants;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
+
+import booksapp.root.models.GlobalConstants.GlobalConstants;
+import booksapp.root.models.GlobalConstants.UserCollectionFields;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
@@ -35,8 +38,8 @@ public class userLoginService {
         
         if (null != userStoredInDB) {
             UID = userStoredInDB.getId();
-            String userPasswordInDB = (String) userStoredInDB.get(GlobalConstants.USERS_COLLECTION_FIELDS[1]);
-            String userSalt = (String) userStoredInDB.get(GlobalConstants.USERS_COLLECTION_FIELDS[2]);
+            String userPasswordInDB = (String) userStoredInDB.get(UserCollectionFields.PASSWORD.getFieldName());
+            String userSalt = (String) userStoredInDB.get(UserCollectionFields.SALT.getFieldName());
 
             // check if passwords match
             assert userPasswordInDB != null;
@@ -60,7 +63,7 @@ public class userLoginService {
     public DocumentSnapshot searchForExistingUserWithEmailInDB(String userEmail) {
         // asynchronously retrieve multiple documents
         ApiFuture<QuerySnapshot> usersWithSameEmailQuery = userCollectionDB
-                .whereEqualTo(GlobalConstants.USERS_COLLECTION_FIELDS[3], userEmail).get();
+                .whereEqualTo(UserCollectionFields.EMAIL.getFieldName(), userEmail).get();
 
         try {
             List<QueryDocumentSnapshot> usersWithSameEmailQueryResult = usersWithSameEmailQuery.get().getDocuments();

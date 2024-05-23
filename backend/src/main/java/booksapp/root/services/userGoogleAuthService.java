@@ -5,8 +5,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 
-import booksapp.root.models.GlobalConstants;
 import booksapp.root.models.User;
+import booksapp.root.models.GlobalConstants.GlobalConstants;
 
 import java.util.ArrayList;
 
