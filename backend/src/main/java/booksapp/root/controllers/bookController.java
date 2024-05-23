@@ -2,6 +2,7 @@ package booksapp.root.controllers;
 
 import booksapp.root.models.Book;
 import booksapp.root.models.GlobalConstants;
+import booksapp.root.services.booksCommentsService;
 import booksapp.root.services.booksService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,10 +26,12 @@ import java.util.concurrent.ExecutionException;
 public class bookController {
 
     private final booksService booksService;
+    private final booksCommentsService bookCommentsService;
 
     @Autowired // Inject the service dependency
-    public bookController(booksService booksService) {
+    public bookController(booksService booksService, booksCommentsService bookCommentsService) {
         this.booksService = booksService;
+        this.bookCommentsService = bookCommentsService;
     }
 
     @GetMapping(value = "/getpopularbooks")
@@ -61,6 +64,7 @@ public class bookController {
         return chaptersContents;
     }
 
+    /* 
     @GetMapping(value = "/addbooks")
     public String addBooks() {
         String jsonString = "[{\"paragraphs\":[{\"comments\":[{\"readerX\":\"Nerve-wracking suspense!\"}],\"content\":\"In the shadows of a city plagued by corruption, journalist Olivia Harper uncovers a trail of dark secrets that lead to the highest echelons of power. As she races against time to expose the truth, Olivia becomes entangled in a web of danger, deception, and a conspiracy that could shake the foundations of society.\"}]},{\"paragraphs\":[{\"comments\":[{\"readerY\":\"Edge-of-your-seat thrills!\"}],\"content\":\"With every revelation, Olivia's life hangs in the balance, and the line between ally and enemy blurs. 'Shattered Reality' is a relentless thriller that will keep you guessing until the final page, where the shocking truth emerges from the depths of a sinister labyrinth.\"}]},{\"paragraphs\":[{\"comments\":[{\"readerZ\":\"A rollercoaster of twists!\"}],\"content\":\"As the cityscape becomes a playground for power-hungry puppeteers, Olivia must navigate the treacherous terrain of truth and deception. In 'Shattered Reality,' the clock is ticking, and every decision could be her last as she races towards an explosive climax that will redefine justice and expose the shadows that lurk in plain sight.\"}]}]";
@@ -74,7 +78,8 @@ public class bookController {
         this.booksService.addBooks(thrillerBook2);
         return "added thriller book 2";
     }
-
+    */
+    
     @GetMapping(value = "/getbookchapters")
     public int getBookTotalNrOfChapters(@RequestParam String bookID) throws InterruptedException, ExecutionException {
         System.out.println("inc ontroller");
@@ -114,7 +119,7 @@ public class bookController {
     @GetMapping(value = "/getbookparagraphcomments")
     public String getBookParagraphComments(@RequestParam String bookID, int chapterNumber, int paragraphNumber) throws InterruptedException, ExecutionException {
         System.out.println("in controller for comments");
-        ArrayList<HashMap<String, Object>> paragraphComments = this.booksService.getBookParagraphComments(bookID, chapterNumber, paragraphNumber);
+        HashMap<String, String> paragraphComments = this.bookCommentsService.getAllComments(paragraphNumber, chapterNumber, bookID);
         Gson gson = new Gson();
         String gsonData = gson.toJson(paragraphComments);
         return gsonData;

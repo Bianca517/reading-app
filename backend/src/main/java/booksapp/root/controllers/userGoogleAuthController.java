@@ -1,7 +1,6 @@
 package booksapp.root.controllers;
 
 import booksapp.root.models.GlobalConstants;
-import booksapp.root.models.User;
 import booksapp.root.services.userGoogleAuthService;
 import booksapp.root.services.userRegisterService;
 
@@ -30,7 +29,6 @@ public class userGoogleAuthController {
 
     @PostMapping(value = "/googleauth", consumes = MediaType.APPLICATION_JSON_VALUE) 
     public ResponseEntity<String> authenticateUserWithGoogle(@RequestBody UserFromGoogleAuth UserWithEmailAndUserName) {
-        String returnValue = "";
         String userEmail = UserWithEmailAndUserName.getEmailAddress();
         String userName = UserWithEmailAndUserName.getUserName();
         System.out.println("in backend google auth am primit: " + userEmail + " " + userName);

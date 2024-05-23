@@ -1,8 +1,5 @@
 package booksapp.root.models;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-
 public class GlobalConstants {
         public final static String USERS_COLLECTION_NAME = "users";
         public final static String BOOKS_COLLECTION_NAME = "books";
@@ -11,13 +8,14 @@ public class GlobalConstants {
                         "name",  //1
                         "authorUsername", //2 
                         "chaptersTitles", //3
-                        "chaptersContents", //4
+                        "bookContent", //4
                         "numberOfChapters", //5
                         "cover", //6
                         "readers",//7,
                         "genre", //8
                         "description", //9
                         "paragraphs",//10
+                        "chaptersContent", //11
                 };
         public final static int BOOK_ID_INDEX = 0;
         public final static int BOOK_TITLE_INDEX = 1;

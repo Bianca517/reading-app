@@ -1,34 +1,18 @@
 package booksapp.root.services;
 
 import booksapp.root.models.Book;
+
 import booksapp.root.models.GlobalConstants;
-import com.google.api.core.ApiFuture;
+import booksapp.root.models.bookcomponents.BookChapter;
+import booksapp.root.models.bookcomponents.BookContent;
+import booksapp.root.models.bookcomponents.BookParagraph;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.Query;
-import com.google.cloud.firestore.QueryDocumentSnapshot;
-import com.google.cloud.firestore.QuerySnapshot;
-import com.google.cloud.firestore.WriteResult;
-import com.google.gson.Gson;
-import com.google.cloud.firestore.Query.Direction;
-import com.google.firebase.cloud.StorageClient;
-import com.google.firebase.database.GenericTypeIndicator;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.origin.SystemEnvironmentOrigin;
 import org.springframework.stereotype.Service;
 
-import java.io.Console;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 @Service
 public class writingBookService {
@@ -41,38 +25,27 @@ public class writingBookService {
     }
 
     //add new chapter to book with BookID
-    @SuppressWarnings("unchecked")
     public int addNewChapterToBook(String chapterTitle, String bookID) {
         // get the document refference from book with book ID
         DocumentReference book = null;
-        HashMap<String, Object> updatedFields = new HashMap<String, Object>();
-        Integer numberOfChapters = 0;
     
         try {
             book = booksCollectionDB.document(bookID);
+            Book foundBook = book.get().get().toObject(Book.class);
+
             if(book != null) {
                 //add the new title
-                ArrayList<String> chaptersTitles = new ArrayList<String>();
-                chaptersTitles = (ArrayList<String>)book.get().get().get(GlobalConstants.BOOK_COLLECTION_FIELDS[3]);
-                System.out.println(chaptersTitles);
-                chaptersTitles.add(chapterTitle);
-                updatedFields.put(GlobalConstants.BOOK_COLLECTION_FIELDS[3], chaptersTitles);
-                
+                foundBook.addChapterTitle(chapterTitle);
+      
+                //add new empty chapter
+                BookContent bookContent = foundBook.getBookContent();     
+                bookContent.addChapter(new BookChapter());
+
                 //increase number of chapters
-                numberOfChapters = book.get().get().get(GlobalConstants.BOOK_COLLECTION_FIELDS[5], numberOfChapters.getClass());
-                numberOfChapters++;
-                updatedFields.put(GlobalConstants.BOOK_COLLECTION_FIELDS[5], numberOfChapters);
-
-                //add new empty chapter content
-                ArrayList<Object> chaptersContents = new ArrayList<Object>();
-                chaptersContents = (ArrayList<Object>)book.get().get().get(GlobalConstants.BOOK_COLLECTION_FIELDS[4]);
-                
-                HashMap<String, ArrayList<HashMap<String, Object>>> newEmptyChapter = createNewChapterContent();
-                chaptersContents.add(newEmptyChapter);
-                updatedFields.put(GlobalConstants.BOOK_COLLECTION_FIELDS[4], chaptersContents);
-
-                System.out.println(updatedFields);
-                book.update(updatedFields);
+                foundBook.incrementNumberOfChapters();
+      
+                //update book fields
+                book.set(foundBook);
 
                 return GlobalConstants.STATUS_SUCCESSFUL;
             }
@@ -83,28 +56,59 @@ public class writingBookService {
         return GlobalConstants.STATUS_FAILED;
     }
 
-    private HashMap<String, ArrayList<HashMap<String, Object>>> createNewChapterContent() {
-        HashMap<String, Object> paragraph = new HashMap<String, Object>();
-        paragraph.put(GlobalConstants.PARAGRAPH_FIELDS[1], "");
-        paragraph.put(GlobalConstants.PARAGRAPH_FIELDS[0], new ArrayList<HashMap<String, String>>());
-        
 
-        //ArrayList<HashMap<String, String>> comments = new ArrayList<HashMap<String, String>>();
-        //HashMap<String, String> comment = new HashMap<String, String>(); //has username & content fields
-        //comments.add(comment);
-        //HashMap<String, String> content = new HashMap<String, String>();
-
-        ArrayList<HashMap<String, Object>> paragraphs = new ArrayList<HashMap<String, Object>>();
-        paragraphs.add(paragraph);
-
-        HashMap<String, ArrayList<HashMap<String, Object>>> chapter = new HashMap<String, ArrayList<HashMap<String, Object>>>();
-        chapter.put(GlobalConstants.BOOK_COLLECTION_FIELDS[10], paragraphs);
-
-        //ArrayList<HashMap<Integer, ArrayList<HashMap<String, Object>>>> chapters = new ArrayList<HashMap<Integer, ArrayList<HashMap<String, Object>>>>();
-        //chapters.add(chapter);
-
-        return chapter;
+    public Book addNewTitleToBookTitles(DocumentSnapshot book, String chapterTitle) {
+        if(book != null) {
+            try {
+                Book foundBook = new Book(book);
+                foundBook.addChapterTitle(chapterTitle);
+                return foundBook;
+            } catch (Exception e) {
+                e.printStackTrace();
+            } 
+        }
+        return null;
     }
+
+    
+    public Book increaseNumberOfChapters(DocumentSnapshot book, String chapterTitle) {
+        if(book != null) {
+            try {
+                Book foundBook = new Book(book);
+                foundBook.setNumberOfChapters(foundBook.getNumberOfChapters() + 1);
+                return foundBook;
+            } catch (Exception e) {
+                e.printStackTrace();
+            } 
+        }
+        return null;
+    }
+
+
     //add new paragraph to chapter with ID from book with ID
+    public int addNewParagraphToBook(Integer chapterNumber, String bookID, String paragraphContent) {
+        int returnedStatus = GlobalConstants.STATUS_FAILED;
+
+        // get the document refference from book with book ID
+        DocumentReference bookDoc = null;
+
+        try {
+            bookDoc = booksCollectionDB.document(bookID);
+            Book foundBook = bookDoc.get().get().toObject(Book.class);
+            
+            BookParagraph newParagraph = new BookParagraph();
+            newParagraph.setContent(paragraphContent);
+            foundBook.getBookContent().getChapters().get(chapterNumber.toString()).addParagraph(newParagraph);
+           
+            bookDoc.set(foundBook);
+
+            returnedStatus = GlobalConstants.STATUS_SUCCESSFUL;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            returnedStatus = GlobalConstants.STATUS_FAILED;
+        }
+        return returnedStatus;
+    }
 
 }

@@ -203,7 +203,7 @@ public class booksService {
         
         Map<String, Object> bookMap = new HashMap<>();
         bookMap.put("authorUsername", book.getAuthorUsername());
-        bookMap.put("chaptersContents", book.getChaptersContents());
+        bookMap.put("chaptersContents", book.getBookContent());
         bookMap.put("chaptersTitles", book.getChaptersTitles());
         bookMap.put("description", book.getDescription());
         bookMap.put("genre", book.getGenre());
@@ -285,29 +285,6 @@ public class booksService {
         return bookDescription;
     }
 
-     public ArrayList<HashMap<String, Object>> getBookParagraphComments(String bookID, int chapterNumber, int paragraphNumber) throws InterruptedException, ExecutionException {
-        Map<String, Object> bookData = getBookByID(bookID);
-        Object chapterContents = bookData.get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.CHAPTER_CONTENT_INDEX]);
-        List<Object> chapterContentsList = (List<Object>) chapterContents;
-    
-        // Ensure that the chapterNumber is within valid range
-        if (chapterNumber < 0 || chapterNumber >= chapterContentsList.size()) {
-            throw new IllegalArgumentException("Invalid chapterNumber");
-        }
-    
-        Map<String, Object> chapterData = (Map<String, Object>) chapterContentsList.get(chapterNumber);
-        System.out.println("bsscfsfsdics");
-        System.out.println(chapterData);
-        HashMap<String, Object> selectedParagraph = ((List<HashMap<String, Object>>) chapterData.get("paragraphs")).get(paragraphNumber);
-        System.out.println("bsdics");
-        System.out.println(selectedParagraph);
-        ArrayList<HashMap<String, Object>> paragraphComments = (ArrayList<HashMap<String, Object>>)selectedParagraph.get(GlobalConstants.PARAGRAPH_FIELDS[GlobalConstants.PARAGRAPH_COMMENTS_INDEX]);
-        System.out.println("paragraphs data ");
-        System.out.println(paragraphComments);
-     
-        return paragraphComments;
-    }
-
     public void addNewBook(String bookTitle, String authorUsername, String description, String bookGenre) {
         Map<String, Object> bookMap = new HashMap<>();
 
@@ -327,4 +304,5 @@ public class booksService {
 
     }
 
+    
 }

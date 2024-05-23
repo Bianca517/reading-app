@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
-import booksapp.root.services.booksService;
+import booksapp.root.models.GlobalConstants;
+import booksapp.root.services.booksCommentsService;
+import booksapp.root.services.userDataService;
 import booksapp.root.services.userReadingService;
 
 @CrossOrigin(origins = "http://localhost:8080")
@@ -25,10 +25,14 @@ import booksapp.root.services.userReadingService;
 @RequestMapping
 public class userReadingController {
     private final userReadingService userReadingService;
+    private final userDataService userDataService;
+    private final booksCommentsService bookCommentsService;
 
     @Autowired // Inject the service dependency
-    public userReadingController(userReadingService userReadingService) {
+    public userReadingController(userReadingService userReadingService, userDataService userDataService, booksCommentsService booksCommentsService) {
         this.userReadingService = userReadingService;
+        this.userDataService = userDataService;
+        this.bookCommentsService = booksCommentsService;
     }
 
     @GetMapping(value = "/getuserinterests")
@@ -93,6 +97,19 @@ public class userReadingController {
         int returnedStatus = this.userReadingService.addBookToCurrentReadings(userID, bookID);
         HashMap<String, String> returnJson = new HashMap<String, String>();
         returnJson.put("status", returnedStatus == 0 ? "Successfully added book to current readings" : "Book could not be added to current readings");
+        Gson gson = new Gson();
+        String gsonData = gson.toJson(returnJson);
+        return gsonData;
+    }
+
+    @PostMapping(value = "/addcommenttobook")
+    public String addCommentToBook(@RequestParam String UID, String comment, Integer paragraphID, Integer chapterNumber, String bookID) throws ExecutionException, InterruptedException {
+        String username = userDataService.getUsernameByUserId(UID);
+        int returnedStatus = bookCommentsService.addNewComment(username, comment, paragraphID, chapterNumber, bookID);
+
+        HashMap<String, Integer> returnJson = new HashMap<String, Integer>();
+        returnJson.put("status", returnedStatus);
+       
         Gson gson = new Gson();
         String gsonData = gson.toJson(returnJson);
         return gsonData;
