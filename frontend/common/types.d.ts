@@ -13,8 +13,31 @@ export type UserAuthenticationResponseType = {
     }
 }
 
-
 export type textParagraph = {
         id: string;
         content: string;
+}
+
+export type NavigationParameters = {
+    "Reading Screen":
+    { 
+        "id" : string, 
+        "chapterNumber" : number, 
+        "bookCoverImage" : string, 
+        "name": string, 
+        "authorUsername": string
+    };
+
+    "Prologue":
+    { 
+        "id" : string, 
+        "chapterNumber" : number, 
+        "bookCoverImage" : string, 
+        "name": string, 
+        "authorUsername": string
+    };
+
+    "Continue Writing": {
+        "bookID": string
     }
+}

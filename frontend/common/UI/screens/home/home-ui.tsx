@@ -30,20 +30,10 @@ export default function HomePageUI() {
 
     async function loadCurrentReadingBooks() {
         const fetchResponse: ResponseType = await get_current_readings(GlobalUserData.LOGGED_IN_USER_DATA.uid).then();
-        console.log("popi");
-        console.log(fetchResponse);
-        //console.log(fetchResponse.message);
-        
-        console.log(JSON.parse(fetchResponse.message));
 
         if (fetchResponse.success) {
             setCurrentReadingBooks(JSON.parse(fetchResponse.message));
-            console.log(currentReadingBooks);
             GlobalBookData.CURRENT_READINGS = JSON.parse(fetchResponse.message);
-            currentReadingBooks.map((book, index) => {
-                console.log(JSON.stringify(book));
-            })
-
         }
     }
 
@@ -107,7 +97,7 @@ export default function HomePageUI() {
                                     currentReadingBooks &&
                                     /*Warning: Each child in a list should have a unique "key" prop.*/
                                     currentReadingBooks.map((book, index) => (
-                                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={175} bookWithDetails={false}/>
+                                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={175} bookWithDetails={false} bookNavigationOptions={Globals.BOOK_NAVIGATION_OPTIONS.TO_READING_SCREEN}/>
                                     ))
                                 }
                             </ScrollView>
@@ -133,7 +123,7 @@ export default function HomePageUI() {
                                     recommendedBooks && 
                                     /*Warning: Each child in a list should have a unique "key" prop.*/
                                     recommendedBooks.map((book, index) => (
-                                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={175} bookWithDetails={false}/>
+                                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={175} bookWithDetails={false} bookNavigationOptions={Globals.BOOK_NAVIGATION_OPTIONS.ADDITIONAL_CHECK}/>
                                     ))
                                 }
                             </ScrollView>
@@ -159,7 +149,7 @@ export default function HomePageUI() {
                                     popularBooks &&
                                     /*Warning: Each child in a list should have a unique "key" prop.*/
                                     popularBooks.map((book, index) => (
-                                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={175} bookWithDetails={true}/>
+                                        <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={175} bookWithDetails={true} bookNavigationOptions={Globals.BOOK_NAVIGATION_OPTIONS.ADDITIONAL_CHECK}/>
                                     ))
                                 }
                             </ScrollView>

@@ -76,5 +76,11 @@ export default {
     STATUS_CODES: {
         USER_LOGGED_IN: 0,
         USER_CREATED: 3,
+    },
+    BOOK_NAVIGATION_OPTIONS: {
+        TO_READING_SCREEN: 0,
+        TO_DESCRIPTION: 1,
+        TO_CONTINUE_WRITING: 3,
+        ADDITIONAL_CHECK: 4
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 
@@ -65,15 +66,20 @@ public class userWritingBookController {
     @GetMapping(value = "/getallbooksbyuser")
     public ResponseEntity<String> getAllBooksWrittenByUser(String UID) {
         final ArrayList<HashMap<String, String>> booksByUser = this.writingBookService.getAllBooksWrittenByUser(UID);
+
+        Gson gson = new Gson();
+        String booksByUserJSON = gson.toJson(booksByUser);
+
         JsonObject response = new JsonObject();
 
         if(booksByUser != null) {
-            response.addProperty("success_code", GlobalConstants.STATUS_SUCCESSFUL);
-            response.addProperty("data", booksByUser.toString());
+            response.addProperty("success", GlobalConstants.STATUS_SUCCESSFUL);
+            response.addProperty("message", booksByUserJSON);
             return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
         }
         else{
-            response.addProperty("success_code", GlobalConstants.STATUS_FAILED);
+            response.addProperty("success", GlobalConstants.STATUS_FAILED);
+            response.addProperty("message", GlobalConstants.STATUS_FAILED);
             return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
         }
     }
@@ -82,15 +88,20 @@ public class userWritingBookController {
     @GetMapping(value = "/getallchaptersofbook")
     public ResponseEntity<String> getAllChaptersOfBook(String bookID) {
         final List<String> allChaptersOfBook = this.writingBookService.getAllChaptersOfBook(bookID);
+
+        Gson gson = new Gson();
+        String bookChaptersJSON = gson.toJson(allChaptersOfBook);
+
         JsonObject response = new JsonObject();
 
         if(allChaptersOfBook != null) {
-            response.addProperty("success_code", GlobalConstants.STATUS_SUCCESSFUL);
-            response.addProperty("data", allChaptersOfBook.toString());
+            response.addProperty("success", GlobalConstants.STATUS_SUCCESSFUL);
+            response.addProperty("message", bookChaptersJSON);
             return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
         }
         else{
-            response.addProperty("success_code", GlobalConstants.STATUS_FAILED);
+            response.addProperty("success", GlobalConstants.STATUS_FAILED);
+            response.addProperty("message", "");
             return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
         }
     }
