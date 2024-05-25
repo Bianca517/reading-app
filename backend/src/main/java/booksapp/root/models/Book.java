@@ -137,4 +137,16 @@ public class Book {
         bookContent.addChapter(newChapter);
         this.numberOfChapters++;
     }
+
+    public HashMap<String, String> toHashMapString(String bookID) {
+        HashMap<String, String> bookFields = new HashMap<String, String>();
+        // book id
+        bookFields.put(BookCollectionFields.ID.getFieldName(), bookID);
+        // book name
+        bookFields.put(BookCollectionFields.NAME.getFieldName(), this.name);
+        // book author
+        bookFields.put(BookCollectionFields.AUTHOR_USERNAME.getFieldName(), this.authorUsername);
+        
+        return bookFields;
+    }
 }

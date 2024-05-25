@@ -148,7 +148,7 @@ public class debugService {
             "Rising Crescendo"
         );
         book.setChaptersTitles(titles);
-        book.setNumberOfChapters(5);
+        book.setNumberOfChapters(3);
         book.setDescription("\"Whispers of the Heart\" is a captivating love story that unfolds in the enchanting town of Whispersville, where secrets lie hidden beneath the cobblestone streets and ancient oak trees. In this poignant drama, the author masterfully weaves a tale of love, loss, and the unyielding pursuit of one's true self. At the heart of the narrative is Emily Thompson, a spirited young woman with dreams as vast as the open sky. Her journey begins in a town shrouded in mystery, where the whispers of the past echo through time. As Emily delves into the forgotten pages of the town's history, she discovers not only the enigmatic tales that have haunted Whispersville but also the resilience of the human spirit.");
         book.setGenre("Drama");
         book.setReaders(320);
@@ -177,13 +177,6 @@ public class debugService {
     
         chapter2.addParagraph(chapter2Paragraph1);
         chapter2.addParagraph(chapter2Paragraph2);
-    
-        // Create empty chapters to match the number of chapters
-        for (int i = 3; i < 5; i++) {
-            BookChapter chapter = new BookChapter();
-            chapter.addParagraph(new BookParagraph()); // Adding an empty paragraph
-            book.addChapter(chapter);
-        }
     
         // Add chapters to the book
         book.addChapter(chapter1);
