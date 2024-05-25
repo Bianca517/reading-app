@@ -14,7 +14,9 @@ type BookProps = {
 export default function Book(props: BookProps) {
     const [isLongPressed, setIsLongPressed] = useState(false);
     const navigation = useNavigation();
+
     let bookFieldsJSON = JSON.parse(props.bookFields);
+    //console.log(bookFieldsJSON);
     const bookTitle = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[0]];
     const bookAuthor = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[1]];
     const bookID = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[Globals.BOOK_COLLECTION_FIELDS_ID_INDEX]];
@@ -61,11 +63,33 @@ export default function Book(props: BookProps) {
         }
     }
 
-    if(bookAuthor && bookTitle) {
-        var constructURIForBookCover = Globals.BOOK_COVER_URI_TEMPLATE.replace('NAME', bookTitle.toLowerCase());
-        constructURIForBookCover = constructURIForBookCover.replace('AUTHOR', bookAuthor.toLowerCase());
-        bookCover = constructURIForBookCover;
+    function constructURIForBookCover(bookTitle: string, bookAuthor: string) {
+        //replace spaces from strings
+        if(bookTitle.includes(' ')) {
+            var bookTitleWords: string[] = bookTitle.split(' ');
+            bookTitle = "";
+            bookTitleWords.forEach(word => {
+                bookTitle += word;
+            });
+        }
 
+        if(bookAuthor.includes(' ')) {
+            var bookAuthorWords: string[] = bookAuthor.split(' ');
+            bookAuthor = "";
+            bookAuthorWords.forEach(word => {
+                bookAuthor += word;
+            });
+        }
+
+        var URIForBookCover = Globals.BOOK_COVER_URI_TEMPLATE_PNG.replace('NAME', bookTitle.toLowerCase());
+        URIForBookCover = URIForBookCover.replace('AUTHOR', bookAuthor.toLowerCase());
+        return URIForBookCover;
+    }
+
+
+    if(bookAuthor && bookTitle) {
+        bookCover = constructURIForBookCover(bookTitle, bookAuthor);
+     
         return (
             <View style={styles.book_container_view}>
                 <TouchableOpacity 

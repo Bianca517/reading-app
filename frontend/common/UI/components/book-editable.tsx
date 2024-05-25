@@ -20,7 +20,7 @@ export default function EditableBook({ bookFields, bookCoverWidth, bookCoverHeig
     let bookCover = "";
 
     if(bookTitle && bookAuthor) {
-        var constructURIForBookCover = Globals.BOOK_COVER_URI_TEMPLATE.replace('NAME', bookTitle.toLowerCase());
+        var constructURIForBookCover = Globals.BOOK_COVER_URI_TEMPLATE_PNG.replace('NAME', bookTitle.toLowerCase());
         constructURIForBookCover = constructURIForBookCover.replace('AUTHOR', bookAuthor.toLowerCase());
         bookCover = constructURIForBookCover;
     }

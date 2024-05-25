@@ -36,7 +36,7 @@ public class BookContent {
 
     public void addChapter(BookChapter newChapter) {
         String newChapterID = Integer.toString(chapters.size());
-        System.out.println("\nsize: " + newChapterID);
+        //System.out.println("\nsize: " + newChapterID);
         chapters.put(newChapterID, newChapter);
     }
 

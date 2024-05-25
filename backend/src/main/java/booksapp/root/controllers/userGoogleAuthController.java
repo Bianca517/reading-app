@@ -31,7 +31,7 @@ public class userGoogleAuthController {
     public ResponseEntity<String> authenticateUserWithGoogle(@RequestBody UserFromGoogleAuth UserWithEmailAndUserName) {
         String userEmail = UserWithEmailAndUserName.getEmailAddress();
         String userName = UserWithEmailAndUserName.getUserName();
-        System.out.println("in backend google auth am primit: " + userEmail + " " + userName);
+        //System.out.println("in backend google auth am primit: " + userEmail + " " + userName);
 
         ArrayList<String> authStatus = userGoogleAuthService.authUserWithGoogle(userEmail, userName);
         int returnedCode = Integer.valueOf(authStatus.get(0));
@@ -39,8 +39,8 @@ public class userGoogleAuthController {
 
         JsonObject response = new JsonObject();
 
-        System.out.println("returnedCode: " + returnedCode);
-        System.out.println("UID: " + UID);
+        //System.out.println("returnedCode: " + returnedCode);
+        //System.out.println("UID: " + UID);
 
         switch(returnedCode) {
             case GlobalConstants.USER_CREATED:

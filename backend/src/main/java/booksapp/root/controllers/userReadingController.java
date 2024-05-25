@@ -100,6 +100,16 @@ public class userReadingController {
         return gsonData;
     }
 
+    @PostMapping(value = "/addbooktofinalizedbooks")
+    public String addBooktoFinalizedBooks(@RequestParam String userID, String bookID) throws ExecutionException, InterruptedException {
+        int returnedStatus = this.userReadingService.addBookToFinalizedReadings(userID, bookID);
+        HashMap<String, String> returnJson = new HashMap<String, String>();
+        returnJson.put("status", returnedStatus == 0 ? "Successfully added book to current readings" : "Book could not be added to current readings");
+        Gson gson = new Gson();
+        String gsonData = gson.toJson(returnJson);
+        return gsonData;
+    }
+
     @PostMapping(value = "/addcommenttobook")
     public String addCommentToBook(@RequestParam String UID, String comment, Integer paragraphID, Integer chapterNumber, String bookID) throws ExecutionException, InterruptedException {
         String username = userDataService.getUsernameByUserId(UID);

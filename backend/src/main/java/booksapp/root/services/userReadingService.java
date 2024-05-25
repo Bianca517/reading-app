@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutionException;
 import org.springframework.stereotype.Service;
 
 import com.google.api.core.ApiFuture;
+import com.google.api.core.ApiFutures;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.FieldValue;
@@ -15,6 +16,8 @@ import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.WriteResult;
 import com.google.firebase.cloud.StorageClient;
 import com.google.cloud.storage.Bucket;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.cloud.storage.Blob;
 
 import booksapp.root.models.Book;
@@ -193,6 +196,12 @@ public class userReadingService {
     public int addBookToCurrentReadings(String userID, String bookID) throws InterruptedException, ExecutionException {
         DocumentReference userDocument = userCollectionDB.document(userID);
         userDocument.update(UserCollectionFields.CURRENT_READINGS.getFieldName(), FieldValue.arrayUnion(bookID));
+        return 0;
+    }
+
+    public int addBookToFinalizedReadings(String userID, String bookID) throws InterruptedException, ExecutionException {
+        DocumentReference userDocument = userCollectionDB.document(userID);
+        userDocument.update(UserCollectionFields.FINALIZED_READINGS.getFieldName(), FieldValue.arrayUnion(bookID));
         return 0;
     }
 

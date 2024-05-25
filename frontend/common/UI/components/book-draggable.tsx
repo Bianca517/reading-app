@@ -24,7 +24,7 @@ export default function BookDraggable({ bookFields, bookCoverWidth, bookCoverHei
     const bookAuthor = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[1]];
     const bookID = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[6]];
 
-    var constructURIForBookCover = Globals.BOOK_COVER_URI_TEMPLATE.replace('NAME', bookTitle.toLowerCase());
+    var constructURIForBookCover = Globals.BOOK_COVER_URI_TEMPLATE_PNG.replace('NAME', bookTitle.toLowerCase());
     constructURIForBookCover = constructURIForBookCover.replace('AUTHOR', bookAuthor.toLowerCase());
     const bookCover = constructURIForBookCover;
 

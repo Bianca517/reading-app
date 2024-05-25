@@ -13,6 +13,8 @@ import * as JWTDecoder from 'jwt-decode';
 import { login_user_with_google_service } from '../../../services/google-auth-service';
 import { ResponseType, UserAuthenticationResponseType } from '../../../types';
 import { Section } from '../../components/section-login-or-register';
+import GlobalBookData from '../../_globals/GlobalBookData';
+import GlobalUserData from '../../_globals/GlobalUserData';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -43,10 +45,10 @@ export default function LoginPageUI() {
 
   useEffect(() => {
     if (response) {
-      console.log(JSON.stringify(response, null, 2));
+      //console.log(JSON.stringify(response, null, 2));
       if(response.type === 'success') {
         const token = response.params.id_token;
-        console.log(token);
+        //console.log(token);
         getUserInfoFromToken(token);
       }
     }
@@ -57,28 +59,28 @@ export default function LoginPageUI() {
     const parts = idToken.split('.');
     var base64 = require('base-64');
     const decodedToken = JSON.parse(base64.decode(parts[1]));
-    console.log("decoded token");
-    console.log(decodedToken);
+    //console.log("decoded token");
+    //console.log(decodedToken);
     // Extract user information from the decoded token
     const userEmail = decodedToken.email;
     const userName =  decodedToken.name;
     
     const fetchResponse: UserAuthenticationResponseType = await login_user_with_google_service(userEmail, userName).then();
-    console.log("blublub");
-    console.log(fetchResponse.Data);
-    
-    const HttpStatus: number = fetchResponse.HttpStatus;
   
+    const HttpStatus: number = fetchResponse.HttpStatus;
+
     if(HttpStatus === 200) {
-      Globals.LOGGED_IN_USER_DATA.uid = fetchResponse.Data.user_id;
+      GlobalUserData.LOGGED_IN_USER_DATA.uid = fetchResponse.Data.user_id;
       const statusCode = fetchResponse.Data.success_code;
     
-      //console.log(Globals.LOGGED_IN_USER_DATA.uid);
+      //console.log(GlobalUserData.LOGGED_IN_USER_DATA.uid);
       //console.log(fetchResponse.Data.success_code);
+      
       if(Globals.STATUS_CODES.USER_CREATED === statusCode) {
         navigation.navigate('Submit Interests' as never);
       }
       else if(Globals.STATUS_CODES.USER_LOGGED_IN === statusCode) {
+
         navigation.navigate('Home' as never)
       }
     }
