@@ -107,7 +107,9 @@ export default function ReadingScreen( {route} ) {
 
     useEffect(() => {
         loadBookChapterTitle(bookID, chapterNumber).then(chapterTitleReceived => setBookChapterTitle(chapterTitleReceived));
-        loadBookChapterContent(bookID, chapterNumber).then(chapterContentReceived => setBookChapterContent(chapterContentReceived));
+        loadBookChapterContent(bookID, chapterNumber).then(chapterContentReceived => {
+            setBookChapterContent(chapterContentReceived);
+            });
         setChapterNumberToDisplay(chapterNumber + 1);
     }, [bookID, chapterNumber, isFocused]);
 
@@ -124,7 +126,7 @@ export default function ReadingScreen( {route} ) {
         buildPages();
         setIsDataReady(true);
         if(navigatedToPreviousChapter === true) {
-            console.log("de aici pornesc erorile???");
+            //console.log("de aici pornesc erorile???");
             flatlistRef.current?.scrollToEnd();
             setNavigatedToPreviousChapter(false);
         }
@@ -155,27 +157,7 @@ export default function ReadingScreen( {route} ) {
         //console.log("gesture scroll active ", isGestureScrollingActive);
     }, [isGestureScrollingActive]);
     
-    /*
-    useEffect(() => {
-        console.log("font changed to", selectedFont);
-        setPagesWithContent(prevPages => {
-            return prevPages.map(page => {
-                // Clone the PageView component and update the style prop
-                return React.cloneElement(page, { style: { selectedFont: selectedFont } });
-            });
-        });
-    }, [selectedFont]);
-
-    useEffect(() => {
-        setPagesWithContent(prevPages => {
-            return prevPages.map(page => {
-                // Clone the PageView component and update the style prop
-                return React.cloneElement(page, { style: { fontColor: fontColor } });
-            });
-        });
-    }, [fontColor]);
-    */
-
+ 
     function checkPreviousScreen() {
         /*
         const routes = navigation.getState()?.routes;
@@ -192,14 +174,14 @@ export default function ReadingScreen( {route} ) {
         }*/
 
         const chapterNumberFromRoute = route.params.chapterNumber;
-        console.log("am primit chapter number", chapterNumberFromRoute);
+        //console.log("am primit chapter number", chapterNumberFromRoute);
         if(chapterNumberFromRoute) {
             setChapterNumber(chapterNumberFromRoute);
         }
         else {
             setChapterNumber(0);
         }
-        console.log("0setting chapter number to ", chapterNumber);
+        //console.log("0setting chapter number to ", chapterNumber);
     }
 
 
@@ -221,25 +203,6 @@ export default function ReadingScreen( {route} ) {
 
         setPagesWithContent(pages);
     }
-
-    /*
-    function updateTextInPages(paragraphsInPages: textParagraph[][]) {
-        let pagesText: string[] = [];
-        let currentPageNumber: number = 0;
-        paragraphsInPages.forEach((arrayOfParagraphInPage: textParagraph[]) => {
-            arrayOfParagraphInPage.forEach((paragraph: textParagraph) => {
-                if(!pagesText[currentPageNumber]) {
-                    pagesText[currentPageNumber] = "";
-                }
-                pagesText[currentPageNumber] += paragraph.content;
-            });
-            currentPageNumber++;
-        });
-        setTextInPages(pagesText);
-        console.log("pages text");
-        console.log(pagesText);
-    }
-    */
 
     function updateFontFamily (fontFamily: string): void{
         setSelectedFont(fontFamily)
@@ -338,6 +301,7 @@ export default function ReadingScreen( {route} ) {
 
     const onViewableItemsChanged = useCallback(({ viewableItems, changed }) => {
         if (viewableItems && viewableItems.length > 0) {
+            //in viewableItems, if 2 pages are visible, take the last one
             let currentPageVisible: number = viewableItems[0]["index"];
             //console.log(viewableItems);
             currentPage.current = currentPageVisible;
@@ -352,6 +316,7 @@ export default function ReadingScreen( {route} ) {
                     //console.log("setez prev chapter trigger");
                     setNavigateToPreviousChapterTrigger(true);
                 }
+                setNavigateToNextChapterTrigger(false);
             }
             else {
                 setNavigateToPreviousChapterTrigger(false);
@@ -424,7 +389,7 @@ export default function ReadingScreen( {route} ) {
                             onScroll={(event) => {
                                 let direction = event.nativeEvent.contentOffset.x > currentScrollOffset ? 'right' : 'left';
                                 currentScrollOffset = event.nativeEvent.contentOffset.x;
-                                console.log(direction); // up or down accordingly
+                                //console.log(direction); // up or down accordingly
                             }}
                             ItemSeparatorComponent={(props) => {
                                 //console.log('props', props); // here you can access the trailingItem with props.trailingItem
@@ -536,7 +501,7 @@ const styles = StyleSheet.create({
     },
     body: {
         flex: 13,
-        widht: windowWidth,
+        width: windowWidth,
         flexDirection: 'column',
     },
     text_container: {
