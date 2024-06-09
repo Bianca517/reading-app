@@ -6,13 +6,14 @@ import Footer from '../../components/footer';
 import LibraryPageNavigator from '../../components/library-navigator';
 import { get_current_readings } from '../../../services/retrieve-books-service';
 import GlobalBookData from '../../_globals/GlobalBookData';
+import GlobalUserData from '../../_globals/GlobalUserData';
 
 
 export default function LibraryPageCurrentReadingsUI() {
     const [currentReadingBooks, setCurrentReadingBooks] = useState([]);
 
     async function loadCurrentReadingBooks() {
-        const fetchResponse = await get_current_readings().then();
+        const fetchResponse = await get_current_readings(GlobalUserData.LOGGED_IN_USER_DATA.uid).then();
 
         if (fetchResponse.success) {
             setCurrentReadingBooks(JSON.parse(fetchResponse.message));
@@ -44,11 +45,11 @@ export default function LibraryPageCurrentReadingsUI() {
                     {
                         /*Warning: Each child in a list should have a unique "key" prop.*/
                         currentReadingBooks.map((book, index) => (
-                            <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={100} bookCoverHeight={180} bookWithDetails={true}/>
+                            <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={100} bookCoverHeight={180} bookWithDetails={true} bookNavigationOptions={Globals.BOOK_NAVIGATION_OPTIONS.TO_READING_SCREEN}/>
                         ))
                     }
                     </ScrollView>
-                </View>
+                </View> 
             </View>
 
             <Footer />

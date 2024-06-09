@@ -5,6 +5,7 @@ import { UserAuthenticationResponseType } from '../../types';
 import { login_user_service } from '../../services/login-service';
 import Globals from '../_globals/Globals';
 import { register_user_service } from '../../services/register-service';
+import GlobalUserData from '../_globals/GlobalUserData';
 
 const PAGE_SECTIONS: string[] = ["Login", "Register"]
 
@@ -15,20 +16,26 @@ type Props = {
 async function handleLogin(userEmail: string, userPassword: string, navigation) {
     const fetchResponse: UserAuthenticationResponseType = await login_user_service(userEmail, userPassword).then();
 
+    //TODO: remove this
+    navigation.navigate('Home' as never);
+    GlobalUserData.LOGGED_IN_USER_DATA.uid = 'v8iP2KKX6xoQjltmyI3j';
+
     const HttpStatus: number = fetchResponse.HttpStatus;
   
     if(HttpStatus === 200) {
-      Globals.LOGGED_IN_USER_DATA.uid = fetchResponse.Data.user_id;
+      GlobalUserData.LOGGED_IN_USER_DATA.uid = fetchResponse.Data.user_id;
       const statusCode = fetchResponse.Data.success_code;
-     
+      navigation.navigate('Home' as never);
       //console.log(Globals.LOGGED_IN_USER_DATA.uid);
       //console.log(fetchResponse.Data.success_code);
-      if(Globals.STATUS_CODES.USER_LOGGED_IN === statusCode) {
-        navigation.navigate('Home' as never)
-      }
-      else {
-        //TODO: inform user about error
-      }
+
+      //TODO: uncomment this
+      // if(Globals.STATUS_CODES.USER_LOGGED_IN === statusCode) {
+      //   navigation.navigate('Home' as never)
+      // }
+      // else {
+      //   //TODO: inform user about error
+      // }
     }
 }
 
@@ -38,7 +45,7 @@ async function handleRegister(userEmail: string, userPassword: string, userName:
   const HttpStatus: number = fetchResponse.HttpStatus;
 
   if(HttpStatus === 200) {
-    Globals.LOGGED_IN_USER_DATA.uid = fetchResponse.Data.user_id;
+    GlobalUserData.LOGGED_IN_USER_DATA.uid = fetchResponse.Data.user_id;
     const statusCode = fetchResponse.Data.success_code;
    
     //console.log(Globals.LOGGED_IN_USER_DATA.uid);
@@ -91,7 +98,7 @@ export function Section({ naviagtionButtonPressed }: Props) {
           <View style={styles.sign_in_button_part}>
             <TouchableOpacity
               onPress={() => {
-                console.log("apasat " + userEmail);
+                //console.log("apasat " + userEmail);
                 handleLogin (userEmail, userPassword, navigation);
               }}>
               <View style={styles.sign_in_button}>

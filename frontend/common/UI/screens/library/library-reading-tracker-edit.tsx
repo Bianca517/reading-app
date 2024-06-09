@@ -18,6 +18,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useIsFocused } from "@react-navigation/native";
 import GlobalBookData from "../../_globals/GlobalBookData";
+import GlobalUserData from "../../_globals/GlobalUserData";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -53,7 +54,7 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
   }, [isFocused]);
 
   async function loadCurrentReadingBooks() {
-    let fetchResponse = await get_current_readings().then();
+    let fetchResponse = await get_current_readings(GlobalUserData.LOGGED_IN_USER_DATA.uid).then();
 
     if (fetchResponse.success) {
         const parsedData = JSON.parse(fetchResponse.message);

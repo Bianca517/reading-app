@@ -21,7 +21,8 @@ export default {
         FINALIZED_READINGS: 1,
         READING_TRACKER: 2,
     },
-    BOOK_COVER_URI_TEMPLATE: 'https://firebasestorage.googleapis.com/v0/b/reading-app-d23dc.appspot.com/o/book_covers%2FNAME_AUTHOR.png?alt=media',
+    BOOK_COVER_URI_TEMPLATE_PNG: 'https://firebasestorage.googleapis.com/v0/b/reading-app-d23dc.appspot.com/o/book_covers%2FNAME_AUTHOR.png?alt=media',
+    BOOK_COVER_URI_TEMPLATE_JPG: 'https://firebasestorage.googleapis.com/v0/b/reading-app-d23dc.appspot.com/o/book_covers%2FNAME_AUTHOR.jpg?alt=media',
     BOOK_COLLECTION_FIELDS: ["name", "authorUsername", "chaptersContents", "cover", "readers", "genre", "id"],
     BOOK_COLLECTION_FIELDS_NAME_INDEX: 0,
     BOOK_COLLECTION_FIELDS_AUTHOR_USERNAME_INDEX: 1,
@@ -72,11 +73,14 @@ export default {
     FONT_COLOR_1: 'white',
     BACKGROUND_COLOR_2: 'yellow',
     FONT_COLOR_2: "#333333",
-    LOGGED_IN_USER_DATA: {
-        uid: "",
-    },
     STATUS_CODES: {
         USER_LOGGED_IN: 0,
         USER_CREATED: 3,
+    },
+    BOOK_NAVIGATION_OPTIONS: {
+        TO_READING_SCREEN: 0,
+        TO_DESCRIPTION: 1,
+        TO_CONTINUE_WRITING: 3,
+        ADDITIONAL_CHECK: 4
     }
 }

@@ -1,20 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Image, Text, TouchableOpacity } from 'react-native';
 import Globals from '../_globals/Globals';
-import { useNavigation } from '@react-navigation/native';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 import GlobalBookData from '../_globals/GlobalBookData';
+import { NavigationParameters } from '../../types';
 
 type BookProps = {
     bookFields: string,
     bookCoverWidth: number,
     bookCoverHeight: number,
     bookWithDetails: boolean,
+    bookNavigationOptions: number,
 }
 
 export default function Book(props: BookProps) {
     const [isLongPressed, setIsLongPressed] = useState(false);
-    const navigation = useNavigation();
+    const navigation = useNavigation<NavigationProp<NavigationParameters>>();
+
     let bookFieldsJSON = JSON.parse(props.bookFields);
+    //console.log(bookFieldsJSON);
     const bookTitle = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[0]];
     const bookAuthor = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[1]];
     const bookID = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[Globals.BOOK_COLLECTION_FIELDS_ID_INDEX]];
@@ -36,11 +40,20 @@ export default function Book(props: BookProps) {
                 setIsBookInLibrary(true);
             }
         });
+
+        if(!isBookInLibrary) {
+            GlobalBookData.FINALIZED_READINGS.forEach(book => {
+                if(bookID == book.id) {
+                    setIsBookInLibrary(true);
+                }
+            });
+        }
     }
 
     function handleNavigation() {
-        if(!isBookInLibrary || (userCurrentChapterInBook == 0)) {
-            navigation.navigate("Prologue", 
+        switch(props.bookNavigationOptions) {
+            case Globals.BOOK_NAVIGATION_OPTIONS.TO_READING_SCREEN: {
+                navigation.navigate("Reading Screen", 
                 { 
                     "id" : bookID, 
                     "chapterNumber" : 0, 
@@ -48,9 +61,11 @@ export default function Book(props: BookProps) {
                     "name": bookTitle, 
                     "authorUsername": bookAuthor
                 })
-        }
-        else {
-            navigation.navigate("Reading Screen", 
+                break;
+                }
+
+            case Globals.BOOK_NAVIGATION_OPTIONS.TO_DESCRIPTION: {
+                navigation.navigate("Prologue", 
                 { 
                     "id" : bookID, 
                     "chapterNumber" : 0, 
@@ -58,14 +73,71 @@ export default function Book(props: BookProps) {
                     "name": bookTitle, 
                     "authorUsername": bookAuthor
                 })
+                break;
+            }
+
+            case Globals.BOOK_NAVIGATION_OPTIONS.TO_CONTINUE_WRITING: {
+                navigation.navigate("Continue Writing",
+                    {
+                        "bookID": bookID,
+                    });
+                break;   
+            }
+
+            case Globals.BOOK_NAVIGATION_OPTIONS.ADDITIONAL_CHECK: {
+                if(!isBookInLibrary || (userCurrentChapterInBook == 0)) {
+                    navigation.navigate("Prologue", 
+                    { 
+                        "id" : bookID, 
+                        "chapterNumber" : 0, 
+                        "bookCoverImage" : bookCover, 
+                        "name": bookTitle, 
+                        "authorUsername": bookAuthor
+                    })
+                }
+                else {
+                    navigation.navigate("Reading Screen", 
+                    { 
+                        "id" : bookID, 
+                        "chapterNumber" : 0, 
+                        "bookCoverImage" : bookCover, 
+                        "name": bookTitle, 
+                        "authorUsername": bookAuthor
+                    })
+                }
+                break;
+            }
         }
     }
 
-    if(bookAuthor && bookTitle) {
-        var constructURIForBookCover = Globals.BOOK_COVER_URI_TEMPLATE.replace('NAME', bookTitle.toLowerCase());
-        constructURIForBookCover = constructURIForBookCover.replace('AUTHOR', bookAuthor.toLowerCase());
-        bookCover = constructURIForBookCover;
+    function constructURIForBookCover(bookTitle: string, bookAuthor: string) {
+        //replace spaces from strings
+        if(bookTitle.includes(' ')) {
+            var bookTitleWords: string[] = bookTitle.split(' ');
+            bookTitle = "";
+            bookTitleWords.forEach(word => {
+                bookTitle += word;
+            });
+        }
 
+        if(bookAuthor.includes(' ')) {
+            var bookAuthorWords: string[] = bookAuthor.split(' ');
+            bookAuthor = "";
+            bookAuthorWords.forEach(word => {
+                bookAuthor += word;
+            });
+        }
+
+        var URIForBookCover = Globals.BOOK_COVER_URI_TEMPLATE_PNG.replace('NAME', bookTitle.toLowerCase());
+        URIForBookCover = URIForBookCover.replace('AUTHOR', bookAuthor.toLowerCase());
+        //console.log(URIForBookCover);
+        return URIForBookCover;
+    }
+
+
+    if(bookAuthor && bookTitle) {
+        bookCover = constructURIForBookCover(bookTitle, bookAuthor);
+     
         return (
             <View style={styles.book_container_view}>
                 <TouchableOpacity 

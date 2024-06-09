@@ -1,4 +1,5 @@
 import Globals from "../UI/_globals/Globals"
+import { ResponseType } from "../types"
 const GET_NUMBER_OF_CHAPTERS_ENDPOINT: string = "/getbookchapters?bookID=BOOK_ID"
 const GET_CHAPTER_TITLE_ENDPOINT: string = "/getbookchaptertitle?bookID=BOOK_ID&chapterNumber=CHAPTER_NUMBER"
 const GET_CHAPTER_CONTENT_ENDPOINT: string = "/getbookchaptercontent?bookID=BOOK_ID&chapterNumber=CHAPTER_NUMBER"
@@ -9,7 +10,7 @@ const BOOK_ID_STRING_TO_REPLACE: string = "BOOK_ID"
 const CHAPTER_NUMBER_STRING_TO_REPLACE: string = "CHAPTER_NUMBER"
 const USERID_STRING_TO_REPLACE: string = "USER_ID"
 
-export async function get_number_of_chapters_of_book(bookID: string) {
+export async function get_number_of_chapters_of_book(bookID: string): Promise<ResponseType> {
     let HTTPS_REQUEST = Globals.BACKEND_HTTP + GET_NUMBER_OF_CHAPTERS_ENDPOINT;
     HTTPS_REQUEST = HTTPS_REQUEST.replace(BOOK_ID_STRING_TO_REPLACE, bookID);
 
@@ -22,7 +23,7 @@ export async function get_number_of_chapters_of_book(bookID: string) {
     })
         .then((response) => response.json())
         .then((responseData) => {
-            console.log("got it");
+            //console.log("got it");
             //console.log(JSON.stringify(responseData));
             return { success: true, message: responseData };
         })
@@ -141,10 +142,10 @@ export async function get_total_nr_of_chapters(bookID: string) {
     return totalNrOfChapters
 }
 
-export async function add_book_to_library(bookID: string) {
+export async function add_book_to_library(bookID: string, userID: string) {
     let HTTPS_REQUEST = Globals.BACKEND_HTTP + ADD_BOOK_TO_LIBRARY_ENDPOINT;
     HTTPS_REQUEST = HTTPS_REQUEST.replace(BOOK_ID_STRING_TO_REPLACE, bookID);
-    HTTPS_REQUEST = HTTPS_REQUEST.replace(USERID_STRING_TO_REPLACE, "4zgcWtT9c3RSy5FpFI18");
+    HTTPS_REQUEST = HTTPS_REQUEST.replace(USERID_STRING_TO_REPLACE, userID);
     console.log(HTTPS_REQUEST);
 
     var requestResponse = await fetch(HTTPS_REQUEST, {

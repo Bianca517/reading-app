@@ -4,27 +4,37 @@ import Globals from '../../_globals/Globals';
 import { useNavigation } from '@react-navigation/native';
 import { ResponseType } from '../../../types';
 import Book from '../../components/book';
+import { get_users_written_books } from '../../../services/write-book-service';
+import GlobalUserData from '../../_globals/GlobalUserData';
 
 const windowWidth = Dimensions.get('window').width;
 
 
 export default function WriteABookUI() {
     const navigation = useNavigation();
+    const [userHasWrittenBooks, setUserHasWrittenBooks] = useState(true); //start with this on TRUE so it does not display the sorry message before the fetch from DB is done
+    const [booksWrittenByUser, setBooksWrittenByUser] = useState([]);
     
-    const book1 = {
-        "name": "EpicHistories",
-        "authorUsername": "peteparker",
-        "id": "6iRD4c2apbP9PzvwucBI",
-        "bookCoverImage": "https://firebasestorage.googleapis.com/v0/b/reading-app-d23dc.appspot.com/o/book_covers%2Fepichistories_peteparker.png?alt=media&token=c4e908c1-4ea1-4fb1-9a34-a83da3c7876f"
-    };
-       
-    const book2 =  {
-        "name": "SerenityFalls",
-        "authorUsername": "laylahill",
-        "id": "jnQME8lI4mCDjLsA9bP8",
-        "bookCoverImage": "https://firebasestorage.googleapis.com/v0/b/reading-app-d23dc.appspot.com/o/book_covers%2Fserenityfalls_laylahill.png?alt=media&token=5d004ba3-62e8-44ff-bca7-9db485c2fd59"
-    };
+    //this loads at start of page
+    useEffect(() => {
+        loadBooksWrittenByUser();
+    }, []);
 
+    async function loadBooksWrittenByUser() {
+        let fetchedResponse: ResponseType = await get_users_written_books(GlobalUserData.LOGGED_IN_USER_DATA.uid).then();
+
+        if(fetchedResponse.success) {
+            const responseData: string[] = JSON.parse(fetchedResponse.message);
+            setBooksWrittenByUser(JSON.parse(fetchedResponse.message));
+
+            if(responseData.length > 0) {
+                setUserHasWrittenBooks(true);
+            }
+            else {
+                setUserHasWrittenBooks(false);
+            }
+        }
+    }
 
     return(
         <SafeAreaView style={styles.fullscreen_container}>
@@ -42,8 +52,18 @@ export default function WriteABookUI() {
                 </View> 
 
                 <View style={styles.written_books_grid}>
-                    <Book bookFields={JSON.stringify(book1)} bookCoverWidth={105} bookCoverHeight={155} bookWithDetails={false}/>
-                    <Book bookFields={JSON.stringify(book2)} bookCoverWidth={105} bookCoverHeight={155} bookWithDetails={false}/>
+                    {
+                        userHasWrittenBooks ? 
+                            (
+                            /*Warning: Each child in a list should have a unique "key" prop.*/
+                            booksWrittenByUser.map((book, index) => (
+                                <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={100} bookCoverHeight={180} bookWithDetails={true} bookNavigationOptions={Globals.BOOK_NAVIGATION_OPTIONS.TO_CONTINUE_WRITING}/>
+                            ))
+                            )
+                        : (
+                            <Text style={[styles.continue_writing_text, {textAlign: 'center', marginTop: 30}]}> We are sorry. You currently don't have any written books :( </Text>
+                        )
+                    }        
                 </View>   
                  
             </View>
@@ -130,5 +150,5 @@ const styles = StyleSheet.create({
         fontSize: 15,
         justifyContent: 'flex-start',
         marginHorizontal: 3,
-    }
+    },
 })

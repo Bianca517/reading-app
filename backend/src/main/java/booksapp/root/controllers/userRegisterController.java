@@ -1,7 +1,7 @@
 package booksapp.root.controllers;
 
-import booksapp.root.models.GlobalConstants;
 import booksapp.root.models.User;
+import booksapp.root.models.GlobalConstants.GlobalConstants;
 import booksapp.root.services.userRegisterService;
 
 import java.util.ArrayList;

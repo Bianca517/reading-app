@@ -1,12 +1,20 @@
 package booksapp.root.models;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import com.google.cloud.firestore.DocumentSnapshot;
+
+import booksapp.root.models.GlobalConstants.BookCollectionFields;
+import booksapp.root.models.GlobalConstants.GlobalConstants;
+import booksapp.root.models.bookcomponents.BookChapter;
+import booksapp.root.models.bookcomponents.BookContent;
 
 public class Book {
 
     private String authorUsername;
-    private List<Map<String, Object>> chaptersContents;
+    private BookContent bookContent;
     private List<String> chaptersTitles;
     private String description;
     private String genre;
@@ -17,12 +25,13 @@ public class Book {
     // Constructors
 
     public Book() {
+        this.bookContent = new BookContent();
     }
 
-    public Book(String authorUsername, List<Map<String, Object>> chaptersContents, List<String> chaptersTitles,
+    public Book(String authorUsername, BookContent bookcontent, List<String> chaptersTitles,
                 String description, String genre, String name, int numberOfChapters, int readers) {
         this.authorUsername = authorUsername;
-        this.chaptersContents = chaptersContents;
+        this.bookContent = bookcontent;
         this.chaptersTitles = chaptersTitles;
         this.description = description;
         this.genre = genre;
@@ -31,14 +40,33 @@ public class Book {
         this.readers = readers;
     }
 
+    @SuppressWarnings("unchecked")
+    public Book(DocumentSnapshot bookSnapshot) {
+        this.authorUsername = bookSnapshot.get(BookCollectionFields.AUTHOR_USERNAME.getFieldName()).toString();
+
+        this.bookContent = new BookContent((HashMap<String, BookChapter>)bookSnapshot.getData().get(BookCollectionFields.BOOK_CONTENT.getFieldName()));
+   
+        this.chaptersTitles = (ArrayList<String>)bookSnapshot.get(BookCollectionFields.CHAPTERS_TITLES.getFieldName());
+        this.description = bookSnapshot.get(BookCollectionFields.DESCRIPTION.getFieldName()).toString();
+        this.genre = bookSnapshot.get(BookCollectionFields.GENRE.getFieldName()).toString();
+        this.name = bookSnapshot.get(BookCollectionFields.NAME.getFieldName()).toString();
+        this.numberOfChapters = Integer.parseInt(bookSnapshot.get(BookCollectionFields.NUMBER_OF_CHAPTERS.getFieldName()).toString());
+        this.readers = Integer.parseInt(bookSnapshot.get(BookCollectionFields.READERS.getFieldName()).toString());
+    }
+
     // Getters
 
     public String getAuthorUsername() {
         return authorUsername;
     }
 
-    public List<Map<String, Object>> getChaptersContents() {
-        return chaptersContents;
+    public BookContent getBookContent() {
+        if(bookContent == null) {
+            return new BookContent();
+        }
+        else {
+            return bookContent;
+        }
     }
 
     public List<String> getChaptersTitles() {
@@ -63,5 +91,66 @@ public class Book {
 
     public int getReaders() {
         return readers;
+    }
+
+    public void setAuthorUsername(String authorUsername) {
+        this.authorUsername = authorUsername;
+    }
+
+    public void setBookContent(BookContent pipi) {
+        this.bookContent = pipi;
+    }
+
+    public void setChaptersTitles(List<String> chaptersTitles) {
+        this.chaptersTitles = chaptersTitles;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setNumberOfChapters(int numberOfChapters) {
+        this.numberOfChapters = numberOfChapters;
+    }
+
+    public void setReaders(int readers) {
+        this.readers = readers;
+    }
+
+    public void addChapterTitle(String title) {
+        this.chaptersTitles.add(title);
+    }
+
+    public void incrementNumberOfChapters() {
+        this.numberOfChapters++;
+    }
+
+    public void addChapter(BookChapter newChapter) {
+        bookContent.addChapter(newChapter);
+        this.numberOfChapters++;
+    }
+
+    public HashMap<String, String> toHashMapString(String bookID) {
+        HashMap<String, String> bookFields = new HashMap<String, String>();
+        // book id
+        bookFields.put(BookCollectionFields.ID.getFieldName(), bookID);
+        // book name
+        bookFields.put(BookCollectionFields.NAME.getFieldName(), this.name);
+        // book author
+        bookFields.put(BookCollectionFields.AUTHOR_USERNAME.getFieldName(), this.authorUsername);
+        
+        return bookFields;
+    }
+
+    public String toString() {
+        return "this book is: " + this.name + " by " + this.authorUsername;
     }
 }

@@ -6,6 +6,10 @@ import { ResponseType } from "../../types";
 import { get_total_nr_of_chapters, get_book_chapter_title, get_book_chapter_content } from "../../services/book-reading-service";
 import { textParagraph } from "../../types";
 
+interface chapterContentFromBackend {
+    [key: string]: string;
+}
+
 export async function loadCurrentPlannedBooks() {
     const promises = Globals.MONTHS_LIST.map(async (month, index) => {
         let fetchResponse = await get_readings_planned_for_month(month).then();
@@ -53,10 +57,32 @@ export async function loadBookChapterTitle(bookID: string, chapterNumber: number
 export async function loadBookChapterContent(bookID: string, chapterNumber: number) : Promise<textParagraph[]> {
     const fetchResponse = await get_book_chapter_content(bookID, chapterNumber).then();
     let receivedChapterContent: textParagraph[] = [];
+    // console.log("in service for loading chapter content");
+    // console.log(bookID, chapterNumber);
+    // console.log(fetchResponse);
 
     if (fetchResponse.success) {
-        receivedChapterContent = JSON.parse(fetchResponse.message);
+        let responseData: chapterContentFromBackend = JSON.parse(fetchResponse.message);
+        // console.log(responseData);
+
+        let i: number = 0;
+        while(responseData[i.toString()] != null) {
+            // console.log(responseData[i.toString()]);
+
+            let temp: textParagraph = {
+                id: i.toString(),
+                content: responseData[i.toString()]
+            };        
+            
+            // console.log(temp);
+            receivedChapterContent.push(temp);
+            i++;
+        }
+
+        console.log("AM IESIT DIN WHILE\n");
     }
 
+    // console.log("this shall be fine\n");
+    // console.log(receivedChapterContent);
     return receivedChapterContent
 }

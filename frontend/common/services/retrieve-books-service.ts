@@ -6,9 +6,11 @@ const GET_RECOMMENDED_READINGS_ENDPOINT: string = "/getinterestingbooks"
 const GET_BOOKS_WITH_GENRE: string = "/getbookwithgenre"
 const GET_BOOKS_WITH_NAME: string = "/getbookwithname"
 
-export async function get_finalized_readings() {
-    const HTTPS_REQUEST = Globals.BACKEND_HTTP + GET_FINALIZED_READINGS_ENDPOINT
-    var body = ""
+const UID_PARAMETER: string = "?UID="
+
+export async function get_finalized_readings(userID: string) {
+    var HTTPS_REQUEST = Globals.BACKEND_HTTP + GET_FINALIZED_READINGS_ENDPOINT
+    HTTPS_REQUEST += UID_PARAMETER + userID;
     //console.log("in retrieve finalized readings");
 
     var returnedFinalizedBooks = await fetch(HTTPS_REQUEST, {
@@ -35,7 +37,7 @@ export async function get_finalized_readings() {
 
 export async function get_popular_readings() {
     const HTTPS_REQUEST = Globals.BACKEND_HTTP + GET_POPULAR_READINGS_ENDPOINT
-    var body = ""
+    
     //console.log("in retrieve finalized readings");
 
     var returnedFinalizedBooks = await fetch(HTTPS_REQUEST, {
@@ -61,9 +63,9 @@ export async function get_popular_readings() {
 }
 
 
-export async function get_recommended_readings() {
-    const HTTPS_REQUEST = Globals.BACKEND_HTTP + GET_RECOMMENDED_READINGS_ENDPOINT
-    var body = ""
+export async function get_recommended_readings(userID: string) {
+    var HTTPS_REQUEST = Globals.BACKEND_HTTP + GET_RECOMMENDED_READINGS_ENDPOINT
+    HTTPS_REQUEST += UID_PARAMETER + userID;
     //console.log("in retrieve finalized readings");
 
     var returnedFinalizedBooks = await fetch(HTTPS_REQUEST, {
@@ -89,10 +91,10 @@ export async function get_recommended_readings() {
 }
 
 
-export async function get_current_readings() {
-    const HTTPS_REQUEST = Globals.BACKEND_HTTP + GET_CURRENT_READINGS_ENDPOINT
-    var body = ""
-
+export async function get_current_readings(userID: string) {
+    var HTTPS_REQUEST = Globals.BACKEND_HTTP + GET_CURRENT_READINGS_ENDPOINT
+    HTTPS_REQUEST += UID_PARAMETER + userID;
+    //console.log(HTTPS_REQUEST);
     var returnedCurrentBooks = await fetch(HTTPS_REQUEST, {
         method: "GET",
         headers: {
@@ -102,8 +104,6 @@ export async function get_current_readings() {
     })
         .then((response) => response.json())
         .then((responseData) => {
-            //console.log("sosaj");
-            //console.log(JSON.stringify(responseData));
             responseData = JSON.stringify(responseData);
             return { success: true, message: responseData };
         })
@@ -120,8 +120,6 @@ export async function get_books_with_specified_genre(genre: string) {
     let HTTPS_REQUEST = Globals.BACKEND_HTTP + GET_BOOKS_WITH_GENRE;
     let parametersRequest = "?genre=" + genre;
     HTTPS_REQUEST += parametersRequest;
-    console.log("aoco", HTTPS_REQUEST);
-    var body = ""
 
     var returnedBooks = await fetch(HTTPS_REQUEST, {
         method: "GET",

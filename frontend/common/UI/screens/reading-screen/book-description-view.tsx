@@ -5,6 +5,7 @@ import { AntDesign } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { get_book_description, add_book_to_library } from '../../../services/book-reading-service';
 import GlobalBookData from '../../_globals/GlobalBookData';
+import GlobalUserData from '../../_globals/GlobalUserData';
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -44,7 +45,7 @@ export default function BookDescriptionView({route}) {
         }
         GlobalBookData.CURRENT_READINGS.push(bookToBeAdded);
 
-        const fetchResponse: ResponseType = await add_book_to_library(bookID).then();
+        const fetchResponse: ResponseType = await add_book_to_library(bookID, GlobalUserData.LOGGED_IN_USER_DATA.uid).then();
 
         if(fetchResponse.success) {
             Alert.alert("Successfully added book to library!");

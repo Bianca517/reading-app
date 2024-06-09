@@ -1,3 +1,4 @@
+import GlobalUserData from "../UI/_globals/GlobalUserData";
 import Globals from "../UI/_globals/Globals"
 const SAVE_USER_INTERESTS_ENDPOINT: string = "/addinterests"
 
@@ -13,7 +14,7 @@ export async function save_user_interests(userInterests: string[]) {
         },
         body: JSON.stringify({
             userInterests: userInterests,
-            userID: Globals.LOGGED_IN_USER_DATA.uid
+            userID: GlobalUserData.LOGGED_IN_USER_DATA.uid
         }),
     })
         .then((response) => response.json())

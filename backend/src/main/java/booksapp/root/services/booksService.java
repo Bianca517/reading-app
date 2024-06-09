@@ -1,26 +1,20 @@
 package booksapp.root.services;
 
 import booksapp.root.models.Book;
-import booksapp.root.models.GlobalConstants;
-import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.DocumentReference;
+import booksapp.root.models.GlobalConstants.BookCollectionFields;
+import booksapp.root.models.GlobalConstants.GlobalConstants;
+import booksapp.root.models.bookcomponents.BookChapter;
+import booksapp.root.models.bookcomponents.BookParagraph;
+
 import com.google.cloud.firestore.CollectionReference;
+import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.Query;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
-import com.google.cloud.firestore.WriteResult;
-import com.google.gson.Gson;
 import com.google.cloud.firestore.Query.Direction;
-import com.google.firebase.cloud.StorageClient;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.origin.SystemEnvironmentOrigin;
 import org.springframework.stereotype.Service;
 
-import java.io.Console;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +40,7 @@ public class booksService {
     
         // order documents descending by popularity; get the first 10 popular
         collectionDocumentsQuery = collectionDocumentsQuery
-                .orderBy(GlobalConstants.BOOK_COLLECTION_FIELDS[4], Direction.DESCENDING)
+                .orderBy(BookCollectionFields.READERS.getFieldName(), Direction.DESCENDING)
                 .limit(GlobalConstants.DISPLAYED_BOOKS_IN_HOME_SCREEN);
     
         // get the list of documents resulted from the query
@@ -58,9 +52,9 @@ public class booksService {
             if (documentsList.get(i) != null) {
                 String bookID = documentsList.get(i).getId();
                 HashMap<String, String> book = new HashMap<String, String>();
-                book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[0], bookID);
-                book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[1], documentsList.get(i).get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_TITLE_INDEX]).toString());
-                book.put(GlobalConstants.BOOK_COLLECTION_FIELDS[2], documentsList.get(i).get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_AUTHOR_INDEX]).toString());
+                book.put(BookCollectionFields.ID.getFieldName(), bookID);
+                book.put(BookCollectionFields.NAME.getFieldName(), documentsList.get(i).get(BookCollectionFields.NAME.getFieldName()).toString());
+                book.put(BookCollectionFields.AUTHOR_USERNAME.getFieldName(), documentsList.get(i).get(BookCollectionFields.AUTHOR_USERNAME.getFieldName()).toString());
                 resultedBooks.add(book);
             }
         }
@@ -68,7 +62,6 @@ public class booksService {
         System.out.println(resultedBooks);
         return resultedBooks;
     }
-    
 
     public ArrayList<HashMap<String, String>> getRecommendationsForUserWithID(String userID)
             throws InterruptedException, ExecutionException {
@@ -89,7 +82,6 @@ public class booksService {
         return booksToReturn;
     }   
 
-
     public ArrayList<HashMap<String, String>> getXBooksWithGenre(String genre, Integer X)
             throws ExecutionException, InterruptedException {
         // get all documents from the book collection
@@ -100,7 +92,7 @@ public class booksService {
 
         // get documents which contain the specified book genre
         collectionDocumentsQuery = collectionDocumentsQuery
-                .whereEqualTo(GlobalConstants.BOOK_COLLECTION_FIELDS[8], genre);
+                .whereEqualTo(BookCollectionFields.GENRE.getFieldName(), genre);
 
         //keep track of book ID's
         ArrayList<String> bookIds = new ArrayList<String>();
@@ -119,15 +111,14 @@ public class booksService {
                 bookIds.add(book.getId().toString());
                 HashMap<String, String> bookFields = new HashMap<String, String>();
                 // book id
-                bookFields.put(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_ID_INDEX], book.getId().toString());
+                bookFields.put(BookCollectionFields.ID.getFieldName(), book.getId().toString());
                 // book name
-                bookFields.put(GlobalConstants.BOOK_COLLECTION_FIELDS[1], book.get(GlobalConstants.BOOK_COLLECTION_FIELDS[1]).toString());
+                bookFields.put(BookCollectionFields.NAME.getFieldName(), book.get(BookCollectionFields.NAME.getFieldName()).toString());
                 // book author
-                bookFields.put(GlobalConstants.BOOK_COLLECTION_FIELDS[2], book.get(GlobalConstants.BOOK_COLLECTION_FIELDS[2]).toString());
+                bookFields.put(BookCollectionFields.AUTHOR_USERNAME.getFieldName(), book.get(BookCollectionFields.AUTHOR_USERNAME.getFieldName()).toString());
 
                 booksToReturn.add(bookFields);
-            }
-            else {
+            } else {
                 i--;
             }
         }
@@ -143,7 +134,7 @@ public class booksService {
 
         // get documents which contain the specified book genre
         collectionDocumentsQuery = collectionDocumentsQuery
-                .whereEqualTo(GlobalConstants.BOOK_COLLECTION_FIELDS[8], genre);
+                .whereEqualTo(BookCollectionFields.GENRE.getFieldName(), genre);
         
         // get resulted books
         List<QueryDocumentSnapshot> resultedBooks = collectionDocumentsQuery.get().get().getDocuments();
@@ -156,11 +147,11 @@ public class booksService {
             HashMap<String, String> bookFields = new HashMap<String, String>();
             String bookID = book.getId().toString();
 
-            bookFields.put(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_ID_INDEX], bookID);
+            bookFields.put(BookCollectionFields.ID.getFieldName(), bookID);
             // book name
-            bookFields.put(GlobalConstants.BOOK_COLLECTION_FIELDS[1], book.get(GlobalConstants.BOOK_COLLECTION_FIELDS[1]).toString());
+            bookFields.put(BookCollectionFields.NAME.getFieldName(), book.get(BookCollectionFields.NAME.getFieldName()).toString());
             // book author
-            bookFields.put(GlobalConstants.BOOK_COLLECTION_FIELDS[2], book.get(GlobalConstants.BOOK_COLLECTION_FIELDS[2]).toString());
+            bookFields.put(BookCollectionFields.AUTHOR_USERNAME.getFieldName(), book.get(BookCollectionFields.AUTHOR_USERNAME.getFieldName()).toString());
 
             booksToReturn.add(bookFields);
         }
@@ -182,15 +173,15 @@ public class booksService {
         for (int i = 0; i < resultedBooks.size(); i++) {
             QueryDocumentSnapshot book = resultedBooks.get(i);
             String bookID = book.getId().toString();
-            String bookName = book.get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_TITLE_INDEX]).toString();
+            String bookName = book.get(BookCollectionFields.NAME.getFieldName()).toString();
             if(name.toLowerCase().contains(bookName.toLowerCase())) {
                 HashMap<String, String> bookFields = new HashMap<String, String>();
 
-                bookFields.put(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_ID_INDEX], bookID);
+                bookFields.put(BookCollectionFields.ID.getFieldName(), bookID);
                 // book name
-                bookFields.put(GlobalConstants.BOOK_COLLECTION_FIELDS[1], bookName);
+                bookFields.put(BookCollectionFields.NAME.getFieldName(), bookName);
                 // book author
-                bookFields.put(GlobalConstants.BOOK_COLLECTION_FIELDS[2], book.get(GlobalConstants.BOOK_COLLECTION_FIELDS[2]).toString());
+                bookFields.put(BookCollectionFields.AUTHOR_USERNAME.getFieldName(), book.get(BookCollectionFields.AUTHOR_USERNAME.getFieldName()).toString());
     
                 booksToReturn.add(bookFields);
             }
@@ -199,30 +190,15 @@ public class booksService {
         return booksToReturn;
     }
 
-    public void addBooks(Book book) {
-        
-        Map<String, Object> bookMap = new HashMap<>();
-        bookMap.put("authorUsername", book.getAuthorUsername());
-        bookMap.put("chaptersContents", book.getChaptersContents());
-        bookMap.put("chaptersTitles", book.getChaptersTitles());
-        bookMap.put("description", book.getDescription());
-        bookMap.put("genre", book.getGenre());
-        bookMap.put("name", book.getName());
-        bookMap.put("numberOfChapters", book.getNumberOfChapters());
-        bookMap.put("readers", book.getReaders());
-          
-        booksCollectionDB.add(bookMap);
-
-    }
-
-    public Map<String, Object> getBookByID(String bookID) throws InterruptedException, ExecutionException {
-        List<QueryDocumentSnapshot> allBooks = booksCollectionDB.get().get().getDocuments();
-        for (QueryDocumentSnapshot queryDocumentSnapshot : allBooks) {
-            if (queryDocumentSnapshot.getId().equals(bookID)) {
-                return queryDocumentSnapshot.getData();
-            }
+    public Book getBookByID(String bookID) {
+        DocumentReference bookDoc = booksCollectionDB.document(bookID);
+        Book foundBook = null;
+        try {
+            foundBook = bookDoc.get().get().toObject(Book.class);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return null;
+        return foundBook;
     }
 
     public String makeCompleteRefferenceToBook(String bookName, String authorUsername, String refference) {
@@ -230,101 +206,64 @@ public class booksService {
                 + authorUsername.toLowerCase() + ".png";
     }
 
-    public int getBookChapters(String bookID) throws InterruptedException, ExecutionException {
-        Map<String, Object> bookData = getBookByID(bookID);
-        System.out.println(bookData.get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.NUMBER_OF_CHAPTERS_INDEX]));
-        int numberOfChapers = Integer.parseInt(bookData.get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.NUMBER_OF_CHAPTERS_INDEX]).toString());
+    public int getBookChapters(String bookID) {
+        Book book = getBookByID(bookID);
+        System.out.println(book.getNumberOfChapters());
+        int numberOfChapers = book.getNumberOfChapters();
         return numberOfChapers;
     }
 
-    public String getBookChapterTitle(String bookID, int chapterNumber) throws InterruptedException, ExecutionException {
-        Map<String, Object> bookData = getBookByID(bookID);
-        Object chapterTitles = bookData.get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.CHAPTER_TITLE_INDEX]);
+    public String getBookChapterTitle(String bookID, int chapterNumber) {
+        Book book = getBookByID(bookID);
+        String chapterTitle = book.getChaptersTitles().get(chapterNumber);
         
-        String chapterTitlesString = chapterTitles.toString();
-        String[] chapterTitlesArray = chapterTitlesString.substring(1, chapterTitlesString.length() - 1).split(", ");
-        return chapterTitlesArray[chapterNumber];
+        return chapterTitle;
     }
 
-    public ArrayList<HashMap<String, Object>> getBookChapterContent(String bookID, int chapterNumber) throws InterruptedException, ExecutionException {
-        Map<String, Object> bookData = getBookByID(bookID);
-        Object chapterContents = bookData.get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.CHAPTER_CONTENT_INDEX]);
-        List<Object> chapterContentsList = (List<Object>) chapterContents;
-        System.out.println("aici" + chapterNumber);
+    public HashMap<String, String> getBookChapterContent(String bookID, int chapterNumber) {
+        Book book = getBookByID(bookID);
+
         // Ensure that the chapterNumber is within valid range
-        if (chapterNumber < 0 || chapterNumber >= chapterContentsList.size()) {
+        if (chapterNumber < 0 || chapterNumber > book.getNumberOfChapters()) {
             throw new IllegalArgumentException("Invalid chapterNumber");
         }
-    
-        Map<String, Object> chapterData = (Map<String, Object>) chapterContentsList.get(chapterNumber);
-        List<Object> paragraphsList = (List<Object>) chapterData.get("paragraphs");
-        System.out.println("paragraphs list ");
-        System.out.println(paragraphsList);
-        
-        ArrayList<HashMap<String, Object>> chapterContentMap = new ArrayList<HashMap<String, Object>>();
-        
-        String chapterContent = "";
-        int idParagraph = 0;
-        for (Object paragraph : paragraphsList) {
-            Map<String, Object> paragraphData =  (Map<String, Object>) paragraph;
-            String paragraphContent = (String) paragraphData.get("content");
-            HashMap<String, Object> paragraphMap = new HashMap<String, Object>();
-            paragraphMap.put("id", idParagraph);
-            paragraphMap.put("content", paragraphContent);
-            chapterContentMap.add(paragraphMap);
-            idParagraph++;
-        }
+        //BookChapter bookChapter = book.getBookContent().getChapters().get(Integer.toString(chapterNumber));
 
-        return chapterContentMap;
+        return this.getBookParagraphsContents(book, Integer.toString(chapterNumber));
     }
 
     public String getBookDescription(String bookID) throws InterruptedException, ExecutionException {
-        Map<String, Object> bookData = getBookByID(bookID);
-        Object description = bookData.get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.BOOK_DESCRIPTION_INDEX]);
-        String bookDescription = description.toString();
+        Book book = getBookByID(bookID);
+        String bookDescription = book.getDescription();
         return bookDescription;
-    }
-
-     public ArrayList<HashMap<String, Object>> getBookParagraphComments(String bookID, int chapterNumber, int paragraphNumber) throws InterruptedException, ExecutionException {
-        Map<String, Object> bookData = getBookByID(bookID);
-        Object chapterContents = bookData.get(GlobalConstants.BOOK_COLLECTION_FIELDS[GlobalConstants.CHAPTER_CONTENT_INDEX]);
-        List<Object> chapterContentsList = (List<Object>) chapterContents;
-    
-        // Ensure that the chapterNumber is within valid range
-        if (chapterNumber < 0 || chapterNumber >= chapterContentsList.size()) {
-            throw new IllegalArgumentException("Invalid chapterNumber");
-        }
-    
-        Map<String, Object> chapterData = (Map<String, Object>) chapterContentsList.get(chapterNumber);
-        System.out.println("bsscfsfsdics");
-        System.out.println(chapterData);
-        HashMap<String, Object> selectedParagraph = ((List<HashMap<String, Object>>) chapterData.get("paragraphs")).get(paragraphNumber);
-        System.out.println("bsdics");
-        System.out.println(selectedParagraph);
-        ArrayList<HashMap<String, Object>> paragraphComments = (ArrayList<HashMap<String, Object>>)selectedParagraph.get(GlobalConstants.PARAGRAPH_FIELDS[GlobalConstants.PARAGRAPH_COMMENTS_INDEX]);
-        System.out.println("paragraphs data ");
-        System.out.println(paragraphComments);
-     
-        return paragraphComments;
     }
 
     public void addNewBook(String bookTitle, String authorUsername, String description, String bookGenre) {
         Map<String, Object> bookMap = new HashMap<>();
 
-        bookMap.put("authorUsername", authorUsername);
-        bookMap.put("chaptersContents", "");
-        bookMap.put("chaptersTitles", "");
-        bookMap.put("description", description);
-        bookMap.put("genre", bookGenre);
-        bookMap.put("name", bookTitle);
-        bookMap.put("numberOfChapters", 0);
-        bookMap.put("readers", 0);
+        bookMap.put(BookCollectionFields.AUTHOR_USERNAME.getFieldName(), authorUsername);
+        bookMap.put(BookCollectionFields.CHAPTERS_CONTENT.getFieldName(), "");
+        bookMap.put(BookCollectionFields.CHAPTERS_TITLES.getFieldName(), "");
+        bookMap.put(BookCollectionFields.DESCRIPTION.getFieldName(), description);
+        bookMap.put(BookCollectionFields.GENRE.getFieldName(), bookGenre);
+        bookMap.put(BookCollectionFields.NAME.getFieldName(), bookTitle);
+        bookMap.put(BookCollectionFields.NUMBER_OF_CHAPTERS.getFieldName(), 0);
+        bookMap.put(BookCollectionFields.READERS.getFieldName(), 0);
           
         booksCollectionDB.add(bookMap);
+    }
+
+    public HashMap<String, String> getBookParagraphsContents(Book book, String chapterNumber) {
+        HashMap<String, String> content = new HashMap<String, String>();
+        Integer paragraphID = 0;
+        for(int i = 0; i < book.getBookContent().getChapters().get(chapterNumber).getParagraphs().size(); i++) {
+            content.put(paragraphID.toString(), book.getBookContent().getChapters().get(chapterNumber).getParagraph(i).getContent());
+            paragraphID++;
+        }
+        return content;
     }
 
     public void uploadBookCoverToStorage(ImageView image) {
 
     }
-
 }

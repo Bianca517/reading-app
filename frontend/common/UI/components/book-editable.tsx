@@ -20,7 +20,7 @@ export default function EditableBook({ bookFields, bookCoverWidth, bookCoverHeig
     let bookCover = "";
 
     if(bookTitle && bookAuthor) {
-        var constructURIForBookCover = Globals.BOOK_COVER_URI_TEMPLATE.replace('NAME', bookTitle.toLowerCase());
+        var constructURIForBookCover = Globals.BOOK_COVER_URI_TEMPLATE_PNG.replace('NAME', bookTitle.toLowerCase());
         constructURIForBookCover = constructURIForBookCover.replace('AUTHOR', bookAuthor.toLowerCase());
         bookCover = constructURIForBookCover;
     }
@@ -77,8 +77,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         position: 'absolute',
-        top: -5, // Adjust as needed
-        right: -9, // Adjust as needed
+        top: -5, 
+        right: -9, 
         borderWidth: 2,
         borderColor: Globals.COLORS.PURPLE
     },

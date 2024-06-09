@@ -1,8 +1,10 @@
 package booksapp.root.services;
 
 import booksapp.root.database.FirebaseInitializer;
-import booksapp.root.models.GlobalConstants;
 import booksapp.root.models.User;
+import booksapp.root.models.GlobalConstants.GlobalConstants;
+import booksapp.root.models.GlobalConstants.UserCollectionFields;
+
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.firebase.auth.FirebaseAuthException;
@@ -74,7 +76,7 @@ public class userRegisterService {
         else {
             user.setPassword(BCrypt.hashpw(user.getPassword(), salt));
 
-            userMap.put(GlobalConstants.USERS_COLLECTION_FIELDS[1], user.getPassword());
+            userMap.put(UserCollectionFields.PASSWORD.getFieldName(), user.getPassword());
 
             ApiFuture<DocumentReference> addedDocRef = userCollectionDB.add(userMap);
             
@@ -83,13 +85,9 @@ public class userRegisterService {
             //save user ID
             try {
                 UID = addedDocRef.get().get().get().getId();
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
+            } catch (Exception e) {
                 e.printStackTrace();
-            } catch (ExecutionException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            } 
         }
 
         returnList.add(errorCode);
@@ -134,7 +132,7 @@ public class userRegisterService {
     public boolean emailAlreadyExistsInDB(String userEmail) {
         // asynchronously retrieve multiple documents
         ApiFuture<QuerySnapshot> usersWithSameEmailQuery = userCollectionDB
-                .whereEqualTo(GlobalConstants.USERS_COLLECTION_FIELDS[3], userEmail).get();
+                .whereEqualTo(UserCollectionFields.EMAIL.getFieldName(), userEmail).get();
 
         try {
             List<QueryDocumentSnapshot> usersWithSameEmailQueryResult = usersWithSameEmailQuery.get().getDocuments();
@@ -150,7 +148,7 @@ public class userRegisterService {
     private boolean userNameAlreadyExistsInDB(String userName) {
         // asynchronously retrieve multiple documents
         ApiFuture<QuerySnapshot> usersWithSameUsernameQuery = userCollectionDB
-                .whereEqualTo(GlobalConstants.USERS_COLLECTION_FIELDS[0], userName).get();
+                .whereEqualTo(UserCollectionFields.USERNAME.getFieldName(), userName).get();
 
         try {
             List<QueryDocumentSnapshot> usersWithSameUsernameQueryResult = usersWithSameUsernameQuery.get()
