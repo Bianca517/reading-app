@@ -4,10 +4,12 @@ import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { get_all_chapters_from_book } from '../../../services/write-book-service';
 import { NavigationParameters, ResponseType } from '../../../types';
 import Globals from '../../_globals/Globals';
+import { useIsFocused } from "@react-navigation/native";
 
 const windowWidth = Dimensions.get('window').width;
 
 export default function ContinueWritingBookUI( {route} ) {
+    const isFocused = useIsFocused();
     const bookID: string = route.params.bookID;
     const [bookChapters, setBookChapters] = useState([]);
     const [bookHasChapters, setBookHasChapters] = useState(true);
@@ -16,10 +18,14 @@ export default function ContinueWritingBookUI( {route} ) {
 
     const [numberOfChapters, setNumberOfChapters] = useState(0); //used only for passing to writing screen
 
+    //so when user clicks 'back' from writing screen, if he added a new chapter, it will be added here to the list
     useEffect(() => {
-        console.log(bookID);
-        loadAllBookChapters();
-    }, []);
+        if (isFocused) {
+            console.log(bookID);
+            loadAllBookChapters();
+        }
+      }, [isFocused]);
+
 
     async function loadAllBookChapters() {
         let fetchedResponse: ResponseType = await get_all_chapters_from_book(bookID).then();
@@ -165,6 +171,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         opacity: 1,
         marginTop: 30,
+        marginBottom: 20,
     },
     write_new_chapter_text: {
         marginTop: 3,

@@ -6,6 +6,7 @@ import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { ResponseType, NavigationParameters, ResponseTypePOST } from '../../../types';
 import { add_new_chapter_to_book, add_new_paragraphs_list_to_chapter } from '../../../services/write-book-service';
 import { get_number_of_chapters_of_book } from '../../../services/book-reading-service';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -20,15 +21,70 @@ export default function WritingScreenUI( {route} ) {
     const [chapterContent, setChapterContent] = useState<string>("");
     const [numberOfChapters, setNumberOfChapters] = useState<number>(-1);
 
+    //try to see if there is anything saved in async storage that user started to write
+    useEffect(() => {
+        loadDataFromStorage();
+    }, []);
+
+
     useEffect(() => {
         console.log("chapter title changed");
         console.log(chapterTitle);
     }, [chapterTitle]);
 
+
     useEffect(() => {
         console.log("chapter content changed");
         console.log(chapterContent);
     }, [chapterContent]);
+
+    
+    async function loadDataFromStorage() {
+        const storedChapterTitle = await AsyncStorage.getItem('storedChapterTitle');
+        if(storedChapterTitle !== null) {
+            setChapterTitle(storedChapterTitle);
+        }
+
+        const storedChapterContent = await AsyncStorage.getItem('storedChapterContent');
+        if(storedChapterContent !== null) {
+            setChapterContent(storedChapterContent);
+        }
+    }
+
+
+    async function saveTitleDataToStorage() {
+        try {
+            await AsyncStorage.setItem(
+              'storedChapterTitle',
+              chapterTitle,
+            );
+          } catch (error) {
+            console.log("could not save in work chapter data persistently")
+          }
+    }
+
+
+    async function saveContentDataToStorage() {
+        try {
+            await AsyncStorage.setItem(
+                'storedChapterContent',
+                chapterContent,
+            );
+          } catch (error) {
+            console.log("could not save in work chapter data persistently")
+          }
+    }
+
+
+    function clearDataFromStorage() {
+        try {
+            AsyncStorage.removeItem('storedChapterTitle');
+            AsyncStorage.removeItem('storedChapterContent');
+          } catch (error) {
+            console.log("could not clear in work chapter data")
+          }
+    }
+
 
     async function getNumberOfChaptersOfBook(): Promise<number> {
         let fetchResponseChapters: ResponseType = await get_number_of_chapters_of_book(bookID);
@@ -42,18 +98,6 @@ export default function WritingScreenUI( {route} ) {
         return receivedNumberOfChapters;  
     }
 
-    function toJSON(paragraphs: string[]): string {
-        const jsonObject: { [key: string]: string } = {};
-    
-        paragraphs.forEach((paragraph, index) => {
-            jsonObject[index.toString()] = paragraph;
-        });
-    
-        const jsonString = JSON.stringify(jsonObject, null, 2);
-        console.log(jsonString);
-    
-        return jsonString;
-    }
 
     async function handleSavingChapter() {
         const currentNumberOfChapters = await getNumberOfChaptersOfBook();
@@ -77,6 +121,7 @@ export default function WritingScreenUI( {route} ) {
                 if(fetchResponseParagraph.status == 0) {
                     Alert.alert("Successfully added a new chapter to your book!");
                     navigation.navigate("Continue Writing", { bookID: bookID });
+                    clearDataFromStorage();
                 }
                 else {
                     Alert.alert("Some paragraphs could not be added.");
@@ -87,6 +132,7 @@ export default function WritingScreenUI( {route} ) {
             Alert.alert("New chapter could not be added." + chapterNumberFromRoute + " " + numberOfChapters);
         }
     }
+
 
     return(
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -108,9 +154,13 @@ export default function WritingScreenUI( {route} ) {
                     <TextInput 
                         style={[styles.text_inputs_style, {height: 45}]}
                         onChangeText={text => setChapterTitle(text)}
+                        value={chapterTitle}
                         placeholder='Chapter title'
                         placeholderTextColor={Globals.COLORS.PLACEHOLDER_TEXT_COLOR}
-                        onEndEditing={ () => Keyboard.dismiss()}
+                        onEndEditing={ () => {
+                            Keyboard.dismiss();
+                            saveTitleDataToStorage();
+                        }}
                     >
 
                     </TextInput>
@@ -123,11 +173,15 @@ export default function WritingScreenUI( {route} ) {
                             <TextInput
                                 style={[styles.text_inputs_style, { height: 600, width: '100%' }]}
                                 onChangeText={(text) => setChapterContent(text)}
+                                value={chapterContent}
                                 textAlignVertical='top'
                                 textAlign='center'
                                 placeholder='Write the story here...'
                                 placeholderTextColor={Globals.COLORS.PLACEHOLDER_TEXT_COLOR}
-                                onEndEditing={() => Keyboard.dismiss()}
+                                onEndEditing={() => {
+                                    Keyboard.dismiss();
+                                    saveContentDataToStorage();
+                                }}
                                 multiline
                             />
 
