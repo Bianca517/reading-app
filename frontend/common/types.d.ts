@@ -47,5 +47,9 @@ export type NavigationParameters = {
     "Write New Chapter": {
         "bookID": string,
         "numberOfChapters": number
+    };
+
+    "Home": {
+        
     }
 }

@@ -1,13 +1,15 @@
 import React, { useState, useEffect, ReactNode } from 'react';
 import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, SafeAreaView, TextInput , ScrollView, Alert} from 'react-native';
 import Globals from '../../_globals/Globals';
-import { useNavigation } from '@react-navigation/native';
-import { ResponseType } from '../../../types';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { NavigationParameters, ResponseType } from '../../../types';
 import { SelectList } from 'react-native-dropdown-select-list';
 import * as ImagePicker from 'expo-image-picker';
 import { AntDesign } from '@expo/vector-icons';
 import {Keyboard} from 'react-native';
 import { add_new_book } from '../../../services/write-book-service';
+import GlobalUserData from '../../_globals/GlobalUserData';
+import { upload_book_cover } from '../../../services/upload-media-services';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -18,7 +20,7 @@ type dataInterest = {
 
 export default function WriteNewBookUI() {
     const [genresList, setGenresList] = useState<dataInterest[]>([]);
-    const navigation = useNavigation();
+    const navigation = useNavigation<NavigationProp<NavigationParameters>>();
 
     const [bookTitle, setBookTitle] = useState<string>("");
     const [bookDescrption, setBookDescrption] = useState<string>("");
@@ -49,18 +51,40 @@ export default function WriteNewBookUI() {
         console.log(bookTitle);
     },[bookTitle]);
 
+
+    async function createFormDataForUploading(coverImage: string) {
+        const formData = new FormData();
+
+        const response = await fetch(coverImage);
+        const blob = await response.blob();
+
+        //cover images are stored in firebase storage with this format : {booktitle}_{authorusername}
+        const bookCoverName = bookTitle + '_' + GlobalUserData.LOGGED_IN_USER_DATA.username;
+        formData.append('bookCover', blob, bookCoverName);
+        upload_book_cover(formData);
+    }
+
     async function pickImage() {
-        // No permissions request is necessary for launching the image library
-        let result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.All,
-          quality: 1,
-        });
-    
-        console.log(result);
-    
-        if (!result.canceled) {
-          setBookCoverImage(result.assets[0].uri);
+        //ask for permission to access library image
+
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+        if(status === 'granted') {
+            let result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.All,
+                quality: 1,
+            });
+        
+            console.log(result);
+        
+            if (!result.canceled) {
+                setBookCoverImage(result.assets[0].uri);
+            }
         }
+        else {
+            Alert.alert("Sorry, we need camera roll permissions to make this work!");
+        }
+        
     };
 
     function handlePostChapter() {
@@ -227,5 +251,8 @@ const styles = StyleSheet.create({
         fontWeight: '200',
         textAlign: 'center',
         opacity: 0.5,
+    },
+    book_title_section: {
+        //backgroundColor: 'red',
     }
 })
