@@ -94,7 +94,7 @@ export default function HomePageUI() {
                         <View style={[styles.books_container, { backgroundColor: '#81179b' }]}>
                         <ScrollView horizontal={true}>
                                 {
-                                    currentReadingBooks &&
+                                    currentReadingBooks && (currentReadingBooks.length > 0) &&
                                     /*Warning: Each child in a list should have a unique "key" prop.*/
                                     currentReadingBooks.map((book, index) => (
                                         <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={175} bookWithDetails={false} bookNavigationOptions={Globals.BOOK_NAVIGATION_OPTIONS.TO_READING_SCREEN}/>
