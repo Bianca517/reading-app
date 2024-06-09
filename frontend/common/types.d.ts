@@ -4,6 +4,9 @@ export type ResponseType = {
         message: string;
     }
 
+export type ResponseTypePOST = {
+        status: number;
+    }
 
 export type UserAuthenticationResponseType = {
     HttpStatus: number;
@@ -39,5 +42,10 @@ export type NavigationParameters = {
 
     "Continue Writing": {
         "bookID": string
+    };
+
+    "Write New Chapter": {
+        "bookID": string,
+        "numberOfChapters": number
     }
 }

@@ -1,11 +1,15 @@
 package booksapp.root.services;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.springframework.stereotype.Service;
 
 import com.google.cloud.firestore.CollectionReference;
+import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import booksapp.root.models.Book;
 import booksapp.root.models.GlobalConstants.GlobalConstants;
@@ -186,5 +190,26 @@ public class debugService {
         booksCollectionDB.add(book);
     }
     
-    
+    public void deleteDebugStuffFromDB() {
+        DocumentReference book = booksCollectionDB.document("w0sxgxf3CXm4lsOl7bVb");
+        try {
+            Book foundBook = book.get().get().toObject(Book.class);
+            foundBook.setChaptersTitles(foundBook.getChaptersTitles().subList(0, 4));
+            foundBook.getBookContent().getChapters().
+            book.set(foundBook);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getdocasjson() {
+        DocumentReference book = booksCollectionDB.document("w0sxgxf3CXm4lsOl7bVb");
+        Gson b = new Gson();
+        try {
+            return b.toJson(book.get().get().getData());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } 
+        return "";
+    }
 }

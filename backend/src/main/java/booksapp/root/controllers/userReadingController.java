@@ -2,9 +2,12 @@ package booksapp.root.controllers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +30,7 @@ public class userReadingController {
     private final userReadingService userReadingService;
     private final userDataService userDataService;
     private final booksCommentsService bookCommentsService;
+    private final List<String> monthsInYear = List.of("january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december");
 
     @Autowired // Inject the service dependency
     public userReadingController(userReadingService userReadingService, userDataService userDataService, booksCommentsService booksCommentsService) {
@@ -69,13 +73,18 @@ public class userReadingController {
     }
 
     @PostMapping(value = "/planbookformonth")
-    public String planBookForMonth(@RequestParam String UID, String monthName, String bookID) throws ExecutionException, InterruptedException {
-        int returnedStatus = this.userReadingService.addBookAsPlannedForMonth(UID, monthName, bookID);
+    public ResponseEntity<String> planBookForMonth(@RequestParam String UID, String monthName, String bookID)                                       throws ExecutionException, InterruptedException {
+        int returnedStatus = -1;
+        
+        if((null != UID) && (null != monthName) && (monthsInYear.contains(monthName.toLowerCase())) && (null != bookID)) {
+            returnedStatus = this.userReadingService.addBookAsPlannedForMonth(UID, monthName, bookID); 
+        }
+        
         if(returnedStatus == 0) {
-            return "Successfully planned book with ID " + bookID + " for month " + monthName;
+            return new ResponseEntity<String>("Successfully planned book with ID " + bookID + " for month " + monthName, HttpStatus.OK);
         }
         else {
-            return "Could not plan book for month " + monthName;
+            return new ResponseEntity<String>("Could not plan book for month " + monthName, HttpStatus.BAD_REQUEST);
         }
     }
 

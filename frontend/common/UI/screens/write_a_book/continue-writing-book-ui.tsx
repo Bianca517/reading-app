@@ -11,7 +11,10 @@ export default function ContinueWritingBookUI( {route} ) {
     const bookID: string = route.params.bookID;
     const [bookChapters, setBookChapters] = useState([]);
     const [bookHasChapters, setBookHasChapters] = useState(true);
+
     const navigation = useNavigation<NavigationProp<NavigationParameters>>();
+
+    const [numberOfChapters, setNumberOfChapters] = useState(0); //used only for passing to writing screen
 
     useEffect(() => {
         console.log(bookID);
@@ -20,10 +23,12 @@ export default function ContinueWritingBookUI( {route} ) {
 
     async function loadAllBookChapters() {
         let fetchedResponse: ResponseType = await get_all_chapters_from_book(bookID).then();
+
         if(fetchedResponse.success) {
             const responseData: string[] = JSON.parse(fetchedResponse.message);
             setBookChapters(JSON.parse(fetchedResponse.message));
-            console.log(responseData);
+
+            setNumberOfChapters(responseData.length);
 
             if(responseData.length > 0) {
                 setBookHasChapters(true);
@@ -38,8 +43,11 @@ export default function ContinueWritingBookUI( {route} ) {
     function renderChapters() {
         const chapterViews = [];
 
-        for(var i = 0; i < bookChapters.length; i++) {
-            const chapterView = (
+        // nice bug found
+        // When you use var, the variable i is function-scoped and not block-scoped => by the time the onPress function is called, the loop has already completed, and i holds its final value.
+        // let is block-scoped, meaning each iteration of the loop will have its own instance of i.
+        for(let i = 0; i < bookChapters.length; i++) {
+            let chapterView = (
                 <TouchableOpacity style={styles.chapter_container} 
                     onPress={() => navigation.navigate("Reading Screen", 
                         { 
@@ -49,7 +57,7 @@ export default function ContinueWritingBookUI( {route} ) {
                             "name": "", 
                             "authorUsername": ""
                         })}>
-                    <Text style={[styles.chapter_number]}> Chapter {i} - </Text>
+                    <Text style={[styles.chapter_number]}> Chapter {i + 1} - </Text>
                     <Text style={styles.chapter_titles}>{bookChapters[i]}</Text>
                 </TouchableOpacity>
             )
@@ -79,7 +87,11 @@ export default function ContinueWritingBookUI( {route} ) {
                     )
                 }
            
-            <TouchableOpacity activeOpacity={0.7} style={styles.write_new_chapter_button}>
+            <TouchableOpacity 
+                activeOpacity={0.7} 
+                style={styles.write_new_chapter_button}
+                onPress={() => navigation.navigate("Write New Chapter", {bookID: bookID, numberOfChapters: numberOfChapters})}
+            >
                     <Text style = {styles.write_new_chapter_text}>
                         + Add New Chapter
                     </Text>

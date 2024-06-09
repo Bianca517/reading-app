@@ -8,6 +8,7 @@ import booksapp.root.models.bookcomponents.BookContent;
 import booksapp.root.models.bookcomponents.BookParagraph;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
+import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.Query;
@@ -40,9 +41,13 @@ public class writingBookService {
     
         try {
             book = booksCollectionDB.document(bookID);
-            Book foundBook = book.get().get().toObject(Book.class);
 
-            if(book != null) {
+            Book foundBook = book.get().get().toObject(Book.class);
+            
+            System.out.println("fdlkk");
+            System.out.println(foundBook);
+
+            if(foundBook != null) {
                 //add the new title
                 foundBook.addChapterTitle(chapterTitle);
       
@@ -103,12 +108,13 @@ public class writingBookService {
 
         try {
             bookDoc = booksCollectionDB.document(bookID);
+            
             Book foundBook = bookDoc.get().get().toObject(Book.class);
             
             BookParagraph newParagraph = new BookParagraph();
             newParagraph.setContent(paragraphContent);
             foundBook.getBookContent().getChapters().get(chapterNumber.toString()).addParagraph(newParagraph);
-           
+            
             bookDoc.set(foundBook);
 
             returnedStatus = GlobalConstants.STATUS_SUCCESSFUL;
@@ -120,6 +126,46 @@ public class writingBookService {
         return returnedStatus;
     }
 
+    private ArrayList<String> parseChapterContent(String chapterContent) {
+        String[] chapterContentSplit;
+        chapterContentSplit = chapterContent.split("\n");
+
+        ArrayList<String> paragraphs = new ArrayList<String>();
+        for(int i = 0; i < chapterContentSplit.length; i++) {
+            if(chapterContentSplit[i].length() > 0) {
+                paragraphs.add(chapterContentSplit[i]);
+            }
+        }
+        return paragraphs;
+    }
+
+    public int addListOfParagraphsToBook(Integer chapterNumber, String bookID, String chapterContent) {
+        int returnedStatus = GlobalConstants.STATUS_FAILED;
+
+        // get the document refference from book with book ID
+        DocumentReference bookDoc = null;
+
+        try {
+            bookDoc = booksCollectionDB.document(bookID);
+            
+            Book foundBook = bookDoc.get().get().toObject(Book.class);
+            
+            ArrayList<String> paragraphs = parseChapterContent(chapterContent);
+            for (String paragraph : paragraphs) {
+                BookParagraph newParagraph = new BookParagraph();
+                newParagraph.setContent(paragraph);
+                foundBook.getBookContent().getChapters().get(chapterNumber.toString()).addParagraph(newParagraph);
+            }
+            bookDoc.set(foundBook);
+
+            returnedStatus = GlobalConstants.STATUS_SUCCESSFUL;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            returnedStatus = GlobalConstants.STATUS_FAILED;
+        }
+        return returnedStatus;
+    }
 
     public ArrayList<HashMap<String, String>> getAllBooksWrittenByUser(String UID) {
         //filter all books to have book author username == UID

@@ -26,6 +26,7 @@ import booksapp.root.models.GlobalConstants.BookCollectionFields;
 import booksapp.root.models.GlobalConstants.GlobalConstants;
 import booksapp.root.models.GlobalConstants.UserCollectionFields;
 
+
 @Service
 public class userReadingService {
     private Firestore DB;
@@ -171,12 +172,18 @@ public class userReadingService {
         return book;
     }
 
-    public int addBookAsPlannedForMonth(String userID, String monthName, String bookID) throws InterruptedException, ExecutionException {
+    public int addBookAsPlannedForMonth(String userID, String monthName, String bookID)                 throws InterruptedException, ExecutionException {
+        DocumentReference userDocument = userCollectionDB.document(userID);
+        User user = userDocument.get().get().toObject(User.class);
+        user.addBookAsPlannedForMonth(bookID, monthName);
+        userDocument.set(user);
+        
+        /* 
         DocumentReference userDocument = userCollectionDB.document(userID);
         String planningFieldName = UserCollectionFields.PLANNED_BOOKS.getFieldName(); 
         String formattedUpdateString = "" + planningFieldName + "." + monthName + "";
         ApiFuture<WriteResult> updateResult = userDocument.update(formattedUpdateString, FieldValue.arrayUnion(bookID));
-
+        */
         //System.out.println(updateResult.toString());
         //i wanted to test the value of updateResult but it does not containt the update status as expected
         return 0;

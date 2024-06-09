@@ -1,17 +1,92 @@
 import React, { useState, useEffect, ReactNode } from 'react';
-import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, SafeAreaView, TextInput , ScrollView} from 'react-native';
+import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, SafeAreaView, TextInput , ScrollView, Alert} from 'react-native';
 import { TouchableWithoutFeedback, Keyboard } from 'react-native';
 import Globals from '../../_globals/Globals';
-import { useNavigation } from '@react-navigation/native';
-import { ResponseType } from '../../../types';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { ResponseType, NavigationParameters, ResponseTypePOST } from '../../../types';
+import { add_new_chapter_to_book, add_new_paragraphs_list_to_chapter } from '../../../services/write-book-service';
+import { get_number_of_chapters_of_book } from '../../../services/book-reading-service';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
-export default function WritingScreenUI() {
-    const navigation = useNavigation();
+export default function WritingScreenUI( {route} ) {
+    const navigation = useNavigation<NavigationProp<NavigationParameters>>();
+
+    const bookID: string = route.params.bookID;
+    const chapterNumberFromRoute: number = route.params.numberOfChapters;
+  
     const [chapterTitle, setChapterTitle] = useState<string>("");
     const [chapterContent, setChapterContent] = useState<string>("");
+    const [numberOfChapters, setNumberOfChapters] = useState<number>(-1);
+
+    useEffect(() => {
+        console.log("chapter title changed");
+        console.log(chapterTitle);
+    }, [chapterTitle]);
+
+    useEffect(() => {
+        console.log("chapter content changed");
+        console.log(chapterContent);
+    }, [chapterContent]);
+
+    async function getNumberOfChaptersOfBook(): Promise<number> {
+        let fetchResponseChapters: ResponseType = await get_number_of_chapters_of_book(bookID);
+
+        let receivedNumberOfChapters: number = 0;
+        if (fetchResponseChapters.success) {
+            receivedNumberOfChapters = parseInt(fetchResponseChapters.message);
+            console.log("aici coi "+ fetchResponseChapters.message);
+            setNumberOfChapters(receivedNumberOfChapters);
+        }
+        return receivedNumberOfChapters;  
+    }
+
+    function toJSON(paragraphs: string[]): string {
+        const jsonObject: { [key: string]: string } = {};
+    
+        paragraphs.forEach((paragraph, index) => {
+            jsonObject[index.toString()] = paragraph;
+        });
+    
+        const jsonString = JSON.stringify(jsonObject, null, 2);
+        console.log(jsonString);
+    
+        return jsonString;
+    }
+
+    async function handleSavingChapter() {
+        const currentNumberOfChapters = await getNumberOfChaptersOfBook();
+        console.log("am iesit din fucking functie");
+        //first, send request to add new chapter to book
+        //but make sure that the new added chapter is last one
+        //this prevent adding chapter twice if button is pressed twice
+        let fetchResponseChapter: ResponseTypePOST = {status: -1};
+
+        if(chapterNumberFromRoute == currentNumberOfChapters) {
+            fetchResponseChapter = await add_new_chapter_to_book(bookID, chapterTitle);
+            console.log("added chap");
+            console.log("dupa if");
+
+            if(fetchResponseChapter.status == 0) {
+                console.log("AICI MA " + chapterContent);
+
+                //encode uri needed to preserve endlines
+                let fetchResponseParagraph = await add_new_paragraphs_list_to_chapter(bookID, chapterNumberFromRoute, encodeURIComponent(chapterContent));
+
+                if(fetchResponseParagraph.status == 0) {
+                    Alert.alert("Successfully added a new chapter to your book!");
+                    navigation.navigate("Continue Writing", { bookID: bookID });
+                }
+                else {
+                    Alert.alert("Some paragraphs could not be added.");
+                }
+            }
+        }
+        else {
+            Alert.alert("New chapter could not be added." + chapterNumberFromRoute + " " + numberOfChapters);
+        }
+    }
 
     return(
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -59,6 +134,7 @@ export default function WritingScreenUI() {
                             <TouchableOpacity
                                 activeOpacity={0.8}
                                 style={styles.post_chapter_button}
+                                onPress={() => handleSavingChapter()}
                             >
                                 <Text style={styles.post_chapter_text}>
                                     + Post the First Chapter

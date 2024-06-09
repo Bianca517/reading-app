@@ -149,4 +149,8 @@ public class Book {
         
         return bookFields;
     }
+
+    public String toString() {
+        return "this book is: " + this.name + " by " + this.authorUsername;
+    }
 }

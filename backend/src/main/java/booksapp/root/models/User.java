@@ -143,4 +143,10 @@ public class User {
     public void setPlannedBooks(HashMap<String, ArrayList<String>> plannedBooks) {
         this.plannedBooks = plannedBooks;
     }
+
+    public void addBookAsPlannedForMonth(String bookID, String monthName) {
+        ArrayList<String> alreadyPlannedBooks = plannedBooks.get(monthName);
+        alreadyPlannedBooks.add(bookID);
+        plannedBooks.put(monthName, alreadyPlannedBooks);
+    }
 }

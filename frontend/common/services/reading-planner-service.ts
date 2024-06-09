@@ -34,7 +34,6 @@ export async function plan_book_for_month(monthName: string, bookID: string) {
     let HTTPS_REQUEST = Globals.BACKEND_HTTP + PLAN_NEW_BOOK_FOR_MONTH_ENDPOINT
     HTTPS_REQUEST = HTTPS_REQUEST.replace("MONTH_NAME", monthName);
     HTTPS_REQUEST = HTTPS_REQUEST.replace("BOOK_ID", bookID);
-    console.log("in get plan book " + HTTPS_REQUEST + "\n");
 
     fetch(HTTPS_REQUEST, {
         method: 'POST',

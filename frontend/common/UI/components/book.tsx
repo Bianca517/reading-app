@@ -40,6 +40,14 @@ export default function Book(props: BookProps) {
                 setIsBookInLibrary(true);
             }
         });
+
+        if(!isBookInLibrary) {
+            GlobalBookData.FINALIZED_READINGS.forEach(book => {
+                if(bookID == book.id) {
+                    setIsBookInLibrary(true);
+                }
+            });
+        }
     }
 
     function handleNavigation() {

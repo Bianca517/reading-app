@@ -77,8 +77,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         position: 'absolute',
-        top: -5, // Adjust as needed
-        right: -9, // Adjust as needed
+        top: -5, 
+        right: -9, 
         borderWidth: 2,
         borderColor: Globals.COLORS.PURPLE
     },

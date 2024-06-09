@@ -49,7 +49,7 @@ export default function LibraryPageCurrentReadingsUI() {
                         ))
                     }
                     </ScrollView>
-                </View>
+                </View> 
             </View>
 
             <Footer />

@@ -31,16 +31,24 @@ public class userWritingBookController {
     //add new chapter to book with BookID
     @PostMapping(value = "/addnewchapter")
     public ResponseEntity<String> addNewChapterToBook(String chapterTitle, String bookID) {
-        final int responseStatus = this.writingBookService.addNewChapterToBook(chapterTitle, bookID);
+        int responseStatus;
 
+        if(chapterTitle != null && chapterTitle != "undefined" && bookID != null && bookID != "undefined") {
+            responseStatus = this.writingBookService.addNewChapterToBook(chapterTitle, bookID);
+        }
+        else {
+            responseStatus = GlobalConstants.STATUS_FAILED;
+        }
+
+        System.out.println("in controller, resp status e: "+ responseStatus);
         JsonObject response = new JsonObject();
 
         switch(responseStatus) {
             case GlobalConstants.STATUS_SUCCESSFUL:
-                response.addProperty("success_code", Integer.toString(responseStatus));
+                response.addProperty("status", Integer.toString(responseStatus));
                 return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
             default:
-                response.addProperty("success_code", Integer.toString(responseStatus));
+                response.addProperty("status", Integer.toString(responseStatus));
                 return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
         }
     }
@@ -50,14 +58,17 @@ public class userWritingBookController {
     public ResponseEntity<String> addNewParagraphToBookChapter(Integer chapterNumber, String bookID, String paragraphContent) {
         final int responseStatus = this.writingBookService.addNewParagraphToBook(chapterNumber, bookID, paragraphContent);
 
+        System.out.println("am ajuns in conroller cu: " + paragraphContent);
+        System.out.println("serviciul zice: " + responseStatus);
+
         JsonObject response = new JsonObject();
 
         switch(responseStatus) {
             case GlobalConstants.STATUS_SUCCESSFUL:
-                response.addProperty("success_code", Integer.toString(responseStatus));
+                response.addProperty("status", Integer.toString(responseStatus));
                 return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
             default:
-                response.addProperty("success_code", Integer.toString(responseStatus));
+                response.addProperty("status", Integer.toString(responseStatus));
                 return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
         }
     }
@@ -105,4 +116,27 @@ public class userWritingBookController {
             return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
         }
     }
+
+     //add new list of paragraphs to chapter with number from book with ID
+     @PostMapping(value = "/addnewchaptercontent")
+     public ResponseEntity<String> addNewListOfParagraphsToBookChapter(Integer chapterNumber, String bookID, String chapterContent) {
+         int responseStatus = -1;
+
+         System.out.println("in fucking controller\n");
+         System.out.println(chapterContent);
+         
+         if(chapterNumber != null && bookID != null && bookID != "undefined" && chapterContent != null && chapterContent != "undefined") {
+            responseStatus = this.writingBookService.addListOfParagraphsToBook(chapterNumber, bookID, chapterContent);
+         }
+         JsonObject response = new JsonObject();
+ 
+         switch(responseStatus) {
+             case GlobalConstants.STATUS_SUCCESSFUL:
+                 response.addProperty("status", Integer.toString(responseStatus));
+                 return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+             default:
+                 response.addProperty("status", Integer.toString(responseStatus));
+                 return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
+         }
+     }
 }
