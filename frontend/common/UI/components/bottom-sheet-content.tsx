@@ -40,6 +40,8 @@ export default function BottomSheetContent( {bookId, chapterNumber, updateFontFa
     const [isFontPickerVisible, setIsFontPickerVisible] = useState(false);
     
     const [sound, setSound] = useState(null);
+    const [isPlaying, setIsPlaying] = useState<boolean>(false);
+    const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
     const status = {
         shouldPlay: false,
@@ -78,66 +80,29 @@ export default function BottomSheetContent( {bookId, chapterNumber, updateFontFa
 
     async function loadSound() {
         console.log('Loading Sound');
-        const { sound } = await Audio.Sound.createAsync(
-            { uri: createUriForSong() }
-         );
-         setSound(sound);
-         sound.setOnPlaybackStatusUpdate(renderMusicPlayerButtons);
+        try {
+            const { sound } = await Audio.Sound.createAsync( { uri: createUriForSong() });
+            setSound(sound);
+            setIsLoaded(true);
+        }
+        catch {
+            setIsLoaded(false);
+        }
     } 
 
     async function playSound() {
         console.log('Playing Sound');
         if(sound) {
-            if(sound) {
-                await sound.playAsync();
-            }
+            setIsPlaying(true);
+            await sound.playAsync();
         }
     }
 
     async function stopSound() {
         console.log("Pausing Sound");
-        await sound.stopAsync();
         if(sound) {
+            setIsPlaying(false);
             await sound.pauseAsync();
-            if(sound) {
-                await sound.pauseAsync();
-            }
-        }
-    }
-
-    async function renderMusicPlayerButtons(playbackStatus: AVPlaybackStatus) {
-        if(!playbackStatus.isLoaded) {
-            return (
-                <View style={styles.music_player_controllers}>
-                    
-                </View>
-            )
-        }
-        else {
-            if(playbackStatus.isPlaying) {
-                // Update your UI for the playing state
-                <View style={styles.music_player_controllers}>
-                    <TouchableOpacity onPress={() => playSound()}>
-                        <FontAwesome6 name="play-circle" size={24} color="gray" />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={() => stopSound()}>
-                        <Ionicons name="pause-circle" size={29} color={Globals.COLORS.PURPLE} />
-                    </TouchableOpacity>
-                </View>
-            }
-            else {
-                // Update your UI for the paused state
-                <View style={styles.music_player_controllers}>
-                    <TouchableOpacity onPress={() => playSound()}>
-                        <FontAwesome6 name="play-circle" size={24} color={Globals.COLORS.PURPLE} />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={() => stopSound()}>
-                        <Ionicons name="pause-circle" size={29} color="gray" />
-                    </TouchableOpacity>
-                </View>
-            }
         }
     }
     
@@ -156,21 +121,23 @@ export default function BottomSheetContent( {bookId, chapterNumber, updateFontFa
                 </View>)
             }
 
-            <View style={styles.music_player_container}>
-                <Text style={styles.text_styles}>
-                    Control Music Player
-                </Text>
-                <View style={styles.music_player_controllers}>
-                    <TouchableOpacity onPress={() => playSound()}>
-                        <FontAwesome6 name="play-circle" size={24} color={Globals.COLORS.PURPLE} />
-                    </TouchableOpacity>
+            { isLoaded && (
+                <View style={styles.music_player_container}>
+                    <Text style={styles.text_styles}>
+                        Control Music Player
+                    </Text>
+                    <View style={styles.music_player_controllers}>
+                        <TouchableOpacity onPress={() => playSound()}>
+                            <FontAwesome6 name="play-circle" size={24} color={isPlaying ? 'gray' : Globals.COLORS.PURPLE} />
+                        </TouchableOpacity>
 
-                    <TouchableOpacity onPress={() => stopSound()}>
-                        <Ionicons name="pause-circle" size={29} color="gray" />
-                    </TouchableOpacity>
+                        <TouchableOpacity onPress={() => stopSound()}>
+                            <Ionicons name="pause-circle" size={29} color={isPlaying ? Globals.COLORS.PURPLE: 'gray'} />
+                        </TouchableOpacity>
+                    </View>
                 </View>
-            </View>
-
+                )
+            }
             <View style={styles.background_color_container}>
                 <Text style={styles.text_styles}> Background Color </Text>
                 
