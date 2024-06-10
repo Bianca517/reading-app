@@ -7,7 +7,7 @@ export async function login_user_with_google_service(userEmail: string, userName
     const HTTPS_REQUEST = Globals.BACKEND_HTTP + GOOGLE_AUTH_ENDPOINT
     //console.log("google auth " + userEmail + " " + userName + " " + HTTPS_REQUEST)
     
-    var returnValue: UserAuthenticationResponseType = { HttpStatus: -1,  Data: {success_code: -1, user_id: ""}};
+    var returnValue: UserAuthenticationResponseType = { HttpStatus: -1,  Data: {success_code: -1, user_id: "", username: ""}};
 
     await fetch(HTTPS_REQUEST, {
         method: "POST",

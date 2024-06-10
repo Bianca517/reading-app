@@ -7,7 +7,7 @@ export async function register_user_service(userEmail: string, userPassword: str
     const HTTPS_REQUEST = Globals.BACKEND_HTTP + REGISTER_ENDPOINT;
     //console.log("aici " + userEmail + " " + userPassword + " " + HTTPS_REQUEST)
     
-    var returnValue: UserAuthenticationResponseType = { HttpStatus: -1,  Data: {success_code: -1, user_id: ""}};
+    var returnValue: UserAuthenticationResponseType = { HttpStatus: -1,  Data: {success_code: -1, user_id: "", username: ""}};
     
     await fetch(HTTPS_REQUEST, {
         method: "POST",

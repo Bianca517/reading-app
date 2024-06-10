@@ -37,6 +37,7 @@ public class userLoginController {
         ArrayList<String> loginStatus = this.userLoginService.loginUserWithEmail(emailAddress, password);
         int loginStatusCode = Integer.valueOf(loginStatus.get(0));
         String UID = loginStatus.get(1);
+        String username = loginStatus.get(2);
 
         System.out.println("aici");
         System.out.println(emailAddress + " " + password);
@@ -46,16 +47,19 @@ public class userLoginController {
             case GlobalConstants.EMAIL_DOES_NOT_EXIST:
                 response.addProperty("success_code", GlobalConstants.EMAIL_DOES_NOT_EXIST);
                 response.addProperty("user_id", "");
+                response.addProperty("username", "");
                 //System.out.println("raspuns " + response);
                 return new ResponseEntity<String>(response.toString(), HttpStatus.NOT_FOUND);
             case GlobalConstants.PASSWORDS_DO_NOT_MATCH:
                 response.addProperty("success_code", GlobalConstants.PASSWORDS_DO_NOT_MATCH);
                 response.addProperty("user_id", "");
+                response.addProperty("username", "");
                 //System.out.println("raspuns " + response);
                 return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
             default:
                 response.addProperty("success_code", GlobalConstants.USER_LOGGED_IN);
                 response.addProperty("user_id", UID);
+                response.addProperty("username", username);
                 //System.out.println("raspuns " + response);
                 return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
         }

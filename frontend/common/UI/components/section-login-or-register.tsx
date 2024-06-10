@@ -25,6 +25,7 @@ async function handleLogin(userEmail: string, userPassword: string, navigation) 
   
     if(HttpStatus === 200) {
       GlobalUserData.LOGGED_IN_USER_DATA.uid = fetchResponse.Data.user_id;
+      GlobalUserData.LOGGED_IN_USER_DATA.username = fetchResponse.Data.username;
       const statusCode = fetchResponse.Data.success_code;
       navigation.navigate('Home' as never);
       //console.log(Globals.LOGGED_IN_USER_DATA.uid);
@@ -47,6 +48,7 @@ async function handleRegister(userEmail: string, userPassword: string, userName:
 
   if(HttpStatus === 200) {
     GlobalUserData.LOGGED_IN_USER_DATA.uid = fetchResponse.Data.user_id;
+    GlobalUserData.LOGGED_IN_USER_DATA.username = fetchResponse.Data.username;
     const statusCode = fetchResponse.Data.success_code;
    
     //console.log(Globals.LOGGED_IN_USER_DATA.uid);

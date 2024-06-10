@@ -13,12 +13,19 @@ export type UserAuthenticationResponseType = {
     Data: {
         success_code: number;
         user_id: string;
+        username: string
     }
 }
 
 export type textParagraph = {
         id: string;
         content: string;
+}
+
+export type booKDTO = {
+    name: string;
+    authorUsername: string;
+    id: string;
 }
 
 export type NavigationParameters = {
@@ -50,6 +57,10 @@ export type NavigationParameters = {
     };
 
     "Home": {
+        
+    };
+
+    "Write a Book": {
         
     }
 }

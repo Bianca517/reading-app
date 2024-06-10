@@ -57,6 +57,7 @@ public class userRegisterService {
         Map<String, Object> userMap = user.toHashMap();
 
         String UID = "";
+        String userName = "";
         String errorCode = "";
         ArrayList<String> returnList = new ArrayList<String>();
 
@@ -85,6 +86,7 @@ public class userRegisterService {
             //save user ID
             try {
                 UID = addedDocRef.get().get().get().getId();
+                userName = user.getUserName();
             } catch (Exception e) {
                 e.printStackTrace();
             } 
@@ -92,6 +94,7 @@ public class userRegisterService {
 
         returnList.add(errorCode);
         returnList.add(UID);
+        returnList.add(userName);
 
         return returnList;
     }

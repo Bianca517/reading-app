@@ -122,16 +122,4 @@ public class bookController {
         return gsonData;
     }
 
-    @PostMapping(value = "/addnewbook")
-    public String addNewBook(@RequestParam String bookTitle, String authorUsername, String description, String bookGenre) 
-        throws InterruptedException, ExecutionException {
-            System.out.println("in controller for addnewbooks");
-            
-            this.booksService.addNewBook(bookTitle, authorUsername, description, bookGenre);
-            Gson gson = new Gson();
-            String gsonData = gson.toJson("successfully added new book");
-            return gsonData;
-    }
-
-
 }

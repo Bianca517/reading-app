@@ -33,11 +33,13 @@ public class userLoginService {
         DocumentSnapshot userStoredInDB = searchForExistingUserWithEmailInDB(userEmail);
         int returnedCode;
         String UID = "";
+        String username = "";
 
         ArrayList<String> returnedList = new ArrayList<String>();
         
         if (null != userStoredInDB) {
             UID = userStoredInDB.getId();
+            username = userStoredInDB.getString(UserCollectionFields.USERNAME.getFieldName());
             String userPasswordInDB = (String) userStoredInDB.get(UserCollectionFields.PASSWORD.getFieldName());
             String userSalt = (String) userStoredInDB.get(UserCollectionFields.SALT.getFieldName());
 
@@ -57,6 +59,7 @@ public class userLoginService {
 
         returnedList.add(Integer.toString(returnedCode));
         returnedList.add(UID);
+        returnedList.add(username);
         return returnedList;
     }
 

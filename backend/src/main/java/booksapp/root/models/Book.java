@@ -26,6 +26,8 @@ public class Book {
 
     public Book() {
         this.bookContent = new BookContent();
+        this.numberOfChapters = 0;
+        this.readers = 0;
     }
 
     public Book(String authorUsername, BookContent bookcontent, List<String> chaptersTitles,
