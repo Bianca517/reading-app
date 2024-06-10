@@ -53,9 +53,6 @@ export default function WriteABookUI() {
     }
 
     function renderWhenEmpty() {
-        console.log("emoyyyyyy");
-        console.log(booksAreLoaded);
-
         if(!booksAreLoaded) {
             return (
                 <View style={[styles.container, styles.horizontal]}>

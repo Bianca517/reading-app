@@ -3549,6 +3549,11 @@ expo-dev-menu@4.5.5:
     expo-dev-menu-interface "1.7.2"
     semver "^7.5.3"
 
+expo-document-picker@~11.10.1:
+  version "11.10.1"
+  resolved "https://registry.npmjs.org/expo-document-picker/-/expo-document-picker-11.10.1.tgz"
+  integrity sha512-A1MiLfyXQ+KxanRO5lYxYQy3ryV+25JHe5Ai/BLV+FJU0QXByUF+Y/dn35WVPx5gpdZXC8UJ4ejg5SKSoeconw==
+
 expo-face-detector@~12.6.1:
   version "12.6.1"
   resolved "https://registry.npmjs.org/expo-face-detector/-/expo-face-detector-12.6.1.tgz"

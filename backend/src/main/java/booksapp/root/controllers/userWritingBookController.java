@@ -182,4 +182,28 @@ public class userWritingBookController {
             return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
         }
     }
+
+    @RequestMapping(value = "/uploadsong", method = RequestMethod.POST, consumes = {"multipart/form-data"})
+    public ResponseEntity<String> uploadSong(@RequestParam String bookID, @RequestParam String chapterNumber, @RequestPart MultipartFile songUri){
+        System.out.println("in controller for upload song, am primit\n");
+        System.out.println(songUri.getOriginalFilename()); // Print the file name
+        System.out.println(songUri.toString());
+        System.out.println(bookID + " | " + chapterNumber);
+        
+        int status = GlobalConstants.STATUS_FAILED;
+        
+        if(songUri != null && bookID != null && bookID.length() > 0 && chapterNumber != null) {
+            status = this.writingBookService.uploadSongToStorage(bookID, chapterNumber, songUri);
+        }
+
+        JsonObject response = new JsonObject();
+        if(status == GlobalConstants.STATUS_SUCCESSFUL) {
+            response.addProperty("status", Integer.toString(status));
+            return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+        }
+        else {
+            response.addProperty("status", Integer.toString(status));
+            return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
+        }
+    }
 }

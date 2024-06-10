@@ -32,7 +32,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.text.html.ImageView;
 
@@ -321,5 +323,47 @@ public class writingBookService {
 
         String bookCoverName = bookTitleAux.toLowerCase() + "_" + bookAuthorAux.toLowerCase() + ".png";
         return bookCoverName;
+    }
+
+    public int uploadSongToStorage(String bookID, String chapterNumber, MultipartFile songUri) {
+        int returnedStatus = GlobalConstants.STATUS_FAILED;
+
+        String fileName = constructSongName(bookID, chapterNumber);
+
+        // Convert MultipartFile to byte array
+        byte[] bytes;
+        try {
+            bytes = songUri.getBytes();
+            // Upload the byte array to Firebase Storage
+            // Upload the byte array to Firebase Storage
+            System.out.println("Uploading to" + topLevelBucket.getName());
+            BlobId blobId = BlobId.of(topLevelBucket.getName(), "docu");
+            BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType(songUri.getContentType()).build();
+
+            Storage storage = StorageOptions.getDefaultInstance().getService();
+            Blob blob = topLevelBucket.create(GlobalConstants.FIREBASE_STORAGE_AUDIOS_FOLDER + fileName, bytes, "audio/mpeg");
+            
+            Map<String, String> metadata = blob.getMetadata();
+
+            // If metadata map is null, initialize it
+            if (metadata == null) {
+                metadata = new HashMap<>();
+            }
+    
+            // Add custom metadata
+            metadata.put("firebaseStorageDownloadTokens", UUID.randomUUID().toString());
+
+            blob.toBuilder().setMetadata(metadata).build().update();
+
+            returnedStatus = GlobalConstants.STATUS_SUCCESSFUL;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return returnedStatus;
+    }
+
+    private String constructSongName(String bookID, String chapterNumber) {
+        return bookID + '_' + chapterNumber;
     }
 }

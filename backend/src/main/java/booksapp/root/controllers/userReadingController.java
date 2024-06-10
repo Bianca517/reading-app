@@ -1,11 +1,16 @@
 package booksapp.root.controllers;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import javax.print.attribute.standard.Media;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -16,6 +21,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.springframework.http.HttpHeaders;
+import com.google.cloud.storage.Blob;
+import org.springframework.http.MediaType;
 import com.google.gson.Gson;
 
 import booksapp.root.models.GlobalConstants.GlobalConstants;
@@ -130,5 +138,20 @@ public class userReadingController {
         Gson gson = new Gson();
         String gsonData = gson.toJson(returnJson);
         return gsonData;
+    }
+
+    @GetMapping("/getsong")
+    public ResponseEntity<Blob> getMP3File(@RequestParam String bookID, @RequestParam String chapterNumber) throws IOException {
+        // Retrieve MP3 file from Firebase Storage
+        Blob stream = this.userReadingService.getsong(bookID, chapterNumber);
+
+        // Set content type as audio/mpeg
+        HttpHeaders headers = new HttpHeaders();
+        //headers.setContentType(new MediaType("audio", "mpeg"));
+        
+        // Return the file as response
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(stream);
     }
 }

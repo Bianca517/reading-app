@@ -1,14 +1,21 @@
 package booksapp.root.services;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutures;
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.FieldValue;
@@ -16,6 +23,8 @@ import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.WriteResult;
 import com.google.firebase.cloud.StorageClient;
 import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.cloud.storage.Blob;
@@ -30,13 +39,31 @@ import booksapp.root.models.GlobalConstants.UserCollectionFields;
 @Service
 public class userReadingService {
     private Firestore DB;
-    private Bucket FirebaseStorage;
     private final CollectionReference userCollectionDB;
+
+    private final Bucket FirebaseStorage;
+    private final String bucketName = "reading-app-d23dc.appspot.com";
+    private Storage storage;
+    private GoogleCredentials googleCredentials;
+    private Bucket topLevelBucket; 
 
     public userReadingService(Firestore firestore) {
         DB = firestore;
-        FirebaseStorage = StorageClient.getInstance().bucket();
         this.userCollectionDB = DB.collection(GlobalConstants.USERS_COLLECTION_NAME);
+    
+        /* initialize firebase storage */
+        FirebaseStorage = StorageClient.getInstance().bucket();
+        try {
+            googleCredentials = GoogleCredentials.fromStream(new FileInputStream("./backend/src/main/resources/serviceAccountKey.json"));
+            storage = StorageOptions.newBuilder().setCredentials(googleCredentials).build().getService();
+            topLevelBucket = storage.get(bucketName);
+        } catch (Exception e) {
+            googleCredentials = null;
+            storage = null;
+            topLevelBucket = null;
+            System.out.println("could not initialize firebase storage");
+            e.printStackTrace();
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -212,4 +239,9 @@ public class userReadingService {
         return 0;
     }
 
+    public Blob getsong(String bookID, String chapterNumber) {
+        String songName = bookID + '_' + chapterNumber + ".mp3";
+        Blob stream = topLevelBucket.get(GlobalConstants.FIREBASE_STORAGE_AUDIOS_FOLDER + songName);
+        return stream;
+    }
 }

@@ -77,15 +77,20 @@ export default function WriteNewBookUI() {
     };
 
     async function handlePostChapter() {
-        let addedBookStatus = await add_new_book(bookTitle, GlobalUserData.LOGGED_IN_USER_DATA.username, bookDescrption, selectedBookGnere);
-        let uploadedCoverStatus = await upload_book_cover(bookTitle, GlobalUserData.LOGGED_IN_USER_DATA.username, bookCoverImage);
-        
-        if((addedBookStatus === 0) && (uploadedCoverStatus === 0)) {
-            Alert.alert("New Book Added Successfully!");
-            navigation.navigate('Write a Book');
+        if(bookTitle !== null && bookCoverImage !== null && bookDescrption !== null && selectedBookGnere !== null) {
+            let addedBookStatus = await add_new_book(bookTitle, GlobalUserData.LOGGED_IN_USER_DATA.username, bookDescrption, selectedBookGnere);
+            let uploadedCoverStatus = await upload_book_cover(bookTitle, GlobalUserData.LOGGED_IN_USER_DATA.username, bookCoverImage);
+            
+            if((addedBookStatus == 0) && (uploadedCoverStatus == 0)) {
+                Alert.alert("New Book Added Successfully!");
+                navigation.navigate('Write a Book');
+            }
+            else {
+                Alert.alert("New Book Could Not Be Added!");
+            }
         }
         else {
-            Alert.alert("New Book Could Not Be Added!");
+            Alert.alert("All fields are required!");
         }
     }
 
