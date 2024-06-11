@@ -7,6 +7,13 @@ import { ResponseType, NavigationParameters, ResponseTypePOST } from '../../../t
 import { add_new_chapter_to_book, add_new_paragraphs_list_to_chapter } from '../../../services/write-book-service';
 import { get_number_of_chapters_of_book } from '../../../services/book-reading-service';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as DocumentPicker from 'expo-document-picker';
+import { DocumentPickerResult, DocumentPickerSuccessResult } from 'expo-document-picker';
+import { upload_song_chapter } from '../../../services/upload-media-services';
+import { FontAwesome6 } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
+import { Audio } from 'expo-av';
+import MarqueeText from 'react-native-marquee';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -17,9 +24,14 @@ export default function WritingScreenUI( {route} ) {
     const bookID: string = route.params.bookID;
     const chapterNumberFromRoute: number = route.params.numberOfChapters;
   
-    const [chapterTitle, setChapterTitle] = useState<string>("");
-    const [chapterContent, setChapterContent] = useState<string>("");
+    const [chapterTitle, setChapterTitle] = useState<string>(null);
+    const [chapterContent, setChapterContent] = useState<string>(null);
     const [numberOfChapters, setNumberOfChapters] = useState<number>(-1);
+
+    const [songUri, setSongUri] = useState<string>(null);
+    const [songName, setSongName] = useState<string>(null);
+    const [sound, setSound] = useState(null);
+    const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
     //try to see if there is anything saved in async storage that user started to write
     useEffect(() => {
@@ -92,16 +104,36 @@ export default function WritingScreenUI( {route} ) {
         let receivedNumberOfChapters: number = 0;
         if (fetchResponseChapters.success) {
             receivedNumberOfChapters = parseInt(fetchResponseChapters.message);
-            console.log("aici coi "+ fetchResponseChapters.message);
+            //console.log(fetchResponseChapters.message);
             setNumberOfChapters(receivedNumberOfChapters);
         }
         return receivedNumberOfChapters;  
     }
 
+    async function pickADocument() {
+        try {
+            await DocumentPicker.getDocumentAsync({
+                type: 'audio/*',
+            })
+            .then(async (document: DocumentPickerSuccessResult) => {
+                console.log(document);
+                setSongUri(document.assets[0].uri);
+                setSongName(document.assets[0].name);
+                const { sound } = await Audio.Sound.createAsync(
+                    { uri: document.assets[0].uri });
+                setSound(sound);
+            })
+            .catch((e) => {
+                Alert.alert('Something is wrong with the chosen file.\n', e.message);
+            })
+        } catch (e) {
+            Alert.alert('Something went wrong: ', e.message);
+        }
+    }
 
-    async function handleSavingChapter() {
+    async function saveParagraphs() {
         const currentNumberOfChapters = await getNumberOfChaptersOfBook();
-        console.log("am iesit din fucking functie");
+     
         //first, send request to add new chapter to book
         //but make sure that the new added chapter is last one
         //this prevent adding chapter twice if button is pressed twice
@@ -109,11 +141,8 @@ export default function WritingScreenUI( {route} ) {
 
         if(chapterNumberFromRoute == currentNumberOfChapters) {
             fetchResponseChapter = await add_new_chapter_to_book(bookID, chapterTitle);
-            console.log("added chap");
-            console.log("dupa if");
 
             if(fetchResponseChapter.status == 0) {
-                console.log("AICI MA " + chapterContent);
 
                 //encode uri needed to preserve endlines
                 let fetchResponseParagraph = await add_new_paragraphs_list_to_chapter(bookID, chapterNumberFromRoute, encodeURIComponent(chapterContent));
@@ -133,6 +162,75 @@ export default function WritingScreenUI( {route} ) {
         }
     }
 
+
+    async function handleSavingChapter() {
+        if(chapterTitle !== null && chapterContent !== null) {
+            await saveParagraphs();
+        }    
+
+        if(songUri != null) {
+            await upload_song_chapter(bookID, chapterNumberFromRoute, songUri);
+        }
+    }
+
+    async function playSound() {
+        console.log('Playing Sound');
+        if(sound) {
+            setIsPlaying(true);
+            await sound.playAsync();
+        }
+    }
+
+    async function stopSound() {
+        console.log("Pausing Sound");
+        if(sound) {
+            setIsPlaying(false);
+            await sound.pauseAsync();
+        }
+    }
+
+    function displayMusicPlayerButtons() {
+        return (
+            <View style={styles.music_player_controllers}>
+                <TouchableOpacity onPress={() => playSound()}>
+                    <FontAwesome6 name="play-circle" size={29} color={isPlaying ? 'gray' : Globals.COLORS.PURPLE} />
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => stopSound()}>
+                    <Ionicons name="pause-circle" size={34} color={isPlaying ? Globals.COLORS.PURPLE: 'gray'} />
+                </TouchableOpacity>
+            </View>
+        )
+    }
+
+    function handleAddOrRemoveSongButtonText() {
+        if(songUri !== null) {
+            return (
+                <Text style={[styles.post_chapter_text, {fontWeight: 'bold'}]}>
+                    - Remove Song 
+                </Text>
+            )
+        }
+        else {
+            return (
+                <Text style={[styles.post_chapter_text, {fontWeight: 'bold'}]}>
+                    + Add a Song 
+                </Text>
+            )
+        }
+    }
+
+    function handleAddOrRemoveSongButtonCallback() {
+        if(songUri !== null) {
+            setSongUri(null);
+            setSongName(null);
+            setIsPlaying(false);
+            setSound(null);
+        }
+        else {
+            pickADocument();
+        }
+    }
 
     return(
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -184,16 +282,47 @@ export default function WritingScreenUI( {route} ) {
                                 }}
                                 multiline
                             />
+                            {
+                                songName && (
+                                    <View style={styles.music_player_section_view}>
+                                        <Text style={styles.added_song_text}> This chapter's readers will listen to: </Text>
+                                        <View style={styles.marquee_text_view}>
+                                            <MarqueeText
+                                                style={styles.marquee_text}
+                                                speed={0.2}
+                                                marqueeOnStart={true}
+                                                loop={true}
+                                                delay={1000}
+                                                >
+                                                {songName}
+                                            </MarqueeText>
+                                        </View>
+                                        {displayMusicPlayerButtons()}
+                                    </View>   
+                                )
+                            }
+                          
 
-                            <TouchableOpacity
-                                activeOpacity={0.8}
-                                style={styles.post_chapter_button}
-                                onPress={() => handleSavingChapter()}
-                            >
-                                <Text style={styles.post_chapter_text}>
-                                    + Post the First Chapter
-                                </Text>
-                            </TouchableOpacity>
+                            <View style={styles.buttons_footer_view}>
+                                <TouchableOpacity
+                                    activeOpacity={0.8}
+                                    style={styles.post_chapter_button}
+                                    onPress={() => handleAddOrRemoveSongButtonCallback()}
+                                >
+                                    {handleAddOrRemoveSongButtonText()}
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    activeOpacity={0.8}
+                                    style={styles.post_chapter_button}
+                                    onPress={() => handleSavingChapter()}
+                                >
+                                    <Text style={[styles.post_chapter_text, {fontWeight: '900'}]}>
+                                        + Post Chapter
+                                    </Text>
+                                </TouchableOpacity>
+
+                            </View>
                        
                     </ScrollView>
                     </View>
@@ -228,6 +357,7 @@ const styles = StyleSheet.create({
         paddingTop: 25,
     },
     writing_container_scrollview: {
+        //backgroundColor: 'red',
         justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: 10,
@@ -278,21 +408,53 @@ const styles = StyleSheet.create({
     post_chapter_button: {
         backgroundColor: 'white',
         borderRadius: 20,
-        paddingHorizontal: 10,
+        paddingHorizontal: 20,
         paddingVertical: 5,
-        width: 190,
+        width: 'auto',
         height: 40,
         alignItems: 'center',
         opacity: 1,
-        marginTop: 50,
-        marginBottom: 100,
+        //marginBottom: 100,
     },
     post_chapter_text: {
         marginTop: 3,
         color: Globals.COLORS.PURPLE,
-        fontWeight: 'bold',
         fontSize: 15,
         justifyContent: 'flex-start',
         marginHorizontal: 3,
     },
+    buttons_footer_view: {
+        //backgroundColor: 'yellow',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+        marginTop: 40,
+        marginBottom: 40,
+    },
+    music_player_section_view: {
+        marginTop: 20,
+        //backgroundColor: 'pink',
+        width: '90%',
+        flexDirection: 'column',
+    },
+    music_player_controllers: {
+        flexDirection: 'row',
+        paddingVertical: 5,
+        alignItems: 'center',
+        alignSelf: 'center',
+    },
+    marquee_text_view: {
+        backgroundColor: 'purple',
+    },
+    marquee_text: {
+        color: 'white',
+        fontSize: 17,
+        fontStyle: 'italic',
+    },
+    added_song_text: {
+        color: 'white',
+        fontSize: 17,
+        fontWeight: '300',
+        textAlign: 'center',
+    }
 })

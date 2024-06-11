@@ -26,6 +26,9 @@ public class Book {
 
     public Book() {
         this.bookContent = new BookContent();
+        this.numberOfChapters = 0;
+        this.readers = 0;
+        this.chaptersTitles = new ArrayList<String>();
     }
 
     public Book(String authorUsername, BookContent bookcontent, List<String> chaptersTitles,
@@ -126,6 +129,10 @@ public class Book {
     }
 
     public void addChapterTitle(String title) {
+        if(this.chaptersTitles == null) {
+            this.chaptersTitles = new ArrayList<String>();
+        }
+        
         this.chaptersTitles.add(title);
     }
 

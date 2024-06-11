@@ -45,6 +45,7 @@ public class userRegisterController {
         
         int errorCode = Integer.valueOf(registerStatus.get(0));
         String UID = registerStatus.get(1);
+        String userName = registerStatus.get(2);
 
         JsonObject response = new JsonObject();
 
@@ -52,21 +53,25 @@ public class userRegisterController {
             case GlobalConstants.EMAIL_NOT_MEETING_CRITERIA_ERROR_CODE:
                 response.addProperty("success_code", GlobalConstants.EMAIL_NOT_MEETING_CRITERIA_ERROR_CODE);
                 response.addProperty("user_id", "");
+                response.addProperty("username", "");
                 return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
 
             case GlobalConstants.PASSWORD_NOT_MEETING_CRITERIA_ERROR_CODE:
                 response.addProperty("success_code", GlobalConstants.PASSWORD_NOT_MEETING_CRITERIA_ERROR_CODE);
                 response.addProperty("user_id", "");
+                response.addProperty("username", "");
                 return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
 
             case GlobalConstants.EMAIL_OR_USERNAME_ALREADY_USED_ERROR_CODE:
                 response.addProperty("success_code", GlobalConstants.EMAIL_OR_USERNAME_ALREADY_USED_ERROR_CODE);
                 response.addProperty("user_id", "");
+                response.addProperty("username", "");
                 return new ResponseEntity<String>(response.toString(), HttpStatus.IM_USED);
 
             default:
                 response.addProperty("success_code", GlobalConstants.USER_CREATED);
                 response.addProperty("user_id", UID);
+                response.addProperty("username", userName);
                 return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
         }
     }

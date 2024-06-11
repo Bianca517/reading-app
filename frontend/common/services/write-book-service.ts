@@ -13,7 +13,7 @@ const CHAPTER_NUMBER_PARAMETER_IN_ENDPOINT: string = "chapterNumber="
 const PARAGRAPH_CONTENT_PARAMETER_IN_ENDPOINT: string = "paragraphContent="
 const CHAPTER_CONTENT_PARAMETER_IN_ENDPOINT: string = "chapterContent="
 
-export async function add_new_book(bookTitle: string, authorUsername: string, description: string, bookGenre: string) {
+export async function add_new_book(bookTitle: string, authorUsername: string, description: string, bookGenre: string): Promise<number> {
     let HTTPS_REQUEST = Globals.BACKEND_HTTP + ADD_NEW_BOOK_ENDPOINT + '?';
     HTTPS_REQUEST += "bookTitle=" + bookTitle + '&'
     HTTPS_REQUEST += "authorUsername=" + authorUsername + '&'
@@ -21,6 +21,7 @@ export async function add_new_book(bookTitle: string, authorUsername: string, de
     HTTPS_REQUEST += "bookGenre=" + bookGenre
     //console.log("aici\n");
     //console.log(HTTPS_REQUEST);
+    let statusToReturn: number = -1;
 
     await fetch(HTTPS_REQUEST, {
         method: "POST",
@@ -37,14 +38,19 @@ export async function add_new_book(bookTitle: string, authorUsername: string, de
     })
         .then((response) => response.json())
         .then((responseData) => {
-            //console.log("sosaj");
-            console.log(JSON.stringify(responseData));
+            //console.log("in add book fetch");
+            //console.log(JSON.stringify(responseData));
+            const {status} = responseData;
+            statusToReturn = status;
+            //console.log("status", statusToReturn);
         })
         .catch(async (e) => {
             console.log("intra pe catch");
             console.log(e);
+            statusToReturn = 1;
         })
-    return 0;
+
+    return statusToReturn;
 }
 
 export async function get_users_written_books(userID: string) : Promise<ResponseType> {

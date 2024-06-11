@@ -238,21 +238,6 @@ public class booksService {
         return bookDescription;
     }
 
-    public void addNewBook(String bookTitle, String authorUsername, String description, String bookGenre) {
-        Map<String, Object> bookMap = new HashMap<>();
-
-        bookMap.put(BookCollectionFields.AUTHOR_USERNAME.getFieldName(), authorUsername);
-        bookMap.put(BookCollectionFields.CHAPTERS_CONTENT.getFieldName(), "");
-        bookMap.put(BookCollectionFields.CHAPTERS_TITLES.getFieldName(), "");
-        bookMap.put(BookCollectionFields.DESCRIPTION.getFieldName(), description);
-        bookMap.put(BookCollectionFields.GENRE.getFieldName(), bookGenre);
-        bookMap.put(BookCollectionFields.NAME.getFieldName(), bookTitle);
-        bookMap.put(BookCollectionFields.NUMBER_OF_CHAPTERS.getFieldName(), 0);
-        bookMap.put(BookCollectionFields.READERS.getFieldName(), 0);
-          
-        booksCollectionDB.add(bookMap);
-    }
-
     public HashMap<String, String> getBookParagraphsContents(Book book, String chapterNumber) {
         HashMap<String, String> content = new HashMap<String, String>();
         Integer paragraphID = 0;
@@ -263,7 +248,4 @@ public class booksService {
         return content;
     }
 
-    public void uploadBookCoverToStorage(ImageView image) {
-
-    }
 }

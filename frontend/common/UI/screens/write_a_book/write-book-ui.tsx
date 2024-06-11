@@ -1,8 +1,8 @@
 import React, { useState, useEffect, ReactNode } from 'react';
-import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, SafeAreaView, TextInput , ScrollView} from 'react-native';
+import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, SafeAreaView, TextInput , ScrollView, FlatList, ActivityIndicator} from 'react-native';
 import Globals from '../../_globals/Globals';
 import { useNavigation } from '@react-navigation/native';
-import { ResponseType } from '../../../types';
+import { ResponseType, booKDTO } from '../../../types';
 import Book from '../../components/book';
 import { get_users_written_books } from '../../../services/write-book-service';
 import GlobalUserData from '../../_globals/GlobalUserData';
@@ -13,7 +13,8 @@ const windowWidth = Dimensions.get('window').width;
 export default function WriteABookUI() {
     const navigation = useNavigation();
     const [userHasWrittenBooks, setUserHasWrittenBooks] = useState(true); //start with this on TRUE so it does not display the sorry message before the fetch from DB is done
-    const [booksWrittenByUser, setBooksWrittenByUser] = useState([]);
+    const [booksWrittenByUser, setBooksWrittenByUser] = useState<booKDTO[]>([]);
+    const [booksAreLoaded, setBooksAreLoaded] = useState<boolean>(false);
     
     //this loads at start of page
     useEffect(() => {
@@ -22,10 +23,12 @@ export default function WriteABookUI() {
 
     async function loadBooksWrittenByUser() {
         let fetchedResponse: ResponseType = await get_users_written_books(GlobalUserData.LOGGED_IN_USER_DATA.uid).then();
-
+        console.log("books by user:");
+        console.log(fetchedResponse);
         if(fetchedResponse.success) {
             const responseData: string[] = JSON.parse(fetchedResponse.message);
             setBooksWrittenByUser(JSON.parse(fetchedResponse.message));
+            setBooksAreLoaded(true);
 
             if(responseData.length > 0) {
                 setUserHasWrittenBooks(true);
@@ -33,6 +36,36 @@ export default function WriteABookUI() {
             else {
                 setUserHasWrittenBooks(false);
             }
+        }
+    }
+
+    const renderItem = ({ item }: { item: booKDTO }) => {
+        return (
+            <Book 
+                key={item.id} 
+                bookFields={JSON.stringify(item)} 
+                bookCoverWidth={90} 
+                bookCoverHeight={160} 
+                bookWithDetails={true} 
+                bookNavigationOptions={Globals.BOOK_NAVIGATION_OPTIONS.TO_CONTINUE_WRITING}
+            />
+        );
+    }
+
+    function renderWhenEmpty() {
+        if(!booksAreLoaded) {
+            return (
+                <View style={[styles.container, styles.horizontal]}>
+                    <ActivityIndicator size="large" color={Globals.COLORS.PURPLE}/>
+                </View> 
+            )
+        }
+        else if(booksAreLoaded && booksWrittenByUser.length == 0) {
+            return (
+                <Text style={[styles.continue_writing_text, {textAlign: 'center', marginTop: 30}]}> 
+                    We are sorry. You currently don't have any written books :( 
+                </Text>       
+            )
         }
     }
 
@@ -53,17 +86,17 @@ export default function WriteABookUI() {
 
                 <View style={styles.written_books_grid}>
                     {
-                        userHasWrittenBooks ? 
-                            (
-                            /*Warning: Each child in a list should have a unique "key" prop.*/
-                            booksWrittenByUser.map((book, index) => (
-                                <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={100} bookCoverHeight={180} bookWithDetails={true} bookNavigationOptions={Globals.BOOK_NAVIGATION_OPTIONS.TO_CONTINUE_WRITING}/>
-                            ))
-                            )
-                        : (
-                            <Text style={[styles.continue_writing_text, {textAlign: 'center', marginTop: 30}]}> We are sorry. You currently don't have any written books :( </Text>
-                        )
-                    }        
+   
+                        <FlatList
+                            data={booksWrittenByUser}
+                            renderItem={renderItem}
+                            keyExtractor={item => item.id}
+                            numColumns={3} 
+                            initialNumToRender={12}
+                            ListEmptyComponent={() => renderWhenEmpty()}
+                        />
+                        
+                    }  
                 </View>   
                  
             </View>
@@ -151,4 +184,14 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         marginHorizontal: 3,
     },
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        marginTop: 20
+      },
+      horizontal: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        padding: 10,
+      },
 })

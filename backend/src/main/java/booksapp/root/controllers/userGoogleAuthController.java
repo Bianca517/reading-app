@@ -36,6 +36,7 @@ public class userGoogleAuthController {
         ArrayList<String> authStatus = userGoogleAuthService.authUserWithGoogle(userEmail, userName);
         int returnedCode = Integer.valueOf(authStatus.get(0));
         String UID = authStatus.get(1);
+        String username = UserWithEmailAndUserName.getUserName();
 
         JsonObject response = new JsonObject();
 
@@ -47,6 +48,7 @@ public class userGoogleAuthController {
             case GlobalConstants.USER_LOGGED_IN:
                 response.addProperty("success_code", returnedCode);
                 response.addProperty("user_id", UID);
+                response.addProperty("username", username);
                 return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
             default:
                 response.addProperty("error", "error_code: " + returnedCode);

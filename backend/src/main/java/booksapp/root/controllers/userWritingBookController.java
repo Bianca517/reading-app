@@ -1,17 +1,22 @@
 package booksapp.root.controllers;
 
+import booksapp.root.models.BookDTO;
 import booksapp.root.models.GlobalConstants.GlobalConstants;
 import booksapp.root.models.bookcomponents.BookChapter;
 import booksapp.root.services.writingBookService;
+import jakarta.servlet.annotation.MultipartConfig;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -139,4 +144,66 @@ public class userWritingBookController {
                  return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
          }
      }
+
+    @PostMapping(value = "/addnewbook")
+    public ResponseEntity<String> addNewBook( String bookTitle, String authorUsername, String description, String bookGenre) {
+        System.out.println("in controller for addnewbook, am primit\n");
+        System.out.println(bookTitle);
+ 
+        int status = this.writingBookService.addNewBook(bookTitle, authorUsername, description, bookGenre);
+        
+        JsonObject response = new JsonObject();
+        if(status == GlobalConstants.STATUS_SUCCESSFUL) {
+            response.addProperty("status", Integer.toString(status));
+            return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+        }
+        else {
+            response.addProperty("status", Integer.toString(status));
+            return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @RequestMapping(value = "/uploadbookcover", method = RequestMethod.POST, consumes = {"multipart/form-data"})
+    public ResponseEntity<String> uploadBookCover(@RequestParam String bookTitle, @RequestParam String bookAuthor, @RequestPart MultipartFile bookCoverImage){
+        System.out.println("in controller for upload cover, am primit\n");
+        System.out.println(bookCoverImage.getOriginalFilename()); // Print the file name
+        System.out.println(bookCoverImage.toString());
+        System.out.println(bookTitle + " | " + bookAuthor);
+        
+        int status = this.writingBookService.uploadBookCoverToStorage(bookTitle, bookAuthor, bookCoverImage);
+        
+        JsonObject response = new JsonObject();
+        if(status == GlobalConstants.STATUS_SUCCESSFUL) {
+            response.addProperty("status", Integer.toString(status));
+            return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+        }
+        else {
+            response.addProperty("status", Integer.toString(status));
+            return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @RequestMapping(value = "/uploadsong", method = RequestMethod.POST, consumes = {"multipart/form-data"})
+    public ResponseEntity<String> uploadSong(@RequestParam String bookID, @RequestParam String chapterNumber, @RequestPart MultipartFile songUri){
+        System.out.println("in controller for upload song, am primit\n");
+        System.out.println(songUri.getOriginalFilename()); // Print the file name
+        System.out.println(songUri.toString());
+        System.out.println(bookID + " | " + chapterNumber);
+        
+        int status = GlobalConstants.STATUS_FAILED;
+        
+        if(songUri != null && bookID != null && bookID.length() > 0 && chapterNumber != null) {
+            status = this.writingBookService.uploadSongToStorage(bookID, chapterNumber, songUri);
+        }
+
+        JsonObject response = new JsonObject();
+        if(status == GlobalConstants.STATUS_SUCCESSFUL) {
+            response.addProperty("status", Integer.toString(status));
+            return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+        }
+        else {
+            response.addProperty("status", Integer.toString(status));
+            return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
+        }
+    }
 }

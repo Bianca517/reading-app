@@ -71,6 +71,7 @@ export default function LoginPageUI() {
 
     if(HttpStatus === 200) {
       GlobalUserData.LOGGED_IN_USER_DATA.uid = fetchResponse.Data.user_id;
+      GlobalUserData.LOGGED_IN_USER_DATA.username = fetchResponse.Data.username;
       const statusCode = fetchResponse.Data.success_code;
     
       //console.log(GlobalUserData.LOGGED_IN_USER_DATA.uid);

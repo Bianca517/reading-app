@@ -23,6 +23,8 @@ export default {
     },
     BOOK_COVER_URI_TEMPLATE_PNG: 'https://firebasestorage.googleapis.com/v0/b/reading-app-d23dc.appspot.com/o/book_covers%2FNAME_AUTHOR.png?alt=media',
     BOOK_COVER_URI_TEMPLATE_JPG: 'https://firebasestorage.googleapis.com/v0/b/reading-app-d23dc.appspot.com/o/book_covers%2FNAME_AUTHOR.jpg?alt=media',
+    SONG_URI_TEMPLATE: 'https://firebasestorage.googleapis.com/v0/b/reading-app-d23dc.appspot.com/o/audios%2FSONG_NAME?alt=media',
+    SONG_URI_STRING_TO_REPLACE: 'SONG_NAME',
     BOOK_COLLECTION_FIELDS: ["name", "authorUsername", "chaptersContents", "cover", "readers", "genre", "id"],
     BOOK_COLLECTION_FIELDS_NAME_INDEX: 0,
     BOOK_COLLECTION_FIELDS_AUTHOR_USERNAME_INDEX: 1,

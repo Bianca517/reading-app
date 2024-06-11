@@ -9,7 +9,8 @@ public class GlobalConstants {
         public final static int PARAGRAPH_CONTENT_INDEX = 1;
         public final static int PARAGRAPH_COMMENTS_INDEX = 0;
         
-        public final static String FIREBASE_STORAGE_COVERS_FOLDER = "book_covers";
+        public final static String FIREBASE_STORAGE_COVERS_FOLDER = "book_covers/";
+        public final static String FIREBASE_STORAGE_AUDIOS_FOLDER = "audios/";
         public final static int EMAIL_OR_USERNAME_ALREADY_USED_ERROR_CODE = 6;
         public final static int PASSWORD_NOT_MEETING_CRITERIA_ERROR_CODE = 5;
         public final static int EMAIL_NOT_MEETING_CRITERIA_ERROR_CODE = 4;

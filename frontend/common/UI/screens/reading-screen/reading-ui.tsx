@@ -420,7 +420,7 @@ export default function ReadingScreen( {route} ) {
                     style={{marginHorizontal: 10}}
                 >
                     <BottomSheetView>
-                        <BottomSheetContent updateFontFamily = {updateFontFamily} updateFontSize = {updateFontSize} updateBackgroundColor = {updateBackgroundColor} updateGestureScroll = {updateGestureScroll}/>
+                        <BottomSheetContent bookId={bookID} chapterNumber={chapterNumber} updateFontFamily = {updateFontFamily} updateFontSize = {updateFontSize} updateBackgroundColor = {updateBackgroundColor} updateGestureScroll = {updateGestureScroll}/>
                     </BottomSheetView>
                 </BottomSheet>
                                 

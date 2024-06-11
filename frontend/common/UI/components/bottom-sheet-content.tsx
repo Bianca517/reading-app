@@ -5,7 +5,7 @@ import Globals from '../_globals/Globals';
 import { FontPicker } from './font-picker';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { TouchableOpacity } from '@gorhom/bottom-sheet';
-import { Audio } from 'expo-av';
+import { AVPlaybackStatus, Audio } from 'expo-av';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import { SoundObject } from 'expo-av/build/Audio';
@@ -17,6 +17,8 @@ const backgroundColors: { [key: string]: string } = {
 };
 
 type props = {
+    bookId: string,
+    chapterNumber: number,
     updateFontFamily: (fontFamily: string) => void;
     updateFontSize: (increaseFont: boolean) => void;
     updateBackgroundColor: (backgroundColor: string) => void;
@@ -24,7 +26,7 @@ type props = {
 }
 
 
-export default function BottomSheetContent( {updateFontFamily, updateFontSize, updateBackgroundColor, updateGestureScroll} : props) {
+export default function BottomSheetContent( {bookId, chapterNumber, updateFontFamily, updateFontSize, updateBackgroundColor, updateGestureScroll} : props) {
     const toggleSwitch = () => setIsGestureScrollingActive(previousState => !previousState);
 
     //platform OS
@@ -37,7 +39,9 @@ export default function BottomSheetContent( {updateFontFamily, updateFontSize, u
 
     const [isFontPickerVisible, setIsFontPickerVisible] = useState(false);
     
-    const [sound, setSound] = useState<SoundObject>(null);
+    const [sound, setSound] = useState(null);
+    const [isPlaying, setIsPlaying] = useState<boolean>(false);
+    const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
     const status = {
         shouldPlay: false,
@@ -59,34 +63,46 @@ export default function BottomSheetContent( {updateFontFamily, updateFontSize, u
         Audio.setAudioModeAsync({
             //interruptionModeAndroid: Audio.INTERR,
             shouldDuckAndroid: true,
-            staysActiveInBackground: true,
+            staysActiveInBackground: false,
             playThroughEarpieceAndroid: true
         })
-        //sound.loadAsync(require('../../assets/songs/adele_rolling_in_the_deep.mp3'), status, false);
         loadSound();
     }, []);
 
+
+    function createUriForSong(): string {
+        let url: string = Globals.SONG_URI_TEMPLATE;
+        let customString: string = bookId + '_' + chapterNumber;
+        url = url.replace(Globals.SONG_URI_STRING_TO_REPLACE, customString);  
+        console.log(url);
+        return url; 
+    }
+
     async function loadSound() {
         console.log('Loading Sound');
-        const song_from_firebase = await Audio.Sound.createAsync(require('../../assets/songs/adele_rolling_in_the_deep.mp3'));
-        setSound(song_from_firebase);
+        try {
+            const { sound } = await Audio.Sound.createAsync( { uri: createUriForSong() });
+            setSound(sound);
+            setIsLoaded(true);
+        }
+        catch {
+            setIsLoaded(false);
+        }
     } 
 
     async function playSound() {
         console.log('Playing Sound');
         if(sound) {
-            if(sound.sound) {
-                await sound.sound.playAsync();
-            }
+            setIsPlaying(true);
+            await sound.playAsync();
         }
     }
 
     async function stopSound() {
         console.log("Pausing Sound");
         if(sound) {
-            if(sound.sound) {
-                await sound.sound.stopAsync();
-            }
+            setIsPlaying(false);
+            await sound.pauseAsync();
         }
     }
     
@@ -105,21 +121,23 @@ export default function BottomSheetContent( {updateFontFamily, updateFontSize, u
                 </View>)
             }
 
-            <View style={styles.music_player_container}>
-                <Text style={styles.text_styles}>
-                    Control Music Player
-                </Text>
-                <View style={styles.music_player_controllers}>
-                    <TouchableOpacity onPress={() => playSound()}>
-                        <FontAwesome6 name="play-circle" size={24} color="black" />
-                    </TouchableOpacity>
+            { isLoaded && (
+                <View style={styles.music_player_container}>
+                    <Text style={styles.text_styles}>
+                        Control Music Player
+                    </Text>
+                    <View style={styles.music_player_controllers}>
+                        <TouchableOpacity onPress={() => playSound()}>
+                            <FontAwesome6 name="play-circle" size={24} color={isPlaying ? 'gray' : Globals.COLORS.PURPLE} />
+                        </TouchableOpacity>
 
-                    <TouchableOpacity onPress={() => stopSound()}>
-                        <Ionicons name="pause-circle" size={29} color="black" />
-                    </TouchableOpacity>
+                        <TouchableOpacity onPress={() => stopSound()}>
+                            <Ionicons name="pause-circle" size={29} color={isPlaying ? Globals.COLORS.PURPLE: 'gray'} />
+                        </TouchableOpacity>
+                    </View>
                 </View>
-            </View>
-
+                )
+            }
             <View style={styles.background_color_container}>
                 <Text style={styles.text_styles}> Background Color </Text>
                 

@@ -52,18 +52,6 @@ export default function WriteNewBookUI() {
     },[bookTitle]);
 
 
-    async function createFormDataForUploading(coverImage: string) {
-        const formData = new FormData();
-
-        const response = await fetch(coverImage);
-        const blob = await response.blob();
-
-        //cover images are stored in firebase storage with this format : {booktitle}_{authorusername}
-        const bookCoverName = bookTitle + '_' + GlobalUserData.LOGGED_IN_USER_DATA.username;
-        formData.append('bookCover', blob, bookCoverName);
-        upload_book_cover(formData);
-    }
-
     async function pickImage() {
         //ask for permission to access library image
 
@@ -72,12 +60,13 @@ export default function WriteNewBookUI() {
         if(status === 'granted') {
             let result = await ImagePicker.launchImageLibraryAsync({
                 mediaTypes: ImagePicker.MediaTypeOptions.All,
-                quality: 1,
+                quality: 0.2,  //means compress for small size
             });
         
             console.log(result);
         
             if (!result.canceled) {
+                console.log("picture chosen, name is: " + result.assets[0].uri);
                 setBookCoverImage(result.assets[0].uri);
             }
         }
@@ -87,11 +76,22 @@ export default function WriteNewBookUI() {
         
     };
 
-    function handlePostChapter() {
-        add_new_book(bookTitle, "lia", bookDescrption, selectedBookGnere).then();
-        console.log("am trm request");
-        navigation.navigate('Home');
-        Alert.alert("New Book Added Successfully!");
+    async function handlePostChapter() {
+        if(bookTitle !== null && bookCoverImage !== null && bookDescrption !== null && selectedBookGnere !== null) {
+            let addedBookStatus = await add_new_book(bookTitle, GlobalUserData.LOGGED_IN_USER_DATA.username, bookDescrption, selectedBookGnere);
+            let uploadedCoverStatus = await upload_book_cover(bookTitle, GlobalUserData.LOGGED_IN_USER_DATA.username, bookCoverImage);
+            
+            if((addedBookStatus == 0) && (uploadedCoverStatus == 0)) {
+                Alert.alert("New Book Added Successfully!");
+                navigation.navigate('Write a Book');
+            }
+            else {
+                Alert.alert("New Book Could Not Be Added!");
+            }
+        }
+        else {
+            Alert.alert("All fields are required!");
+        }
     }
 
     return(
