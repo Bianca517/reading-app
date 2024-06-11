@@ -81,7 +81,11 @@ public class userWritingBookController {
     //get all books written by user with ID
     @GetMapping(value = "/getallbooksbyuser")
     public ResponseEntity<String> getAllBooksWrittenByUser(String UID) {
-        final ArrayList<HashMap<String, String>> booksByUser = this.writingBookService.getAllBooksWrittenByUser(UID);
+        ArrayList<HashMap<String, String>> booksByUser = null;
+        
+        if(UID != null) {
+            booksByUser = this.writingBookService.getAllBooksWrittenByUser(UID);
+        }
 
         Gson gson = new Gson();
         String booksByUserJSON = gson.toJson(booksByUser);

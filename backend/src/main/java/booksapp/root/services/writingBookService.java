@@ -237,6 +237,7 @@ public class writingBookService {
             book = booksCollectionDB.document(bookID);
             Book foundBook = book.get().get().toObject(Book.class);
             chapters = foundBook.getChaptersTitles();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -336,11 +337,11 @@ public class writingBookService {
             bytes = songUri.getBytes();
             // Upload the byte array to Firebase Storage
             // Upload the byte array to Firebase Storage
-            System.out.println("Uploading to" + topLevelBucket.getName());
-            BlobId blobId = BlobId.of(topLevelBucket.getName(), "docu");
-            BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType(songUri.getContentType()).build();
+            // System.out.println("Uploading to" + topLevelBucket.getName());
+            // BlobId blobId = BlobId.of(topLevelBucket.getName(), "docu");
+            // BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType(songUri.getContentType()).build();
 
-            Storage storage = StorageOptions.getDefaultInstance().getService();
+            // Storage storage = StorageOptions.getDefaultInstance().getService();
             Blob blob = topLevelBucket.create(GlobalConstants.FIREBASE_STORAGE_AUDIOS_FOLDER + fileName, bytes, "audio/mpeg");
             
             Map<String, String> metadata = blob.getMetadata();
