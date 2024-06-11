@@ -1,10 +1,11 @@
 import React, { useState, useEffect, ReactNode, JSXElementConstructor } from 'react';
-import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, SafeAreaView, TextInput , ScrollView} from 'react-native';
+import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, SafeAreaView, TextInput , ScrollView, FlatList} from 'react-native';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { get_all_chapters_from_book } from '../../../services/write-book-service';
 import { NavigationParameters, ResponseType } from '../../../types';
 import Globals from '../../_globals/Globals';
 import { useIsFocused } from "@react-navigation/native";
+import Checkbox from 'expo-checkbox';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -13,8 +14,8 @@ export default function ContinueWritingBookUI( {route} ) {
     const bookID: string = route.params.bookID;
     const [bookChapters, setBookChapters] = useState([]);
     const [bookHasChapters, setBookHasChapters] = useState(true);
-
     const navigation = useNavigation<NavigationProp<NavigationParameters>>();
+    const [isBookMarkedAsFinished, setIsBookMarkedAsFinished] = useState(false);
 
     const [numberOfChapters, setNumberOfChapters] = useState(0); //used only for passing to writing screen
 
@@ -46,34 +47,61 @@ export default function ContinueWritingBookUI( {route} ) {
         }
     }
 
-
-    function renderChapters() {
-        const chapterViews = [];
-
-        // nice bug found
-        // When you use var, the variable i is function-scoped and not block-scoped => by the time the onPress function is called, the loop has already completed, and i holds its final value.
-        // let is block-scoped, meaning each iteration of the loop will have its own instance of i.
-        for(let i = 0; i < bookChapters.length; i++) {
-            let chapterView = (
-                <TouchableOpacity style={styles.chapter_container} 
+    const renderItem = ({ item }: { item: string }) => {
+        return (
+            <TouchableOpacity style={styles.chapter_container} 
                     onPress={() => navigation.navigate("Reading Screen", 
                         { 
                             "id" : bookID, 
-                            "chapterNumber" : i, 
+                            "chapterNumber" : bookChapters.indexOf(item), 
                             "bookCoverImage" : "", 
                             "name": "", 
                             "authorUsername": ""
                         })}>
-                    <Text style={[styles.chapter_number]}> Chapter {i + 1} - </Text>
-                    <Text style={styles.chapter_titles}>{bookChapters[i]}</Text>
-                </TouchableOpacity>
-            )
-            chapterViews.push(chapterView);
-        }
-
-        return chapterViews;
+                    <Text style={[styles.chapter_number]}> Chapter {bookChapters.indexOf(item) + 1} - </Text>
+                    <Text style={styles.chapter_titles}>{item}</Text>
+            </TouchableOpacity>
+        );
     }
 
+    function renderWhenEmpty() {
+        if(!bookHasChapters) {
+            return (
+                <Text style={[styles.title_text, {textAlign: 'center', marginTop: 30}]}> This book has no chapters yet :( </Text>
+            )
+        }
+        else {
+            return null;
+        }
+    }
+
+    function footerComponent() {
+        //if book if already marked as finished, dont show the button to add new chapter
+        //instead, show just the checkbox, which is checked
+
+        return (
+            <View style={styles.button_and_checkbox_view}>
+                <View style={styles.checkbox_view}>
+                    <Checkbox
+                        style={styles.checkbox}
+                        value={isBookMarkedAsFinished}
+                        onValueChange={setIsBookMarkedAsFinished}
+                        color={isBookMarkedAsFinished ? Globals.COLORS.PURPLE : undefined}
+                    />
+                    <Text style={[styles.title_text, {fontSize: 16, alignSelf: 'center', marginTop: -1}]}> Mark book as finished </Text>
+                </View>
+                <TouchableOpacity 
+                    activeOpacity={0.7} 
+                    style={styles.write_new_chapter_button}
+                    onPress={() => navigation.navigate("Write New Chapter", {bookID: bookID, numberOfChapters: numberOfChapters})}
+                >
+                        <Text style = {styles.write_new_chapter_text}>
+                            + Add New Chapter
+                        </Text>
+                </TouchableOpacity>
+            </View>
+        )
+    }
 
     return(
         <SafeAreaView style={styles.fullscreen_container}>
@@ -84,26 +112,17 @@ export default function ContinueWritingBookUI( {route} ) {
            </View>
            
            <View style={styles.chapters_container}>
-            <ScrollView>
-                {
-                    bookHasChapters ? (
-                        renderChapters()
-                    )
-                    : (
-                        <Text style={[styles.title_text, {textAlign: 'center', marginTop: 30}]}> This book has no chapters yet :( </Text>
-                    )
-                }
+
+                <FlatList
+                    data={bookChapters}
+                    renderItem={renderItem}
+                    keyExtractor={item => item.id}
+                    numColumns={1} 
+                    initialNumToRender={10}
+                    ListEmptyComponent={() => renderWhenEmpty()}
+                    ListFooterComponent={footerComponent()}
+                />
            
-            <TouchableOpacity 
-                activeOpacity={0.7} 
-                style={styles.write_new_chapter_button}
-                onPress={() => navigation.navigate("Write New Chapter", {bookID: bookID, numberOfChapters: numberOfChapters})}
-            >
-                    <Text style = {styles.write_new_chapter_text}>
-                        + Add New Chapter
-                    </Text>
-                </TouchableOpacity>
-                </ScrollView>
            </View>
         </SafeAreaView>
     );
@@ -200,5 +219,22 @@ const styles = StyleSheet.create({
         marginHorizontal: 1,
         width: 100,
         textAlign: 'center',
+    },
+    checkbox: {
+        margin: 8,
+    },
+    button_and_checkbox_view: {
+        flexDirection: 'column',
+        marginTop: 20,
+    },
+    checkbox_view: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        //backgroundColor: 'red',
+    },
+    checkbox_text: {
+        color: 'white',
+        fontSize: 17,
+        fontWeight: "300",
     }
 })
