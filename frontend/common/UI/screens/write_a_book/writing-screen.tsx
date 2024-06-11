@@ -33,6 +33,8 @@ export default function WritingScreenUI( {route} ) {
     const [sound, setSound] = useState(null);
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
+    const [textInputHeight, setTextInputHeight] = useState<number>(0);
+
     //try to see if there is anything saved in async storage that user started to write
     useEffect(() => {
         loadDataFromStorage();
@@ -166,7 +168,10 @@ export default function WritingScreenUI( {route} ) {
     async function handleSavingChapter() {
         if(chapterTitle !== null && chapterContent !== null) {
             await saveParagraphs();
-        }    
+        } 
+        else {
+            Alert.alert("All fields are required!");
+        }   
 
         if(songUri != null) {
             await upload_song_chapter(bookID, chapterNumberFromRoute, songUri);
@@ -269,8 +274,11 @@ export default function WritingScreenUI( {route} ) {
                     <ScrollView contentContainerStyle={styles.writing_container_scrollview} keyboardShouldPersistTaps="handled">
                        
                             <TextInput
-                                style={[styles.text_inputs_style, { height: 600, width: '100%' }]}
+                                style={[styles.text_inputs_style, { height: Math.max(600, textInputHeight), width: '100%' }]}
                                 onChangeText={(text) => setChapterContent(text)}
+                                onContentSizeChange={(event) =>
+                                    setTextInputHeight(event.nativeEvent.contentSize.height)
+                                }
                                 value={chapterContent}
                                 textAlignVertical='top'
                                 textAlign='center'

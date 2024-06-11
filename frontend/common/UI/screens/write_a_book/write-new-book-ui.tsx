@@ -26,6 +26,7 @@ export default function WriteNewBookUI() {
     const [bookDescrption, setBookDescrption] = useState<string>("");
     const [selectedBookGnere, setSelectedBookGnere] = useState<string>("");
     const [bookCoverImage, setBookCoverImage] = useState(null);
+    const [descriptionTextInputHeight, setDescriptionTextInputHeight] = useState<number>(0);
 
     function buildDataForSelectList(): dataInterest[] {
         let data: dataInterest[] = [];
@@ -54,12 +55,11 @@ export default function WriteNewBookUI() {
 
     async function pickImage() {
         //ask for permission to access library image
-
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
         if(status === 'granted') {
             let result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.All,
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
                 quality: 0.2,  //means compress for small size
             });
         
@@ -96,7 +96,7 @@ export default function WriteNewBookUI() {
 
     return(
         <SafeAreaView style={styles.fullscreen_container}>
-            
+            <ScrollView>
             <View style={styles.inputs_container}>
                 <View style={styles.book_title_section}>
                     <Text style={styles.info_text}>Title*</Text>
@@ -111,8 +111,11 @@ export default function WriteNewBookUI() {
                 <View>
                     <Text style={styles.info_text}>Description*</Text>
                     <TextInput 
-                        style={styles.text_inputs_style} 
+                        style={[styles.text_inputs_style, {height: Math.max(45, descriptionTextInputHeight)}]} 
                         multiline={true} 
+                        onContentSizeChange={(event) =>
+                            setDescriptionTextInputHeight(event.nativeEvent.contentSize.height)
+                        }
                         numberOfLines={10}
                         onChangeText={text => setBookDescrption(text)}
                         placeholder='Book description'
@@ -165,14 +168,15 @@ export default function WriteNewBookUI() {
                     style={styles.post_chapter_button}
                     onPress={() => handlePostChapter()}>
                     <Text style = {styles.post_chapter_text}>
-                        + Post the First Chapter
+                        + Upload New Book
                     </Text>
                 </TouchableOpacity>
             </View>
 
             <View style={styles.page_footer}>
-                
-            </View>   
+            
+            </View>  
+            </ScrollView> 
         </SafeAreaView>
     );
 }
@@ -195,6 +199,7 @@ const styles = StyleSheet.create({
     page_footer: {
         //backgroundColor: 'blue',
         flex: 3,
+        marginBottom: 30,
     },
     text_inputs_style: {
         backgroundColor: Globals.COLORS.TEXT_INPUTS,
@@ -205,6 +210,7 @@ const styles = StyleSheet.create({
         width: '85%',
         height: 45,
         paddingHorizontal: 5,
+        //paddingTop: 4,
     },
     info_text: {
         color: 'white',

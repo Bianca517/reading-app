@@ -60,7 +60,7 @@ export default function WriteABookUI() {
                 </View> 
             )
         }
-        else if(booksAreLoaded && booksWrittenByUser.length == 0) {
+        else if(booksAreLoaded && !userHasWrittenBooks) {
             return (
                 <Text style={[styles.continue_writing_text, {textAlign: 'center', marginTop: 30}]}> 
                     We are sorry. You currently don't have any written books :( 
