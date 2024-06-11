@@ -94,6 +94,7 @@ export default function WriteABookUI() {
                             numColumns={3} 
                             initialNumToRender={12}
                             ListEmptyComponent={() => renderWhenEmpty()}
+                            contentContainerStyle={styles.flatlist_content_container}
                         />
                         
                     }  
@@ -123,6 +124,7 @@ const styles = StyleSheet.create({
     },
     continue_writing_container: {
         //backgroundColor: 'grey',
+        flex: 9,
     },
     header_info: {
         //backgroundColor: 'green',
@@ -131,10 +133,13 @@ const styles = StyleSheet.create({
         alignContent: 'flex-start',
     },
     page_footer: {
+        flex: 1,
         //backgroundColor: 'purple',
+        marginTop: 20,
         paddingLeft: 20,
     },
     written_books_grid: {
+        //backgroundColor: 'yellow',
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'flex-start', // Align rows to the start
@@ -194,4 +199,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
         padding: 10,
       },
+      flatlist_content_container: {
+        paddingBottom: 10,
+      }
 })
