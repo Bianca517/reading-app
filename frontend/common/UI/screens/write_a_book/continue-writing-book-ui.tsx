@@ -35,13 +35,14 @@ export default function ContinueWritingBookUI( {route} ) {
             setBookChapters(JSON.parse(fetchedResponse.message));
 
             setNumberOfChapters(responseData.length);
-
             if(responseData.length > 0) {
                 setBookHasChapters(true);
             }
             else {
                 setBookHasChapters(false);
             }
+        } else {
+            setBookHasChapters(false);
         }
     }
 

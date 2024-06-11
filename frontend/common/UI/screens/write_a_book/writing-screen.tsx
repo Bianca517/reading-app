@@ -10,6 +10,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as DocumentPicker from 'expo-document-picker';
 import { DocumentPickerResult, DocumentPickerSuccessResult } from 'expo-document-picker';
 import { upload_song_chapter } from '../../../services/upload-media-services';
+import { FontAwesome6 } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
+import { Audio } from 'expo-av';
+import MarqueeText from 'react-native-marquee';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -23,7 +27,11 @@ export default function WritingScreenUI( {route} ) {
     const [chapterTitle, setChapterTitle] = useState<string>(null);
     const [chapterContent, setChapterContent] = useState<string>(null);
     const [numberOfChapters, setNumberOfChapters] = useState<number>(-1);
+
     const [songUri, setSongUri] = useState<string>(null);
+    const [songName, setSongName] = useState<string>(null);
+    const [sound, setSound] = useState(null);
+    const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
     //try to see if there is anything saved in async storage that user started to write
     useEffect(() => {
@@ -107,11 +115,16 @@ export default function WritingScreenUI( {route} ) {
             await DocumentPicker.getDocumentAsync({
                 type: 'audio/*',
             })
-            .then((document: DocumentPickerSuccessResult) => {
+            .then(async (document: DocumentPickerSuccessResult) => {
                 console.log(document);
                 setSongUri(document.assets[0].uri);
+                setSongName(document.assets[0].name);
+                const { sound } = await Audio.Sound.createAsync(
+                    { uri: document.assets[0].uri });
+                setSound(sound);
             })
-            .catch(() => {
+            .catch((e) => {
+                Alert.alert('Something is wrong with the chosen file.\n', e.message);
             })
         } catch (e) {
             Alert.alert('Something went wrong: ', e.message);
@@ -160,6 +173,64 @@ export default function WritingScreenUI( {route} ) {
         }
     }
 
+    async function playSound() {
+        console.log('Playing Sound');
+        if(sound) {
+            setIsPlaying(true);
+            await sound.playAsync();
+        }
+    }
+
+    async function stopSound() {
+        console.log("Pausing Sound");
+        if(sound) {
+            setIsPlaying(false);
+            await sound.pauseAsync();
+        }
+    }
+
+    function displayMusicPlayerButtons() {
+        return (
+            <View style={styles.music_player_controllers}>
+                <TouchableOpacity onPress={() => playSound()}>
+                    <FontAwesome6 name="play-circle" size={29} color={isPlaying ? 'gray' : Globals.COLORS.PURPLE} />
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => stopSound()}>
+                    <Ionicons name="pause-circle" size={34} color={isPlaying ? Globals.COLORS.PURPLE: 'gray'} />
+                </TouchableOpacity>
+            </View>
+        )
+    }
+
+    function handleAddOrRemoveSongButtonText() {
+        if(songUri !== null) {
+            return (
+                <Text style={[styles.post_chapter_text, {fontWeight: 'bold'}]}>
+                    - Remove Song 
+                </Text>
+            )
+        }
+        else {
+            return (
+                <Text style={[styles.post_chapter_text, {fontWeight: 'bold'}]}>
+                    + Add a Song 
+                </Text>
+            )
+        }
+    }
+
+    function handleAddOrRemoveSongButtonCallback() {
+        if(songUri !== null) {
+            setSongUri(null);
+            setSongName(null);
+            setIsPlaying(false);
+            setSound(null);
+        }
+        else {
+            pickADocument();
+        }
+    }
 
     return(
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -211,16 +282,34 @@ export default function WritingScreenUI( {route} ) {
                                 }}
                                 multiline
                             />
+                            {
+                                songName && (
+                                    <View style={styles.music_player_section_view}>
+                                        <Text style={styles.added_song_text}> This chapter's readers will listen to: </Text>
+                                        <View style={styles.marquee_text_view}>
+                                            <MarqueeText
+                                                style={styles.marquee_text}
+                                                speed={0.2}
+                                                marqueeOnStart={true}
+                                                loop={true}
+                                                delay={1000}
+                                                >
+                                                {songName}
+                                            </MarqueeText>
+                                        </View>
+                                        {displayMusicPlayerButtons()}
+                                    </View>   
+                                )
+                            }
+                          
 
-                            <View style={styles.buttons_footer}>
+                            <View style={styles.buttons_footer_view}>
                                 <TouchableOpacity
                                     activeOpacity={0.8}
                                     style={styles.post_chapter_button}
-                                    onPress={() => pickADocument()}
+                                    onPress={() => handleAddOrRemoveSongButtonCallback()}
                                 >
-                                    <Text style={[styles.post_chapter_text, {fontWeight: 'bold'}]}>
-                                        + Add a Song 
-                                    </Text>
+                                    {handleAddOrRemoveSongButtonText()}
                                 </TouchableOpacity>
 
                                 <TouchableOpacity
@@ -232,6 +321,7 @@ export default function WritingScreenUI( {route} ) {
                                         + Post Chapter
                                     </Text>
                                 </TouchableOpacity>
+
                             </View>
                        
                     </ScrollView>
@@ -267,6 +357,7 @@ const styles = StyleSheet.create({
         paddingTop: 25,
     },
     writing_container_scrollview: {
+        //backgroundColor: 'red',
         justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: 10,
@@ -323,8 +414,7 @@ const styles = StyleSheet.create({
         height: 40,
         alignItems: 'center',
         opacity: 1,
-        marginTop: 50,
-        marginBottom: 100,
+        //marginBottom: 100,
     },
     post_chapter_text: {
         marginTop: 3,
@@ -333,9 +423,38 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         marginHorizontal: 3,
     },
-    buttons_footer: {
-        //backgroundColor: 'red',
+    buttons_footer_view: {
+        //backgroundColor: 'yellow',
         flexDirection: 'row',
         justifyContent: 'space-between',
+        width: '100%',
+        marginTop: 40,
+        marginBottom: 40,
+    },
+    music_player_section_view: {
+        marginTop: 20,
+        //backgroundColor: 'pink',
+        width: '90%',
+        flexDirection: 'column',
+    },
+    music_player_controllers: {
+        flexDirection: 'row',
+        paddingVertical: 5,
+        alignItems: 'center',
+        alignSelf: 'center',
+    },
+    marquee_text_view: {
+        backgroundColor: 'purple',
+    },
+    marquee_text: {
+        color: 'white',
+        fontSize: 17,
+        fontStyle: 'italic',
+    },
+    added_song_text: {
+        color: 'white',
+        fontSize: 17,
+        fontWeight: '300',
+        textAlign: 'center',
     }
 })
