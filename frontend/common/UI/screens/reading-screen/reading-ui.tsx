@@ -81,7 +81,7 @@ export default function ReadingScreen( {route} ) {
     const flatlistRef = useRef<FlatList<string>>(null);
     const sheetRef = useRef<BottomSheet>(null);
     
-    const snapPoints = isAndroid ? ["55%"] : ["45%"];
+    const snapPoints = isAndroid ? ["60%"] : ["45%"];
 
     const navigation = useNavigation<NavigationProp<NavigationParameters>>();
     navigation.setOptions({
@@ -484,7 +484,7 @@ export default function ReadingScreen( {route} ) {
                     style={{marginHorizontal: 10}}
                 >
                     <BottomSheetView>
-                        <BottomSheetContent bookId={bookID} chapterNumber={chapterNumber} updateFontFamily = {updateFontFamily} updateFontSize = {updateFontSize} updateBackgroundColor = {updateBackgroundColor} updateGestureScroll = {updateGestureScroll}/>
+                        <BottomSheetContent bookId={bookID} chapterNumber={chapterNumber} isBookInLibrary={isBookInLibrary} updateFontFamily = {updateFontFamily} updateFontSize = {updateFontSize} updateBackgroundColor = {updateBackgroundColor} updateGestureScroll = {updateGestureScroll}/>
                     </BottomSheetView>
                 </BottomSheet>
                                 

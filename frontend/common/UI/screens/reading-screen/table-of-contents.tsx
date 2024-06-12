@@ -74,7 +74,7 @@ export default function TableOfContentsScreen({ route }) {
             "Reading Screen",
             { 
                 "id" : bookID, 
-                "chapterNumber" : chapterNumber, 
+                "chapterNumber" : index, 
                 "bookCoverImage" : "", 
                 "name": "", 
                 "authorUsername": "",

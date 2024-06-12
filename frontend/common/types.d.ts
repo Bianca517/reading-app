@@ -87,5 +87,9 @@ export type NavigationParameters = {
         'userPosition': string,
         'totalNumberOfChapters': number,
         "isBookInLibrary": boolean,
-    }
+    };
+
+    "Library":{
+
+    };
 }
