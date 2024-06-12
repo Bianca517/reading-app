@@ -100,7 +100,7 @@ export default function SearchResultsUI({route}) {
                         !booksNotFound && searchedBooks &&
                     /*Warning: Each child in a list should have a unique "key" prop.*/
                         searchedBooks.map((book, index) => (
-                            <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={95} bookCoverHeight={180} bookWithDetails = {false} bookNavigationOptions={Globals.BOOK_NAVIGATION_OPTIONS.ADDITIONAL_CHECK}/>
+                            <Book key={index} bookDTO={JSON.stringify(book)} bookCoverWidth={95} bookCoverHeight={180} bookWithDetails = {false} bookNavigationOptions={Globals.BOOK_NAVIGATION_OPTIONS.ADDITIONAL_CHECK}/>
                         ))
                     }
                 </ScrollView>

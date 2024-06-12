@@ -2,7 +2,7 @@ import React, { useState, useEffect, ReactNode } from 'react';
 import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, SafeAreaView, TextInput , ScrollView, FlatList, ActivityIndicator} from 'react-native';
 import Globals from '../../_globals/Globals';
 import { useNavigation } from '@react-navigation/native';
-import { ResponseType, booKDTO } from '../../../types';
+import { ResponseType, bookDTO } from '../../../types';
 import Book from '../../components/book';
 import { get_users_written_books } from '../../../services/write-book-service';
 import GlobalUserData from '../../_globals/GlobalUserData';
@@ -13,7 +13,7 @@ const windowWidth = Dimensions.get('window').width;
 export default function WriteABookUI() {
     const navigation = useNavigation();
     const [userHasWrittenBooks, setUserHasWrittenBooks] = useState(true); //start with this on TRUE so it does not display the sorry message before the fetch from DB is done
-    const [booksWrittenByUser, setBooksWrittenByUser] = useState<booKDTO[]>([]);
+    const [booksWrittenByUser, setBooksWrittenByUser] = useState<bookDTO[]>([]);
     const [booksAreLoaded, setBooksAreLoaded] = useState<boolean>(false);
     
     //this loads at start of page
@@ -22,15 +22,14 @@ export default function WriteABookUI() {
     }, []);
 
     async function loadBooksWrittenByUser() {
-        let fetchedResponse: ResponseType = await get_users_written_books(GlobalUserData.LOGGED_IN_USER_DATA.uid).then();
+        let fetchedResponse: bookDTO[] = await get_users_written_books(GlobalUserData.LOGGED_IN_USER_DATA.uid).then();
         console.log("books by user:");
         console.log(fetchedResponse);
-        if(fetchedResponse.success) {
-            const responseData: string[] = JSON.parse(fetchedResponse.message);
-            setBooksWrittenByUser(JSON.parse(fetchedResponse.message));
+        if(fetchedResponse) {
+            setBooksWrittenByUser(fetchedResponse);
             setBooksAreLoaded(true);
 
-            if(responseData.length > 0) {
+            if(fetchedResponse.length > 0) {
                 setUserHasWrittenBooks(true);
             }
             else {
@@ -39,11 +38,11 @@ export default function WriteABookUI() {
         }
     }
 
-    const renderItem = ({ item }: { item: booKDTO }) => {
+    const renderItem = ({ item }: { item: bookDTO }) => {
         return (
             <Book 
-                key={item.id} 
-                bookFields={JSON.stringify(item)} 
+                key={item.bookID} 
+                bookDTO={item} 
                 bookCoverWidth={90} 
                 bookCoverHeight={160} 
                 bookWithDetails={true} 
@@ -90,7 +89,7 @@ export default function WriteABookUI() {
                         <FlatList
                             data={booksWrittenByUser}
                             renderItem={renderItem}
-                            keyExtractor={item => item.id}
+                            keyExtractor={item => item.bookID}
                             numColumns={3} 
                             initialNumToRender={12}
                             ListEmptyComponent={() => renderWhenEmpty()}

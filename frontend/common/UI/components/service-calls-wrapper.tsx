@@ -2,9 +2,11 @@
 import GlobalBookData from "../_globals/GlobalBookData";
 import Globals from "../_globals/Globals";
 import { get_readings_planned_for_month } from "../../services/reading-planner-service";
-import { ResponseType } from "../../types";
+import { ResponseType, UserPositions } from "../../types";
 import { get_total_nr_of_chapters, get_book_chapter_title, get_book_chapter_content } from "../../services/book-reading-service";
 import { textParagraph } from "../../types";
+import { getAllUserPositions } from "../../services/monitor-user-position-service";
+import GlobalUserData from "../_globals/GlobalUserData";
 
 interface chapterContentFromBackend {
     [key: string]: string;
@@ -85,4 +87,13 @@ export async function loadBookChapterContent(bookID: string, chapterNumber: numb
     // console.log("this shall be fine\n");
     // console.log(receivedChapterContent);
     return receivedChapterContent
+}
+
+export async function loadUserCurrentPositions() {
+    getAllUserPositions(GlobalUserData.LOGGED_IN_USER_DATA.uid).then(( fetchResponse: UserPositions ) => {
+            if(fetchResponse != null) {
+                GlobalBookData.USER_CURRENT_POSITIONS = fetchResponse;
+                console.log(GlobalBookData.USER_CURRENT_POSITIONS);
+            }
+    })
 }

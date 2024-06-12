@@ -3,10 +3,12 @@ import { StyleSheet, View, Image, Text, TouchableOpacity } from 'react-native';
 import Globals from '../_globals/Globals';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import GlobalBookData from '../_globals/GlobalBookData';
-import { NavigationParameters } from '../../types';
+import { NavigationParameters, bookDTO, ResponseType } from '../../types';
+import { get_total_nr_of_chapters } from '../../services/book-reading-service';
+import GlobalUserData from '../_globals/GlobalUserData';
 
 type BookProps = {
-    bookFields: string,
+    bookDTO: bookDTO,
     bookCoverWidth: number,
     bookCoverHeight: number,
     bookWithDetails: boolean,
@@ -17,37 +19,82 @@ export default function Book(props: BookProps) {
     const [isLongPressed, setIsLongPressed] = useState(false);
     const navigation = useNavigation<NavigationProp<NavigationParameters>>();
 
-    let bookFieldsJSON = JSON.parse(props.bookFields);
     //console.log(bookFieldsJSON);
-    const bookTitle = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[0]];
-    const bookAuthor = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[1]];
-    const bookID = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[Globals.BOOK_COLLECTION_FIELDS_ID_INDEX]];
-    let bookCover = "";
-    const [userCurrentChapterInBook, setUserCurrentChapterInBook] = useState<number>(-1); 
-    const [isBookInLibrary, setIsBookInLibrary] = useState<boolean>(false);
+    const bookTitle = props.bookDTO.bookTitle;
+    const bookAuthor = props.bookDTO.authorUsername;
+    const bookID = props.bookDTO.bookID;
     
+  
+    let bookCover = "";
+    const [userCurrentChapterInBook, setUserCurrentChapterInBook] = useState<number>(); 
+    const [isBookInLibrary, setIsBookInLibrary] = useState<boolean>(false);
+    const [readPercentageOfBook, setReadPercentageOfBook] = useState<number>(0);
+    const [totalNumberOfChapters, setTotalNumberOfChapters] = useState<number>(0);
+
     function handleLongPress() {
         console.log("handleLongPress: " + isLongPressed);
     }
 
     useEffect(() => {
         checkIfBookIsInLibrary();
+        if(props.bookWithDetails) {
+            loadTotalNumberOfChapters();
+            getUserCurrentPositionInBook();
+        }
     }, []);
 
+    /*
+    useEffect(() => {
+        calculateReadPercentageOfBook();
+    }, [totalNumberOfChapters]);
+    */
+
     function checkIfBookIsInLibrary() {
-        GlobalBookData.CURRENT_READINGS.forEach(book => {
-            if(bookID == book.id) {
-                setIsBookInLibrary(true);
-            }
-        });
+        if(GlobalBookData.CURRENT_READINGS.length > 0) {
+            //console.log(GlobalBookData.CURRENT_READINGS);
+            GlobalBookData.CURRENT_READINGS.forEach((book: bookDTO) => {
+                if(bookID == book.bookID) {
+                    setIsBookInLibrary(true);
+                    //setUserCurrentChapterInBook(book.userPosition);
+                }
+            });
+        }
 
         if(!isBookInLibrary) {
             GlobalBookData.FINALIZED_READINGS.forEach(book => {
-                if(bookID == book.id) {
+                if(bookID == book.bookID) {
                     setIsBookInLibrary(true);
                 }
             });
         }
+    }
+
+    function getUserCurrentPositionInBook() {
+        if(isBookInLibrary) {
+            setUserCurrentChapterInBook(parseInt(GlobalBookData.USER_CURRENT_POSITIONS[bookID]));
+            console.log(userCurrentChapterInBook);
+        }
+    }
+
+    async function loadTotalNumberOfChapters() {
+        get_total_nr_of_chapters(bookID).then((fetchResponse: ResponseType) => {
+            if (fetchResponse.success) {
+                const totalNumberOfChapters: number = parseInt(fetchResponse.message);
+                setTotalNumberOfChapters(totalNumberOfChapters);
+            }
+        })
+    }
+
+    function calculateReadPercentageOfBook(): number {
+        // p/100 * total_chapter = nr_chapter
+        let percentage: number = 0;
+        console.log("haipls");
+        console.log(userCurrentChapterInBook);
+        if(userCurrentChapterInBook > 0 && totalNumberOfChapters != 0) {
+            percentage = Math.round(userCurrentChapterInBook * 100 / totalNumberOfChapters);
+        }
+   
+        return percentage;
     }
 
     function handleNavigation() {
@@ -56,10 +103,11 @@ export default function Book(props: BookProps) {
                 navigation.navigate("Reading Screen", 
                 { 
                     "id" : bookID, 
-                    "chapterNumber" : 0, 
+                    "chapterNumber" : parseInt(GlobalBookData.USER_CURRENT_POSITIONS[bookID]), 
                     "bookCoverImage" : bookCover, 
                     "name": bookTitle, 
-                    "authorUsername": bookAuthor
+                    "authorUsername": bookAuthor,
+                    isBookInLibrary: isBookInLibrary
                 })
                 break;
                 }
@@ -71,7 +119,8 @@ export default function Book(props: BookProps) {
                     "chapterNumber" : 0, 
                     "bookCoverImage" : bookCover, 
                     "name": bookTitle, 
-                    "authorUsername": bookAuthor
+                    "authorUsername": bookAuthor,
+                    "numberOfChapters": totalNumberOfChapters
                 })
                 break;
             }
@@ -85,24 +134,26 @@ export default function Book(props: BookProps) {
             }
 
             case Globals.BOOK_NAVIGATION_OPTIONS.ADDITIONAL_CHECK: {
-                if(!isBookInLibrary || (userCurrentChapterInBook == 0)) {
+                if(!isBookInLibrary) {
                     navigation.navigate("Prologue", 
                     { 
                         "id" : bookID, 
                         "chapterNumber" : 0, 
                         "bookCoverImage" : bookCover, 
                         "name": bookTitle, 
-                        "authorUsername": bookAuthor
+                        "authorUsername": bookAuthor,
+                        "numberOfChapters": totalNumberOfChapters
                     })
                 }
                 else {
                     navigation.navigate("Reading Screen", 
                     { 
                         "id" : bookID, 
-                        "chapterNumber" : 0, 
+                        "chapterNumber" : parseInt(GlobalBookData.USER_CURRENT_POSITIONS[bookID]), 
                         "bookCoverImage" : bookCover, 
                         "name": bookTitle, 
-                        "authorUsername": bookAuthor
+                        "authorUsername": bookAuthor,
+                        isBookInLibrary: isBookInLibrary
                     })
                 }
                 break;
@@ -145,7 +196,10 @@ export default function Book(props: BookProps) {
                         styles.book_container_button, 
                         { width: props.bookCoverWidth, height: props.bookCoverHeight }
                     ]}
-                    onLongPress={() => setIsLongPressed(true)}
+                    onLongPress={() => {
+                        setIsLongPressed(true)
+                        getUserCurrentPositionInBook();
+                    }}
                     onPressOut={() => setIsLongPressed(false)}
                     onPress={() => handleNavigation()}
                 >
@@ -160,7 +214,7 @@ export default function Book(props: BookProps) {
                     props.bookWithDetails && isLongPressed && 
                         (<View style={[styles.book_overlay_details_container, {top: props.bookCoverHeight / 4, left: props.bookCoverWidth / 12}]}>
                             <View style={styles.book_overlay_circle}>
-                                <Text style={styles.book_overlay_text_percentage}> 30% </Text>
+                                <Text style={styles.book_overlay_text_percentage}> {calculateReadPercentageOfBook()}% </Text>
                             </View>
                         </View>
                         )

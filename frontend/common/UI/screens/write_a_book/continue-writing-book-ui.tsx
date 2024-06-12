@@ -1,10 +1,11 @@
 import React, { useState, useEffect, ReactNode, JSXElementConstructor } from 'react';
-import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, SafeAreaView, TextInput , ScrollView} from 'react-native';
+import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, SafeAreaView, TextInput , ScrollView, FlatList} from 'react-native';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { get_all_chapters_from_book } from '../../../services/write-book-service';
-import { NavigationParameters, ResponseType } from '../../../types';
+import { get_all_chapters_from_book, setBookFinished, getIsBookFinished } from '../../../services/write-book-service';
+import { GetIsFinishedResponseType, NavigationParameters, ResponseType } from '../../../types';
 import Globals from '../../_globals/Globals';
 import { useIsFocused } from "@react-navigation/native";
+import Checkbox from 'expo-checkbox';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -13,8 +14,8 @@ export default function ContinueWritingBookUI( {route} ) {
     const bookID: string = route.params.bookID;
     const [bookChapters, setBookChapters] = useState([]);
     const [bookHasChapters, setBookHasChapters] = useState(true);
-
     const navigation = useNavigation<NavigationProp<NavigationParameters>>();
+    const [isBookMarkedAsFinished, setIsBookMarkedAsFinished] = useState(false);
 
     const [numberOfChapters, setNumberOfChapters] = useState(0); //used only for passing to writing screen
 
@@ -23,8 +24,14 @@ export default function ContinueWritingBookUI( {route} ) {
         if (isFocused) {
             console.log(bookID);
             loadAllBookChapters();
+            loadIsFinishedBook();
         }
       }, [isFocused]);
+
+    
+    useEffect(() => {
+        
+    }, []);
 
 
     async function loadAllBookChapters() {
@@ -47,33 +54,91 @@ export default function ContinueWritingBookUI( {route} ) {
     }
 
 
-    function renderChapters() {
-        const chapterViews = [];
+    async function loadIsFinishedBook() {
+        await getIsBookFinished(bookID)
+        .then(
+            (fetchedResponse: GetIsFinishedResponseType) => {
+                //if the status was successful, take into consideration the isFinished field
+                if(fetchedResponse.status == 0) {
+                    //console.log(fetchedResponse);
+                    //console.log("setting is finished use state to  ", fetchedResponse.isFinished);
+                    const aux: boolean = fetchedResponse.isFinished == 0 ? false : true;
+                    console.log(aux);
+                    setIsBookMarkedAsFinished(aux);
+                }
+            }
+        )
+        .catch((e) => {
+            console.log("could not fetch is book finised ", e.message);
+        });
+    }
 
-        // nice bug found
-        // When you use var, the variable i is function-scoped and not block-scoped => by the time the onPress function is called, the loop has already completed, and i holds its final value.
-        // let is block-scoped, meaning each iteration of the loop will have its own instance of i.
-        for(let i = 0; i < bookChapters.length; i++) {
-            let chapterView = (
-                <TouchableOpacity style={styles.chapter_container} 
+    const renderItem = ({ item, index }) => {
+        return (
+            <TouchableOpacity style={styles.chapter_container} 
                     onPress={() => navigation.navigate("Reading Screen", 
                         { 
                             "id" : bookID, 
-                            "chapterNumber" : i, 
+                            "chapterNumber" : index, 
                             "bookCoverImage" : "", 
                             "name": "", 
-                            "authorUsername": ""
+                            "authorUsername": "",
+                            "isBookInLibrary": false,
                         })}>
-                    <Text style={[styles.chapter_number]}> Chapter {i + 1} - </Text>
-                    <Text style={styles.chapter_titles}>{bookChapters[i]}</Text>
-                </TouchableOpacity>
-            )
-            chapterViews.push(chapterView);
-        }
-
-        return chapterViews;
+                    <Text style={[styles.chapter_number]}> Chapter {index + 1} - </Text>
+                    <Text style={styles.chapter_titles}>{item}</Text>
+            </TouchableOpacity>
+        );
     }
 
+    function renderWhenEmpty() {
+        if(!bookHasChapters) {
+            return (
+                <Text style={[styles.title_text, {textAlign: 'center', marginTop: 30}]}> This book has no chapters yet :( </Text>
+            )
+        }
+        else {
+            return null;
+        }
+    }
+
+    function checkBoxValueChanged(value: boolean) {
+        console.log("value changed");
+        console.log(value);
+        setIsBookMarkedAsFinished(value);
+        setBookFinished(bookID, value);
+    }
+
+    function footerComponent() {
+        //if book if already marked as finished, dont show the button to add new chapter
+        //instead, show just the checkbox, which is checked. backend functions needed for this
+
+        //in current readings, should be a map in the db like bookid: position
+
+        return (
+            <View style={styles.button_and_checkbox_view}>
+                <View style={styles.checkbox_view}>
+                    <Checkbox
+                        style={styles.checkbox}
+                        value={isBookMarkedAsFinished}
+                        onValueChange={checkBoxValueChanged}
+                        color={isBookMarkedAsFinished ? Globals.COLORS.PURPLE : 'white'}
+                    />
+                    <Text style={[styles.title_text, {fontSize: 16, alignSelf: 'center', marginTop: -1}]}> Mark book as finished </Text>
+                </View>
+                <TouchableOpacity 
+                    activeOpacity={0.7} 
+                    disabled={isBookMarkedAsFinished == true}
+                    style={[styles.write_new_chapter_button, {backgroundColor: isBookMarkedAsFinished == true ? '#D3D3D3' : 'white'}]}
+                    onPress={() => navigation.navigate("Write New Chapter", {bookID: bookID, numberOfChapters: numberOfChapters})}
+                >
+                        <Text style = {[styles.write_new_chapter_text, {color: isBookMarkedAsFinished == true ? '#A9A9A9' : Globals.COLORS.PURPLE}]}>
+                            + Add New Chapter
+                        </Text>
+                </TouchableOpacity>
+            </View>
+        )
+    }
 
     return(
         <SafeAreaView style={styles.fullscreen_container}>
@@ -84,26 +149,17 @@ export default function ContinueWritingBookUI( {route} ) {
            </View>
            
            <View style={styles.chapters_container}>
-            <ScrollView>
-                {
-                    bookHasChapters ? (
-                        renderChapters()
-                    )
-                    : (
-                        <Text style={[styles.title_text, {textAlign: 'center', marginTop: 30}]}> This book has no chapters yet :( </Text>
-                    )
-                }
+
+                <FlatList
+                    data={bookChapters}
+                    renderItem={renderItem}
+                    keyExtractor={(item, index) => index.toString()}
+                    numColumns={1}
+                    initialNumToRender={10}
+                    ListEmptyComponent={renderWhenEmpty}
+                    ListFooterComponent={footerComponent}
+                />
            
-            <TouchableOpacity 
-                activeOpacity={0.7} 
-                style={styles.write_new_chapter_button}
-                onPress={() => navigation.navigate("Write New Chapter", {bookID: bookID, numberOfChapters: numberOfChapters})}
-            >
-                    <Text style = {styles.write_new_chapter_text}>
-                        + Add New Chapter
-                    </Text>
-                </TouchableOpacity>
-                </ScrollView>
            </View>
         </SafeAreaView>
     );
@@ -164,7 +220,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     write_new_chapter_button: {
-        backgroundColor: 'white',
         borderRadius: 20,
         paddingHorizontal: 10,
         paddingVertical: 5,
@@ -176,7 +231,6 @@ const styles = StyleSheet.create({
     },
     write_new_chapter_text: {
         marginTop: 3,
-        color: Globals.COLORS.PURPLE,
         fontWeight: 'bold',
         fontSize: 15,
         justifyContent: 'flex-start',
@@ -200,5 +254,22 @@ const styles = StyleSheet.create({
         marginHorizontal: 1,
         width: 100,
         textAlign: 'center',
+    },
+    checkbox: {
+        margin: 8,
+    },
+    button_and_checkbox_view: {
+        flexDirection: 'column',
+        marginTop: 20,
+    },
+    checkbox_view: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        //backgroundColor: 'red',
+    },
+    checkbox_text: {
+        color: 'white',
+        fontSize: 17,
+        fontWeight: "300",
     }
 })

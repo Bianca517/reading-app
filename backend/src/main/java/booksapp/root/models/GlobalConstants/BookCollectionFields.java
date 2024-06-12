@@ -12,7 +12,8 @@ public enum BookCollectionFields {
     GENRE(8, "genre"),
     DESCRIPTION(9, "description"),
     PARAGRAPHS(10, "paragraphs"),
-    CHAPTERS_CONTENT(11, "chaptersContent");
+    CHAPTERS_CONTENT(11, "chaptersContent"), 
+    IS_FINISHED(12, "isFinished");
 
     private final int index;
     private final String fieldName;

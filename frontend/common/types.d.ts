@@ -2,7 +2,12 @@
 export type ResponseType = {
         success: boolean;
         message: string;
-    }
+}
+
+export type ResponseTypeRetrieveBooks = {
+    status: number;
+    books: bookInLibrary[];
+}
 
 export type ResponseTypePOST = {
         status: number;
@@ -17,16 +22,26 @@ export type UserAuthenticationResponseType = {
     }
 }
 
+export type GetIsFinishedResponseType = { 
+    status: number;
+    isFinished: number;
+}
+
 export type textParagraph = {
         id: string;
         content: string;
 }
 
-export type booKDTO = {
-    name: string;
+export type bookDTO = {
+    bookTitle: string;
     authorUsername: string;
-    id: string;
+    bookID: string;
+    numberOfChapters: number;
 }
+
+export type UserPositions = { 
+    [key: string]: string 
+};
 
 export type NavigationParameters = {
     "Reading Screen":
@@ -35,7 +50,8 @@ export type NavigationParameters = {
         "chapterNumber" : number, 
         "bookCoverImage" : string, 
         "name": string, 
-        "authorUsername": string
+        "authorUsername": string,
+        "isBookInLibrary": boolean,
     };
 
     "Prologue":
@@ -44,7 +60,8 @@ export type NavigationParameters = {
         "chapterNumber" : number, 
         "bookCoverImage" : string, 
         "name": string, 
-        "authorUsername": string
+        "authorUsername": string,
+        "numberOfChapters": number
     };
 
     "Continue Writing": {
@@ -62,5 +79,17 @@ export type NavigationParameters = {
 
     "Write a Book": {
         
-    }
+    };
+
+    "Table of Contents": {
+        'bookID' : string,
+        'chapterTitles': string[],
+        'userPosition': string,
+        'totalNumberOfChapters': number,
+        "isBookInLibrary": boolean,
+    };
+
+    "Library":{
+
+    };
 }

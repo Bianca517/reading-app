@@ -1,6 +1,7 @@
 package booksapp.root.services;
 
 import booksapp.root.models.Book;
+import booksapp.root.models.BookDTO;
 import booksapp.root.models.GlobalConstants.BookCollectionFields;
 import booksapp.root.models.GlobalConstants.GlobalConstants;
 import booksapp.root.models.bookcomponents.BookChapter;
@@ -189,10 +190,13 @@ public class writingBookService {
             Book foundBook = bookDoc.get().get().toObject(Book.class);
             
             ArrayList<String> paragraphs = parseChapterContent(chapterContent);
+        
             for (String paragraph : paragraphs) {
-                BookParagraph newParagraph = new BookParagraph();
-                newParagraph.setContent(paragraph);
-                foundBook.getBookContent().getChapters().get(chapterNumber.toString()).addParagraph(newParagraph);
+                if(paragraph.strip().length() > 0){
+                    BookParagraph newParagraph = new BookParagraph();
+                    newParagraph.setContent(paragraph);
+                    foundBook.getBookContent().getChapters().get(chapterNumber.toString()).addParagraph(newParagraph);
+                }
             }
             bookDoc.set(foundBook);
 
@@ -205,11 +209,11 @@ public class writingBookService {
         return returnedStatus;
     }
 
-    public ArrayList<HashMap<String, String>> getAllBooksWrittenByUser(String UID) {
+    public ArrayList<BookDTO> getAllBooksWrittenByUser(String UID) {
         //filter all books to have book author username == UID
         Query collectionDocumentsQuery;
-        ArrayList<HashMap<String, String>> booksFields = null;
-        booksFields = new ArrayList<HashMap<String, String>>();
+        ArrayList<BookDTO> results = null;
+        results = new ArrayList<BookDTO>();
 
         try {
             collectionDocumentsQuery = booksCollectionDB.get().get().getQuery();
@@ -217,17 +221,17 @@ public class writingBookService {
             List<QueryDocumentSnapshot> resultedBooks = collectionDocumentsQuery.get().get().getDocuments();
             if(resultedBooks.size() > 0) {
                 for (QueryDocumentSnapshot bookSnapshot : resultedBooks) {
-                    Book foundBook = new Book(bookSnapshot);
                     //System.out.println("found book by user " + this.userDataService.getUsernameByUserId(UID));
                     //System.out.println(foundBook);
-                    booksFields.add(foundBook.toHashMapString(bookSnapshot.getId()));
+                    results.add(new BookDTO(bookSnapshot));
+                    
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         } 
 
-        return booksFields;
+        return results;
     }
 
     public List<String> getAllChaptersOfBook(String bookID) {
@@ -366,5 +370,44 @@ public class writingBookService {
 
     private String constructSongName(String bookID, String chapterNumber) {
         return bookID + '_' + chapterNumber;
+    }
+
+    public int setBookFinished(String bookID, boolean isFinished) {
+        int status = GlobalConstants.STATUS_FAILED;
+        DocumentReference book = null;
+
+        try {
+            book = booksCollectionDB.document(bookID);
+            Book foundBook = book.get().get().toObject(Book.class);
+            //System.out.println("am trecut de to object");
+            if(foundBook.getIsFinished() != isFinished) {
+                foundBook.setIsFinished(isFinished);
+                book.set(foundBook);
+            }
+            status = GlobalConstants.STATUS_SUCCESSFUL;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return status;
+    }
+
+    public ArrayList<Integer> getIsBookFinished(String bookID) {
+        ArrayList<Integer> returnedStatus = new ArrayList<Integer>();
+        int status = GlobalConstants.STATUS_FAILED;
+        boolean isFinished = false;
+        DocumentReference book = null;
+
+        try {
+            book = booksCollectionDB.document(bookID);
+            Book foundBook = book.get().get().toObject(Book.class);
+            isFinished = foundBook.getIsFinished();
+            status = GlobalConstants.STATUS_SUCCESSFUL;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        returnedStatus.add(status);
+        returnedStatus.add(isFinished == true ? 1 : 0);
+        return returnedStatus;
     }
 }

@@ -26,8 +26,8 @@ export default function LibraryPageNavigator(props: libraryPageSection) {
                 onPress={() => { navigation.navigate('Finalized Books' as never) }}
                 style={[styles.library_sections_buttons, { backgroundColor: Globals.LIBRARY_SECTIONS['FINALIZED_READINGS'] == props.librarySection ? '#6b6b6b' : 'transparent' }]}
             >
-                <Text style={styles.library_sections_buttons_text}> Finalized </Text>
-                <Text style={styles.library_sections_buttons_text}> readings </Text>
+                <Text style={styles.library_sections_buttons_text}> Finished </Text>
+                <Text style={styles.library_sections_buttons_text}> books </Text>
             </TouchableOpacity>
 
             <TouchableOpacity

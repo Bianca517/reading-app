@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { StyleSheet, Text, View, Switch, Platform} from 'react-native'; 
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { StyleSheet, Text, View, Switch, Platform, Alert} from 'react-native'; 
 import Globals from '../_globals/Globals';
 import { FontPicker } from './font-picker';
 import { TouchableHighlight } from 'react-native-gesture-handler';
@@ -9,6 +9,10 @@ import { AVPlaybackStatus, Audio } from 'expo-av';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import { SoundObject } from 'expo-av/build/Audio';
+import GlobalBookData from '../_globals/GlobalBookData';
+import { NavigationParameters, bookDTO } from '../../types';
+import GlobalUserData from '../_globals/GlobalUserData';
+import { remove_book_from_library } from '../../services/book-reading-service';
 
 const backgroundColors: { [key: string]: string } = {
     [Globals.BACKGROUND_COLOR_0]: Globals.COLORS.BACKGROUND_WHITE,
@@ -19,6 +23,7 @@ const backgroundColors: { [key: string]: string } = {
 type props = {
     bookId: string,
     chapterNumber: number,
+    isBookInLibrary: boolean,
     updateFontFamily: (fontFamily: string) => void;
     updateFontSize: (increaseFont: boolean) => void;
     updateBackgroundColor: (backgroundColor: string) => void;
@@ -26,7 +31,7 @@ type props = {
 }
 
 
-export default function BottomSheetContent( {bookId, chapterNumber, updateFontFamily, updateFontSize, updateBackgroundColor, updateGestureScroll} : props) {
+export default function BottomSheetContent( {bookId, chapterNumber, isBookInLibrary, updateFontFamily, updateFontSize, updateBackgroundColor, updateGestureScroll} : props) {
     const toggleSwitch = () => setIsGestureScrollingActive(previousState => !previousState);
 
     //platform OS
@@ -42,6 +47,8 @@ export default function BottomSheetContent( {bookId, chapterNumber, updateFontFa
     const [sound, setSound] = useState(null);
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
     const [isLoaded, setIsLoaded] = useState<boolean>(false);
+
+    const navigation = useNavigation<NavigationProp<NavigationParameters>>();
 
     const status = {
         shouldPlay: false,
@@ -104,6 +111,17 @@ export default function BottomSheetContent( {bookId, chapterNumber, updateFontFa
             setIsPlaying(false);
             await sound.pauseAsync();
         }
+    }
+    
+    function handleRemoveBook() {
+        //remove from current readings
+        GlobalBookData.CURRENT_READINGS = GlobalBookData.CURRENT_READINGS.filter((book: bookDTO) => book.bookID != bookId);
+        remove_book_from_library(bookId, GlobalUserData.LOGGED_IN_USER_DATA.uid).then((success: Boolean) => {
+            if(success) {
+                Alert.alert("Successfully removed book from library!");
+                navigation.navigate("Library");
+            }
+        })
     }
     
     return (
@@ -193,6 +211,17 @@ export default function BottomSheetContent( {bookId, chapterNumber, updateFontFa
                     onClose={() => setIsFontPickerVisible(false)}
                 />
             </View>
+
+            {
+                isBookInLibrary && (
+                    <View style={[styles.remove_button_view, {marginTop: isLoaded ? 10 : 20}]}>
+                    <TouchableOpacity style={styles.remove_button} onPress={() => handleRemoveBook()}>
+                            <Text style={styles.remove_button_text}>Remove book from library</Text>
+                    </TouchableOpacity>
+                </View>
+                )
+            }
+           
         </View>
     )
 }
@@ -330,6 +359,23 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         paddingRight: 70,
+    },
+    remove_button_view: {
+        
+    },
+    remove_button: {
+        backgroundColor: 'red',
+        borderRadius: 10,
+        height: 40,
+        flexDirection: 'column',
+        justifyContent: 'center',
+    },
+    remove_button_text: {
+        marginHorizontal: 10,
+        fontSize: 15,
+        color: 'white',
+        fontWeight: 'bold',
+        textAlign: 'center'
     }
 })
 

@@ -12,24 +12,24 @@ import java.util.Map;
 // this is the USER model for the books-app
 @Component
 public class User {
-    private Long id;
     private String userName;
     private String emailAddress;
     private String password;
     private String salt;
     private ArrayList<String> interests;
-    private ArrayList<String> currentReadings;
+    private HashMap<String, String> currentReadings;
     private ArrayList<String> finalizedReadings;
     private HashMap<String, ArrayList<String>> plannedBooks; //month : [array of books]
 
     public User() {
     }
 
-    public User(Long id, String userName, String emailAddress, String password) {
-        this.id = id;
+    
+    public User(String userName, String emailAddress, String password, String salt) {
         this.userName = userName;
         this.emailAddress = emailAddress;
         this.password = password;
+        this.salt = salt;
         initializeArrays();
     }
 
@@ -48,17 +48,9 @@ public class User {
 
     private void initializeArrays() {
         this.interests = new ArrayList<String>();
-        this.currentReadings = new ArrayList<String>();
+        this.currentReadings = new HashMap<String, String>();
         this.finalizedReadings = new ArrayList<String>();
         this.plannedBooks = new HashMap<String, ArrayList<String>>();
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getUserName() {
@@ -96,7 +88,6 @@ public class User {
     @Override
     public String toString() {
         return "user{" +
-                "id=" + id +
                 ", userName='" + userName + '\'' +
                 ", emailAddress='" + emailAddress + '\'' +
                 ", password='" + password + '\'' +
@@ -112,7 +103,7 @@ public class User {
         return dictionary;
     }
 
-    public ArrayList<String> getCurrentReadings() {
+    public HashMap<String, String> getCurrentReadings() {
         return currentReadings;
     }
 
@@ -128,8 +119,35 @@ public class User {
         return plannedBooks;
     }
 
-    public void setCurrentReadings(ArrayList<String> currentReadings) {
+    public void setCurrentReadings(HashMap<String, String> currentReadings) {
         this.currentReadings = currentReadings;
+    }
+
+    public void removeBookFromCurrentReadings(String bookID) {
+        if(currentReadings.containsKey(bookID)) {
+            currentReadings.remove(bookID);
+        }
+    }
+
+    public void updateUserCurrentPositionInBook(String bookID, String chapter) {
+        if(currentReadings.containsKey(bookID)) {
+            currentReadings.put(bookID, chapter);
+        }
+    }
+
+    public void addBookToCurrentReadings(String bookID) {
+        //if it is not already there, add it with current position 0
+        if(!currentReadings.containsKey(bookID)){
+            currentReadings.put(bookID, "0");
+        }
+    }
+
+    public String retrieveUserCurrentPositionInBook(String bookID) {
+        String userPositionInBook = "-1";
+        if(currentReadings.containsKey(bookID)) {
+            userPositionInBook = currentReadings.get(bookID);
+        }
+        return userPositionInBook;
     }
 
     public void setFinalizedReadings(ArrayList<String> finalizedReadings) {

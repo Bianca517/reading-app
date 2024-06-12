@@ -3,15 +3,21 @@ import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ScrollView, Ima
 import Globals from '../../_globals/Globals';
 import BottomSheet, { BottomSheetView, SCREEN_WIDTH } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useNavigation } from '@react-navigation/native';
+import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
 import BottomSheetContent from '../../components/bottom-sheet-content';
 import { AntDesign } from '@expo/vector-icons'; 
 import TextDistributer from '../../components/page-distribution-calculator';
 import { loadChapterTitles, loadTotalNumberOfChapters, loadBookChapterTitle, loadBookChapterContent } from '../../components/service-calls-wrapper';
 import PageView from '../../components/page-view';
-import { textParagraph } from "../../../types";
+import { GetIsFinishedResponseType, NavigationParameters, bookDTO, textParagraph } from "../../../types";
 import { useIsFocused } from "@react-navigation/native";
 import { Animated } from 'react-native';
+import GlobalBookData from '../../_globals/GlobalBookData';
+import { updateUserCurrentPositionInBook } from '../../../services/monitor-user-position-service';
+import GlobalUserData from '../../_globals/GlobalUserData';
+import { add_book_to_finished_books, remove_book_from_library } from '../../../services/book-reading-service';
+import { get_finalized_readings } from '../../../services/retrieve-books-service';
+import { getIsBookFinished } from '../../../services/write-book-service';
 
 let FaceDetectionModule = null;
 
@@ -38,6 +44,7 @@ export default function ReadingScreen( {route} ) {
     //route params
     const bookID = route.params.id;
     const chapterNumberFromRoute = route.params.chapterNumber;
+    const isBookInLibrary: boolean = route.params.isBookInLibrary;
 
     //customization parameters
     const [selectedBackgroundColor, setSelectedBackgroundColor] = useState<string>(Globals.COLORS.BACKGROUND_GRAY);
@@ -74,9 +81,9 @@ export default function ReadingScreen( {route} ) {
     const flatlistRef = useRef<FlatList<string>>(null);
     const sheetRef = useRef<BottomSheet>(null);
     
-    const snapPoints = isAndroid ? ["55%"] : ["45%"];
+    const snapPoints = isAndroid ? ["60%"] : ["45%"];
 
-    const navigation = useNavigation();
+    const navigation = useNavigation<NavigationProp<NavigationParameters>>();
     navigation.setOptions({
         headerRight: () => (
                 <Button
@@ -157,7 +164,24 @@ export default function ReadingScreen( {route} ) {
         //console.log("gesture scroll active ", isGestureScrollingActive);
     }, [isGestureScrollingActive]);
     
- 
+    useFocusEffect(
+        React.useCallback(() => {
+            // This function will be called when the screen is focused
+            return () => {
+                // This function will be called when the screen loses focus or unmounts
+                if (typeof chapterNumber !== 'undefined' && isBookInLibrary) {
+                    console.log("on removeeeeeeeeee", chapterNumber);
+                    GlobalBookData.USER_CURRENT_POSITIONS[bookID] = chapterNumber.toString();
+                    console.log(GlobalBookData.USER_CURRENT_POSITIONS);
+                    updateUserCurrentPositionInBook(GlobalUserData.LOGGED_IN_USER_DATA.uid, bookID, chapterNumber.toString());
+                    if(chapterNumber == (totalNumberOfChapters-1)) {
+                        handleEndOfTheBook();
+                    }
+                }
+            };
+        }, [chapterNumber, bookID])
+    );
+
     function checkPreviousScreen() {
         /*
         const routes = navigation.getState()?.routes;
@@ -257,6 +281,9 @@ export default function ReadingScreen( {route} ) {
             flatlistRef.current?.scrollToIndex({ //first page of next chapter
                 index: 0,
             });
+
+            //update user position in book
+            GlobalBookData.USER_CURRENT_POSITIONS[bookID] = incrementedChapterNumber.toString();
         }
     }
 
@@ -267,6 +294,9 @@ export default function ReadingScreen( {route} ) {
             console.log("2setting chapter number to ", chapterNumber);
             //console.log("navigate to previous chapter ");
             setNavigatedToPreviousChapter(true);
+
+            //update user position in book
+            GlobalBookData.USER_CURRENT_POSITIONS[bookID] = previousChapterNumber.toString();
         }
     }
 
@@ -327,6 +357,7 @@ export default function ReadingScreen( {route} ) {
                         console.log("setez next chapter trigger after: ", navigateToNextChapterTrigger);
                     }
                     else {
+                        //user reached end of the book
                         setNavigateToNextChapterTrigger(false);
                     }
                 }
@@ -338,6 +369,41 @@ export default function ReadingScreen( {route} ) {
         }
     }, [chapterNumber, totalNumberOfChapters, totalPageNumbers]); //!!!an empty dependency array means that the function will capture the initial values of the variables used inside it.
 
+    function handleNavigationToTableOfContents() {
+        navigation.navigate("Table of Contents", {
+            'bookID' : bookID, 
+            'chapterTitles': chapterTitles,
+            'userPosition': chapterNumber.toString(),
+            'totalNumberOfChapters': totalNumberOfChapters,
+            "isBookInLibrary": isBookInLibrary,
+        })
+    }
+
+    async function handleEndOfTheBook() {
+        await getIsBookFinished(bookID)
+        .then(
+            async (fetchedResponse: GetIsFinishedResponseType) => {
+                //if the status was successful, take into consideration the isFinished field
+                console.log("book is finished");
+                if(fetchedResponse.status == 0) {
+                    const isThisBookFinished: boolean = fetchedResponse.isFinished == 0 ? false : true;
+                    if(isThisBookFinished) {
+                        //post book to finished ones in db and fetch again because the array is global book data shall be of DTOs.. :/
+                        await add_book_to_finished_books(bookID, GlobalUserData.LOGGED_IN_USER_DATA.uid);
+                        get_finalized_readings(GlobalUserData.LOGGED_IN_USER_DATA.uid).then((fetchResponse: bookDTO[]) => {
+                            if (fetchResponse != null && fetchResponse.length > 0) {
+                                GlobalBookData.FINALIZED_READINGS = fetchResponse;
+                            }
+                            console.log("AM ADAUGAT LA FINISHED");
+                        });
+
+                        //remove from current readings
+                        GlobalBookData.CURRENT_READINGS = GlobalBookData.CURRENT_READINGS.filter((book: bookDTO) => book.bookID != route.params.id);
+                        remove_book_from_library(bookID, GlobalUserData.LOGGED_IN_USER_DATA.uid);
+                    }
+                }
+            });
+    }
 
     function onScrollCallback () {
         
@@ -355,7 +421,7 @@ export default function ReadingScreen( {route} ) {
                 <View style={styles.table_of_contents_preview}>
                     <Text style={styles.table_of_contents_text}>Table of Contents</Text>
                   
-                    <TouchableOpacity style={styles.right_side_of_table_of_contents_preview} onPress={() => navigation.navigate("Table of Contents", {'bookID' : bookID, 'chapterTitles': chapterTitles})}>
+                    <TouchableOpacity style={styles.right_side_of_table_of_contents_preview} onPress={() => handleNavigationToTableOfContents()}>
                         <Text style={styles.table_of_contents_text}> {chapterNumberToDisplay} </Text>
                         <AntDesign name="down" size={20} color="white" />
                     </TouchableOpacity>
@@ -420,7 +486,7 @@ export default function ReadingScreen( {route} ) {
                     style={{marginHorizontal: 10}}
                 >
                     <BottomSheetView>
-                        <BottomSheetContent bookId={bookID} chapterNumber={chapterNumber} updateFontFamily = {updateFontFamily} updateFontSize = {updateFontSize} updateBackgroundColor = {updateBackgroundColor} updateGestureScroll = {updateGestureScroll}/>
+                        <BottomSheetContent bookId={bookID} chapterNumber={chapterNumber} isBookInLibrary={isBookInLibrary} updateFontFamily = {updateFontFamily} updateFontSize = {updateFontSize} updateBackgroundColor = {updateBackgroundColor} updateGestureScroll = {updateGestureScroll}/>
                     </BottomSheetView>
                 </BottomSheet>
                                 

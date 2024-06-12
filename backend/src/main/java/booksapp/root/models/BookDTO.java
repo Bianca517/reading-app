@@ -1,47 +1,81 @@
 package booksapp.root.models;
 
+import java.util.HashMap;
+
 import org.springframework.web.multipart.MultipartFile;
+
+import com.google.cloud.firestore.QueryDocumentSnapshot;
+
+import booksapp.root.models.GlobalConstants.BookCollectionFields;
 
 public class BookDTO {
     private String bookTitle;
     private String authorUsername;
-    private String description;
-    private String bookGenre;
-    private MultipartFile bookCover;
+    private String bookID;
+    private Integer numberOfChapters;
 
+    public BookDTO() {
+        this.bookTitle = "";
+        this.authorUsername = "";
+        this.bookID = "";
+        this.numberOfChapters = 0;
+    }
+
+    public BookDTO(String bookID, String bookTitle, String authorUsername, Integer numberOfChapters) {
+        this.bookTitle = bookTitle;
+        this.authorUsername = authorUsername;
+        this.bookID = bookID;
+        this.numberOfChapters = numberOfChapters;
+    }
+
+    public BookDTO(QueryDocumentSnapshot book) {
+        this.bookID = book.getId();
+        this.authorUsername = book.get(BookCollectionFields.AUTHOR_USERNAME.getFieldName()).toString();
+        this.bookTitle = book.get(BookCollectionFields.NAME.getFieldName()).toString();
+        
+        Long numberOfChaptersLong = book.getLong(BookCollectionFields.NUMBER_OF_CHAPTERS.getFieldName());
+        if (numberOfChaptersLong != null) {
+            this.numberOfChapters = numberOfChaptersLong.intValue();
+        } else {
+            this.numberOfChapters = 0;
+        }
+    }
+    
     public String getAuthorUsername() {
         return authorUsername;
-    }
-    public MultipartFile getBookCover() {
-        return bookCover;
-    }
-    public String getBookGenre() {
-        return bookGenre;
     }
     public String getBookTitle() {
         return bookTitle;
     }
-    public String getDescription() {
-        return description;
-    }
     public void setAuthorUsername(String authorUsername) {
         this.authorUsername = authorUsername;
-    }
-    public void setBookCover(MultipartFile bookCover) {
-        this.bookCover = bookCover;
-    }
-    public void setBookGenre(String bookGenre) {
-        this.bookGenre = bookGenre;
     }
     public void setBookTitle(String bookTitle) {
         this.bookTitle = bookTitle;
     }
-    public void setDescription(String description) {
-        this.description = description;
+    public String getBookID() {
+        return bookID;
     }
+    public void setBookID(String bookID) {
+        this.bookID = bookID;
+    }
+    public Integer getNumberOfChapters() {
+        return numberOfChapters;
+    }
+    public void setNumberOfChapters(Integer numberOfChapters) {
+        this.numberOfChapters = numberOfChapters;
+    }
+
     public String toString() {
         String str = "";
-        str += authorUsername + " " + bookCover + " " + bookGenre + " " + bookTitle + " " + description;
+        str += authorUsername + " " + bookID  + " " + bookTitle;
         return str;
+    }
+    public HashMap<String, String> toHashMap() {
+        HashMap<String, String> result = new HashMap<String, String>();
+        result.put("authorUsername", authorUsername);
+        result.put("id", bookID);
+        result.put("name", bookTitle);
+        return result;
     }
 }

@@ -1,9 +1,13 @@
 package booksapp.root.controllers;
 
 import booksapp.root.models.Book;
+import booksapp.root.models.BookDTO;
+import booksapp.root.models.GlobalConstants.GlobalConstants;
 import booksapp.root.services.booksCommentsService;
 import booksapp.root.services.booksService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,20 +33,40 @@ public class bookController {
     }
 
     @GetMapping(value = "/getpopularbooks")
-    public String getAllPopularBooks() throws ExecutionException, InterruptedException {
-        ArrayList<HashMap<String, String>> popularBooks = this.booksService.getAllPopularBooks();
-        Gson gson = new Gson();
-        String gsonData = gson.toJson(popularBooks);
-        return gsonData;
+    public ResponseEntity<List<BookDTO>> getAllPopularBooks() throws ExecutionException, InterruptedException { 
+        List<BookDTO> books = null;
+        int status = GlobalConstants.STATUS_FAILED;
+        books = this.booksService.getAllPopularBooks();
+
+        if (books != null && !books.isEmpty()) {
+            status = GlobalConstants.STATUS_SUCCESSFUL;
+        }
+        
+        if (status == GlobalConstants.STATUS_SUCCESSFUL) {
+            return new ResponseEntity<>(books, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping(value = "/getinterestingbooks")
-    public String getAllBooksThatCouldInterestUser() throws InterruptedException, ExecutionException {
-        ArrayList<HashMap<String, String>> interestingBooks = this.booksService
-                .getRecommendationsForUserWithID("4zgcWtT9c3RSy5FpFI18");
-        Gson gson = new Gson();
-        String gsonData = gson.toJson(interestingBooks);
-        return gsonData;
+    public ResponseEntity<List<BookDTO>> getAllBooksThatCouldInterestUser(@RequestParam String UID) throws InterruptedException, ExecutionException {
+        List<BookDTO> books = null;
+        int status = GlobalConstants.STATUS_FAILED;
+
+        if (UID != null) {
+            books = this.booksService.getRecommendationsForUserWithID(UID);
+
+            if (books != null && !books.isEmpty()) {
+                status = GlobalConstants.STATUS_SUCCESSFUL;
+            }
+        }
+   
+        if (status == GlobalConstants.STATUS_SUCCESSFUL) {
+            return new ResponseEntity<>(books, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
     }
 
     public List<Map<String, Object>> convertChaptersContents(String jsonString) {
@@ -105,21 +129,43 @@ public class bookController {
     }
 
     @GetMapping(value = "/getbookwithgenre")
-    public String getBookWithGenre(@RequestParam String genre) throws InterruptedException, ExecutionException {
-        System.out.println("in controller for comments");
-        ArrayList<HashMap<String, String>> booksWithSpecifiedGenre = this.booksService.getBooksWithGenre(genre);
-        Gson gson = new Gson();
-        String gsonData = gson.toJson(booksWithSpecifiedGenre);
-        return gsonData;
+    public ResponseEntity<List<BookDTO>> getBookWithGenre(@RequestParam String genre) throws InterruptedException, ExecutionException {
+        List<BookDTO> books = null;
+        int status = GlobalConstants.STATUS_FAILED;
+
+        if (genre != null) {
+            books = this.booksService.getBooksWithGenre(genre);
+
+            if (books != null && !books.isEmpty()) {
+                status = GlobalConstants.STATUS_SUCCESSFUL;
+            }
+        }
+   
+        if (status == GlobalConstants.STATUS_SUCCESSFUL) {
+            return new ResponseEntity<>(books, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping(value = "/getbookwithname")
-    public String getBookWithName(@RequestParam String name) throws InterruptedException, ExecutionException {
-        System.out.println("in controller for comments");
-        ArrayList<HashMap<String, String>> booksWithSpecifiedGenre = this.booksService.getBooksWithName(name);
-        Gson gson = new Gson();
-        String gsonData = gson.toJson(booksWithSpecifiedGenre);
-        return gsonData;
+    public ResponseEntity<List<BookDTO>> getBookWithName(@RequestParam String name) throws InterruptedException, ExecutionException {
+        List<BookDTO> books = null;
+        int status = GlobalConstants.STATUS_FAILED;
+
+        if (name != null) {
+            books = this.booksService.getBooksWithName(name);
+
+            if (books != null && !books.isEmpty()) {
+                status = GlobalConstants.STATUS_SUCCESSFUL;
+            }
+        }
+   
+        if (status == GlobalConstants.STATUS_SUCCESSFUL) {
+            return new ResponseEntity<>(books, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
     }
 
 }

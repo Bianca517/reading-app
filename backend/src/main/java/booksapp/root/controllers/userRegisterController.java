@@ -31,39 +31,30 @@ public class userRegisterController {
         return userRegisterService.hello();
     }
 
-    @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> registerUser(@RequestBody User user) {
+    @PostMapping(value = "/register")
+    public ResponseEntity<String> registerUser(@RequestParam String emailAddress, @RequestParam String password, @RequestParam String userName) {
         // Check if all required fields are present in the user object
-        if ((user.getUserName() == null) || (user.getEmailAddress() == null) || (user.getPassword() == null)) {
+        if ((userName == null) || (emailAddress == null) || (password == null)) {
             return ResponseEntity.badRequest().body("Incomplete user data");
         }
 
-        System.out.println("in controller");
-        System.out.println(user);
-
-        ArrayList<String> registerStatus = userRegisterService.saveUser(user, false);
+        ArrayList<String> registerStatus = userRegisterService.saveUser(emailAddress, password, userName, false);
         
         int errorCode = Integer.valueOf(registerStatus.get(0));
         String UID = registerStatus.get(1);
-        String userName = registerStatus.get(2);
 
         JsonObject response = new JsonObject();
 
         switch (errorCode) {
             case GlobalConstants.EMAIL_NOT_MEETING_CRITERIA_ERROR_CODE:
-                response.addProperty("success_code", GlobalConstants.EMAIL_NOT_MEETING_CRITERIA_ERROR_CODE);
-                response.addProperty("user_id", "");
-                response.addProperty("username", "");
-                return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
-
             case GlobalConstants.PASSWORD_NOT_MEETING_CRITERIA_ERROR_CODE:
-                response.addProperty("success_code", GlobalConstants.PASSWORD_NOT_MEETING_CRITERIA_ERROR_CODE);
+                response.addProperty("success_code", errorCode);
                 response.addProperty("user_id", "");
                 response.addProperty("username", "");
                 return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
 
             case GlobalConstants.EMAIL_OR_USERNAME_ALREADY_USED_ERROR_CODE:
-                response.addProperty("success_code", GlobalConstants.EMAIL_OR_USERNAME_ALREADY_USED_ERROR_CODE);
+                response.addProperty("success_code", errorCode);
                 response.addProperty("user_id", "");
                 response.addProperty("username", "");
                 return new ResponseEntity<String>(response.toString(), HttpStatus.IM_USED);

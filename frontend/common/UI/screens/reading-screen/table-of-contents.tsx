@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ScrollView, Image, Dimensions, Button } from 'react-native';
 import { get_book_chapter_title, get_number_of_chapters_of_book } from '../../../services/book-reading-service';
 import Globals from '../../_globals/Globals';
-import { useNavigation } from '@react-navigation/native';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { NavigationParameters } from '../../../types';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -16,11 +17,14 @@ type ResponseType = {
 export default function TableOfContentsScreen({ route }) {
     const bookID: string = route.params.bookID;
     const chapterTitlesRoute: string[] = route.params.chapterTitles;
-
-    const [numberOfChapters, setNumberOfChapters] = useState<number>(0);
+    const chapterNumber = route.params.userPosition;
+    const numberOfChapters = route.params.totalNumberOfChapters;
+    const isBookInLibrary: boolean = route.params.isBookInLibrary;
+    
+    //const [numberOfChapters, setNumberOfChapters] = useState<number>();
     const [chapterTitles, setChapterTitles] = useState<string[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const navigation = useNavigation();
+    const navigation = useNavigation<NavigationProp<NavigationParameters>>();
 
     useEffect(() => {
         if(!chapterTitlesRoute) {
@@ -43,7 +47,7 @@ export default function TableOfContentsScreen({ route }) {
 
         if (fetchResponse.success) {
             const receivedNumberOfChapters: number = parseInt(fetchResponse.message);
-            setNumberOfChapters(receivedNumberOfChapters);
+            //setNumberOfChapters(receivedNumberOfChapters);
             setLoading(false);
             //console.log("numberOfChapters: " + receivedNumberOfChapters);
         }
@@ -72,8 +76,9 @@ export default function TableOfContentsScreen({ route }) {
                 "id" : bookID, 
                 "chapterNumber" : index, 
                 "bookCoverImage" : "", 
-                "bookTitle": "", 
-                "bookAuthor": ""
+                "name": "", 
+                "authorUsername": "",
+                "isBookInLibrary": isBookInLibrary
             }
         )
     }

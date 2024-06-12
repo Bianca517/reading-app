@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { get_book_description, add_book_to_library } from '../../../services/book-reading-service';
 import GlobalBookData from '../../_globals/GlobalBookData';
 import GlobalUserData from '../../_globals/GlobalUserData';
+import { UserPositions, bookDTO } from '../../../types';
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -25,6 +26,7 @@ export default function BookDescriptionView({route}) {
     const bookID: string = route.params.id;
     const bookAuthor: string = route.params.authorUsername;
     const bookCoverImageUrl: string = route.params.bookCoverImage;
+    const numberOfChapters = route.params.numberOfChapters;
     const [bookDescription, setBookDescription] = useState<string>("");
     const navigation = useNavigation();
 
@@ -38,12 +40,17 @@ export default function BookDescriptionView({route}) {
     }
 
     async function addBookToLibrary() {
-        const bookToBeAdded: book = {
-            name: bookTitle,
+        const bookToBeAdded: bookDTO = {
+            bookTitle: bookTitle,
             authorUsername: bookAuthor,
-            id: bookID,
+            bookID: bookID,
+            numberOfChapters: numberOfChapters,
         }
+
         GlobalBookData.CURRENT_READINGS.push(bookToBeAdded);
+ 
+        GlobalBookData.USER_CURRENT_POSITIONS[bookID] = "0";
+        console.log(GlobalBookData.USER_CURRENT_POSITIONS);
 
         const fetchResponse: ResponseType = await add_book_to_library(bookID, GlobalUserData.LOGGED_IN_USER_DATA.uid).then();
 
@@ -91,7 +98,8 @@ export default function BookDescriptionView({route}) {
                                 "chapterNumber" : 0, 
                                 "bookCoverImage" : "", 
                                 "bookTitle": "", 
-                                "bookAuthor": ""
+                                "bookAuthor": "",
+                                "isBookInLibrary": false,
                             }
                         )}>
                         <AntDesign name="arrowright" size={24} color={Globals.COLORS.PURPLE} />
@@ -106,7 +114,7 @@ const styles = StyleSheet.create({
     body: {
         backgroundColor: Globals.COLORS.BACKGROUND_GRAY,
         flex: 13,
-        widht: screenWidth,
+        width: screenWidth,
         flexDirection: 'column',
         paddingBottom: 5,
         paddingHorizontal: 5,
