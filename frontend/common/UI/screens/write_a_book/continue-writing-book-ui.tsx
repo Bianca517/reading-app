@@ -64,8 +64,7 @@ export default function ContinueWritingBookUI( {route} ) {
                     //console.log("setting is finished use state to  ", fetchedResponse.isFinished);
                     const aux: boolean = fetchedResponse.isFinished == 0 ? false : true;
                     console.log(aux);
-                    //setIsBookMarkedAsFinished(aux);
-                    //checkBoxValueChanged(fetchedResponse.isFinished);
+                    setIsBookMarkedAsFinished(aux);
                 }
             }
         )
