@@ -98,7 +98,8 @@ export default function BookDescriptionView({route}) {
                                 "chapterNumber" : 0, 
                                 "bookCoverImage" : "", 
                                 "bookTitle": "", 
-                                "bookAuthor": ""
+                                "bookAuthor": "",
+                                "isBookInLibrary": false,
                             }
                         )}>
                         <AntDesign name="arrowright" size={24} color={Globals.COLORS.PURPLE} />

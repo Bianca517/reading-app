@@ -104,7 +104,8 @@ export default function Book(props: BookProps) {
                     "chapterNumber" : parseInt(GlobalBookData.USER_CURRENT_POSITIONS[bookID]), 
                     "bookCoverImage" : bookCover, 
                     "name": bookTitle, 
-                    "authorUsername": bookAuthor
+                    "authorUsername": bookAuthor,
+                    isBookInLibrary: isBookInLibrary
                 })
                 break;
                 }
@@ -149,7 +150,8 @@ export default function Book(props: BookProps) {
                         "chapterNumber" : parseInt(GlobalBookData.USER_CURRENT_POSITIONS[bookID]), 
                         "bookCoverImage" : bookCover, 
                         "name": bookTitle, 
-                        "authorUsername": bookAuthor
+                        "authorUsername": bookAuthor,
+                        isBookInLibrary: isBookInLibrary
                     })
                 }
                 break;

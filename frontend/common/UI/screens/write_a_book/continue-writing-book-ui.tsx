@@ -82,7 +82,8 @@ export default function ContinueWritingBookUI( {route} ) {
                             "chapterNumber" : index, 
                             "bookCoverImage" : "", 
                             "name": "", 
-                            "authorUsername": ""
+                            "authorUsername": "",
+                            "isBookInLibrary": false,
                         })}>
                     <Text style={[styles.chapter_number]}> Chapter {index + 1} - </Text>
                     <Text style={styles.chapter_titles}>{item}</Text>

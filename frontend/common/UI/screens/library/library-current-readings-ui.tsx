@@ -8,10 +8,12 @@ import { get_current_readings } from '../../../services/retrieve-books-service';
 import GlobalBookData from '../../_globals/GlobalBookData';
 import GlobalUserData from '../../_globals/GlobalUserData';
 import { ResponseTypeRetrieveBooks } from '../../../types';
+import { useIsFocused } from '@react-navigation/native';
 
 
 export default function LibraryPageCurrentReadingsUI() {
     const [currentReadingBooks, setCurrentReadingBooks] = useState([]);
+    const isFocused = useIsFocused();
 
     async function loadCurrentReadingBooks() {
         const fetchResponse: ResponseTypeRetrieveBooks = await get_current_readings(GlobalUserData.LOGGED_IN_USER_DATA.uid).then();
@@ -25,14 +27,16 @@ export default function LibraryPageCurrentReadingsUI() {
 
     //this executes on page load
     useEffect(() => {
-        if(!GlobalBookData.CURRENT_READINGS) {
-            loadCurrentReadingBooks();
+        if(isFocused){
+            if(!GlobalBookData.CURRENT_READINGS) {
+                loadCurrentReadingBooks();
+            }
+            else {
+                console.log(GlobalBookData.CURRENT_READINGS);
+                setCurrentReadingBooks(GlobalBookData.CURRENT_READINGS);
+            }
         }
-        else {
-            console.log(GlobalBookData.CURRENT_READINGS);
-            setCurrentReadingBooks(GlobalBookData.CURRENT_READINGS);
-        }
-    }, []);
+    }, [isFocused]);
 
     return (
         <SafeAreaView style={styles.fullscreen_view}>

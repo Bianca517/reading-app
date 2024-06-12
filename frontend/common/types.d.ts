@@ -50,7 +50,8 @@ export type NavigationParameters = {
         "chapterNumber" : number, 
         "bookCoverImage" : string, 
         "name": string, 
-        "authorUsername": string
+        "authorUsername": string,
+        "isBookInLibrary": boolean,
     };
 
     "Prologue":
@@ -78,5 +79,13 @@ export type NavigationParameters = {
 
     "Write a Book": {
         
+    };
+
+    "Table of Contents": {
+        'bookID' : string,
+        'chapterTitles': string[],
+        'userPosition': string,
+        'totalNumberOfChapters': number,
+        "isBookInLibrary": boolean,
     }
 }
