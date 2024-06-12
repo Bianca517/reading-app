@@ -1,6 +1,7 @@
 package booksapp.root.services;
 
 import booksapp.root.models.Book;
+import booksapp.root.models.BookDTO;
 import booksapp.root.models.GlobalConstants.BookCollectionFields;
 import booksapp.root.models.GlobalConstants.GlobalConstants;
 import booksapp.root.models.bookcomponents.BookChapter;
@@ -189,10 +190,13 @@ public class writingBookService {
             Book foundBook = bookDoc.get().get().toObject(Book.class);
             
             ArrayList<String> paragraphs = parseChapterContent(chapterContent);
+        
             for (String paragraph : paragraphs) {
-                BookParagraph newParagraph = new BookParagraph();
-                newParagraph.setContent(paragraph);
-                foundBook.getBookContent().getChapters().get(chapterNumber.toString()).addParagraph(newParagraph);
+                if(paragraph.strip().length() > 0){
+                    BookParagraph newParagraph = new BookParagraph();
+                    newParagraph.setContent(paragraph);
+                    foundBook.getBookContent().getChapters().get(chapterNumber.toString()).addParagraph(newParagraph);
+                }
             }
             bookDoc.set(foundBook);
 
@@ -205,11 +209,11 @@ public class writingBookService {
         return returnedStatus;
     }
 
-    public ArrayList<HashMap<String, String>> getAllBooksWrittenByUser(String UID) {
+    public ArrayList<BookDTO> getAllBooksWrittenByUser(String UID) {
         //filter all books to have book author username == UID
         Query collectionDocumentsQuery;
-        ArrayList<HashMap<String, String>> booksFields = null;
-        booksFields = new ArrayList<HashMap<String, String>>();
+        ArrayList<BookDTO> results = null;
+        results = new ArrayList<BookDTO>();
 
         try {
             collectionDocumentsQuery = booksCollectionDB.get().get().getQuery();
@@ -217,17 +221,17 @@ public class writingBookService {
             List<QueryDocumentSnapshot> resultedBooks = collectionDocumentsQuery.get().get().getDocuments();
             if(resultedBooks.size() > 0) {
                 for (QueryDocumentSnapshot bookSnapshot : resultedBooks) {
-                    Book foundBook = new Book(bookSnapshot);
                     //System.out.println("found book by user " + this.userDataService.getUsernameByUserId(UID));
                     //System.out.println(foundBook);
-                    booksFields.add(foundBook.toHashMapString(bookSnapshot.getId()));
+                    results.add(new BookDTO(bookSnapshot));
+                    
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         } 
 
-        return booksFields;
+        return results;
     }
 
     public List<String> getAllChaptersOfBook(String bookID) {

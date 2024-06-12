@@ -29,6 +29,7 @@ import org.springframework.http.MediaType;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import booksapp.root.models.BookDTO;
 import booksapp.root.models.GlobalConstants.GlobalConstants;
 import booksapp.root.services.booksCommentsService;
 import booksapp.root.services.userDataService;
@@ -57,34 +58,41 @@ public class userReadingController {
     }
 
     @GetMapping(value = "/getusercurrentreadings")
-    public ResponseEntity<String> getUserCurrentReadings(@RequestParam String UID) {
-        HashMap<String, Integer> books = null;
+    public ResponseEntity<ArrayList<BookDTO>> getUserCurrentReadings(@RequestParam String UID) {
+        ArrayList<BookDTO> books = null;
         int status = GlobalConstants.STATUS_FAILED;
 
-        if(UID != null) {
+        if (UID != null) {
             books = this.userReadingService.getUserCurrentReadings(UID);
-            status = GlobalConstants.STATUS_SUCCESSFUL;
+            if (books != null && !books.isEmpty()) {
+                status = GlobalConstants.STATUS_SUCCESSFUL;
+            }
         }
-      
-        JsonObject response = new JsonObject();
-        if(status == GlobalConstants.STATUS_SUCCESSFUL) {
-            response.addProperty("status", Integer.toString(status));
-            response.addProperty("books", books.toString());
-            return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
-        }
-        else {
-            response.addProperty("status", Integer.toString(status));
-            response.addProperty("books", "");
-            return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
+   
+        if (status == GlobalConstants.STATUS_SUCCESSFUL) {
+            return new ResponseEntity<>(books, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 
     @GetMapping(value = "/getusersfinalizedreadings")
-    public String getUserFinalizedReadings(@RequestParam String UID) {
-        ArrayList<HashMap<String, String>> books = this.userReadingService.getUserFinalizedReadings(UID);
-        Gson gson = new Gson();
-        String gsonData = gson.toJson(books);
-        return gsonData;
+    public ResponseEntity<ArrayList<BookDTO>> getUserFinalizedReadings(@RequestParam String UID) {
+        ArrayList<BookDTO> books = null;
+        int status = GlobalConstants.STATUS_FAILED;
+
+        if (UID != null) {
+            books = this.userReadingService.getUserFinalizedReadings(UID);
+            if (books != null && !books.isEmpty()) {
+                status = GlobalConstants.STATUS_SUCCESSFUL;
+            }
+        }
+   
+        if (status == GlobalConstants.STATUS_SUCCESSFUL) {
+            return new ResponseEntity<>(books, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping(value = "/getusersplannedreadings")
@@ -225,7 +233,7 @@ public class userReadingController {
     }
 
     @PutMapping(value = "/updateuserpositioninbook")
-    public ResponseEntity<String> updateUserPositionInBook(@RequestParam String UID, @RequestParam String bookID, @RequestParam Integer chapterNumber) {
+    public ResponseEntity<String> updateUserPositionInBook(@RequestParam String UID, @RequestParam String bookID, @RequestParam String chapterNumber) {
         int status = GlobalConstants.STATUS_FAILED;
 
         if(bookID != null && UID != null && chapterNumber != null) {
@@ -240,6 +248,25 @@ public class userReadingController {
         else {
             response.addProperty("status", Integer.toString(status));
             return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+    @GetMapping(value = "/getallbooksinlibrarywithpositions")
+    public ResponseEntity<HashMap<String, String>> getAllBookInLibraryWithPosition(@RequestParam String UID) {
+        HashMap<String, String> result = null;
+
+        if(UID != null) {
+            result = this.userReadingService.getAllBookInLibraryWithPosition(UID);
+        }
+
+        JsonObject response = new JsonObject();
+        if(result == null) {
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        }
+        else {
+
+            return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
         }
     }
 }

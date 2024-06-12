@@ -2,17 +2,11 @@ package booksapp.root.controllers;
 
 import booksapp.root.models.BookDTO;
 import booksapp.root.models.GlobalConstants.GlobalConstants;
-import booksapp.root.models.bookcomponents.BookChapter;
 import booksapp.root.services.writingBookService;
-import jakarta.servlet.annotation.MultipartConfig;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -80,27 +74,19 @@ public class userWritingBookController {
 
     //get all books written by user with ID
     @GetMapping(value = "/getallbooksbyuser")
-    public ResponseEntity<String> getAllBooksWrittenByUser(String UID) {
-        ArrayList<HashMap<String, String>> booksByUser = null;
+    public ResponseEntity<ArrayList<BookDTO>> getAllBooksWrittenByUser(String UID) {
+        ArrayList<BookDTO> booksByUser = null;
         
         if(UID != null) {
             booksByUser = this.writingBookService.getAllBooksWrittenByUser(UID);
         }
 
-        Gson gson = new Gson();
-        String booksByUserJSON = gson.toJson(booksByUser);
-
-        JsonObject response = new JsonObject();
 
         if(booksByUser != null) {
-            response.addProperty("success", GlobalConstants.STATUS_SUCCESSFUL);
-            response.addProperty("message", booksByUserJSON);
-            return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+            return new ResponseEntity<ArrayList<BookDTO>>(booksByUser, HttpStatus.OK);
         }
         else{
-            response.addProperty("success", GlobalConstants.STATUS_FAILED);
-            response.addProperty("message", GlobalConstants.STATUS_FAILED);
-            return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<ArrayList<BookDTO>>(booksByUser, HttpStatus.BAD_REQUEST);
         }
     }
 

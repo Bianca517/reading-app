@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ScrollView, Ima
 import Globals from '../../_globals/Globals';
 import BottomSheet, { BottomSheetView, SCREEN_WIDTH } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import BottomSheetContent from '../../components/bottom-sheet-content';
 import { AntDesign } from '@expo/vector-icons'; 
 import TextDistributer from '../../components/page-distribution-calculator';
@@ -12,6 +12,9 @@ import PageView from '../../components/page-view';
 import { textParagraph } from "../../../types";
 import { useIsFocused } from "@react-navigation/native";
 import { Animated } from 'react-native';
+import GlobalBookData from '../../_globals/GlobalBookData';
+import { updateUserCurrentPositionInBook } from '../../../services/monitor-user-position-service';
+import GlobalUserData from '../../_globals/GlobalUserData';
 
 let FaceDetectionModule = null;
 
@@ -157,7 +160,20 @@ export default function ReadingScreen( {route} ) {
         //console.log("gesture scroll active ", isGestureScrollingActive);
     }, [isGestureScrollingActive]);
     
- 
+    useFocusEffect(
+        React.useCallback(() => {
+            // This function will be called when the screen is focused
+            return () => {
+                // This function will be called when the screen loses focus or unmounts
+                if (typeof chapterNumber !== 'undefined') {
+                    console.log("on removeeeeeeeeee", chapterNumber);
+                    GlobalBookData.USER_CURRENT_POSITIONS[bookID] = chapterNumber.toString();
+                    updateUserCurrentPositionInBook(GlobalUserData.LOGGED_IN_USER_DATA.uid, bookID, chapterNumber.toString());
+                }
+            };
+        }, [chapterNumber, bookID])
+    );
+
     function checkPreviousScreen() {
         /*
         const routes = navigation.getState()?.routes;
@@ -257,6 +273,9 @@ export default function ReadingScreen( {route} ) {
             flatlistRef.current?.scrollToIndex({ //first page of next chapter
                 index: 0,
             });
+
+            //update user position in book
+            GlobalBookData.USER_CURRENT_POSITIONS[bookID] = incrementedChapterNumber.toString();
         }
     }
 
@@ -267,6 +286,9 @@ export default function ReadingScreen( {route} ) {
             console.log("2setting chapter number to ", chapterNumber);
             //console.log("navigate to previous chapter ");
             setNavigatedToPreviousChapter(true);
+
+            //update user position in book
+            GlobalBookData.USER_CURRENT_POSITIONS[bookID] = previousChapterNumber.toString();
         }
     }
 

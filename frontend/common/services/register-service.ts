@@ -2,10 +2,17 @@ import Globals from "../UI/_globals/Globals"
 import { UserAuthenticationResponseType } from "../types"
 import { processResponse } from "./API-process-response"
 const REGISTER_ENDPOINT: string = "/register"
+const USERNAME_ENDPOINT: string = "userName="
+const EMAIL_ENDPOINT: string = "emailAddress="
+const PASSWORD_ENDPOINT: string = "password="
 
 export async function register_user_service(userEmail: string, userPassword: string, userName: string): Promise<UserAuthenticationResponseType> {
-    const HTTPS_REQUEST = Globals.BACKEND_HTTP + REGISTER_ENDPOINT;
-    //console.log("aici " + userEmail + " " + userPassword + " " + HTTPS_REQUEST)
+    const HTTPS_REQUEST = Globals.BACKEND_HTTP + REGISTER_ENDPOINT + '?' +
+    EMAIL_ENDPOINT + userEmail + '&' +
+    PASSWORD_ENDPOINT + userPassword + '&' +
+    USERNAME_ENDPOINT + userName;
+
+    console.log("aici " + userEmail + " " + userPassword + " " + HTTPS_REQUEST)
     
     var returnValue: UserAuthenticationResponseType = { HttpStatus: -1,  Data: {success_code: -1, user_id: "", username: ""}};
     
@@ -15,11 +22,6 @@ export async function register_user_service(userEmail: string, userPassword: str
             Accept: 'application/json',
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-            emailAddress: userEmail,
-            password: userPassword,
-            userName: userName
-        }),
     })
         .then(processResponse)
         .then((responseData) => {

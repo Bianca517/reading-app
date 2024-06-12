@@ -7,16 +7,19 @@ import LibraryPageNavigator from '../../components/library-navigator';
 import { get_current_readings } from '../../../services/retrieve-books-service';
 import GlobalBookData from '../../_globals/GlobalBookData';
 import GlobalUserData from '../../_globals/GlobalUserData';
+import { ResponseTypeRetrieveBooks } from '../../../types';
 
 
 export default function LibraryPageCurrentReadingsUI() {
     const [currentReadingBooks, setCurrentReadingBooks] = useState([]);
 
     async function loadCurrentReadingBooks() {
-        const fetchResponse = await get_current_readings(GlobalUserData.LOGGED_IN_USER_DATA.uid).then();
+        const fetchResponse: ResponseTypeRetrieveBooks = await get_current_readings(GlobalUserData.LOGGED_IN_USER_DATA.uid).then();
 
-        if (fetchResponse.success) {
-            setCurrentReadingBooks(JSON.parse(fetchResponse.message));
+        if (fetchResponse.status == 0) {
+            if(fetchResponse.books.length > 0) {
+                setCurrentReadingBooks(fetchResponse.books);
+            }
         }
     }
 
@@ -26,6 +29,7 @@ export default function LibraryPageCurrentReadingsUI() {
             loadCurrentReadingBooks();
         }
         else {
+            console.log(GlobalBookData.CURRENT_READINGS);
             setCurrentReadingBooks(GlobalBookData.CURRENT_READINGS);
         }
     }, []);
@@ -45,7 +49,7 @@ export default function LibraryPageCurrentReadingsUI() {
                     {
                         /*Warning: Each child in a list should have a unique "key" prop.*/
                         currentReadingBooks.map((book, index) => (
-                            <Book key={index} bookFields={JSON.stringify(book)} bookCoverWidth={100} bookCoverHeight={180} bookWithDetails={true} bookNavigationOptions={Globals.BOOK_NAVIGATION_OPTIONS.TO_READING_SCREEN}/>
+                            <Book key={index} bookDTO={book} bookCoverWidth={100} bookCoverHeight={180} bookWithDetails={true} bookNavigationOptions={Globals.BOOK_NAVIGATION_OPTIONS.TO_READING_SCREEN}/>
                         ))
                     }
                     </ScrollView>

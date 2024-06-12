@@ -6,6 +6,7 @@ const GET_CHAPTER_CONTENT_ENDPOINT: string = "/getbookchaptercontent?bookID=BOOK
 const GET_BOOK_DESCRIPTION_ENDPOINT: string = "/getbookdescription?bookID=BOOK_ID"
 const GET_TOTAL_NR_OF_CHAPTERS_ENDPOINT: string = "/getbookchapters?bookID=BOOK_ID"
 const ADD_BOOK_TO_LIBRARY_ENDPOINT: string = "/addbooktolibrary?userID=USER_ID&bookID=BOOK_ID"
+const REMOVE_BOOK_FROM_LIBRARY_ENDPOINT: string = "/removebookfromcurrent?UID=USER_ID&bookID=BOOK_ID"
 const BOOK_ID_STRING_TO_REPLACE: string = "BOOK_ID"
 const CHAPTER_NUMBER_STRING_TO_REPLACE: string = "CHAPTER_NUMBER"
 const USERID_STRING_TO_REPLACE: string = "USER_ID"
@@ -168,5 +169,33 @@ export async function add_book_to_library(bookID: string, userID: string) {
     return requestResponse
 }
 
+
+export async function remove_book_from_library(bookID: string, userID: string): Promise<Boolean> {
+    let HTTPS_REQUEST = Globals.BACKEND_HTTP + REMOVE_BOOK_FROM_LIBRARY_ENDPOINT;
+    HTTPS_REQUEST = HTTPS_REQUEST.replace(BOOK_ID_STRING_TO_REPLACE, bookID);
+    HTTPS_REQUEST = HTTPS_REQUEST.replace(USERID_STRING_TO_REPLACE, userID);
+    console.log(HTTPS_REQUEST);
+
+    let successToReturn: Boolean = false;
+
+    var requestResponse = await fetch(HTTPS_REQUEST, {
+        method: "DELETE",
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+    })
+        .then((response) => response.json())
+        .then((responseData) => {
+            const {status} = responseData;
+            successToReturn = status == 0 ? true : false;
+        })
+        .catch(async (e) => {
+            console.log("intra pe catch");
+            console.log(e);
+            successToReturn = false;
+        });
+    return successToReturn;
+}
 
 

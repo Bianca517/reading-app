@@ -18,6 +18,7 @@ import com.google.api.core.ApiFutures;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.WriteResult;
@@ -30,6 +31,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.google.cloud.storage.Blob;
 
 import booksapp.root.models.Book;
+import booksapp.root.models.BookDTO;
 import booksapp.root.models.User;
 import booksapp.root.models.GlobalConstants.BookCollectionFields;
 import booksapp.root.models.GlobalConstants.GlobalConstants;
@@ -40,6 +42,7 @@ import booksapp.root.models.GlobalConstants.UserCollectionFields;
 public class userReadingService {
     private Firestore DB;
     private final CollectionReference userCollectionDB;
+    private final CollectionReference booksCollectionDB;
 
     private final Bucket FirebaseStorage;
     private final String bucketName = "reading-app-d23dc.appspot.com";
@@ -49,6 +52,7 @@ public class userReadingService {
 
     public userReadingService(Firestore firestore) {
         DB = firestore;
+        this.booksCollectionDB = DB.collection(GlobalConstants.BOOKS_COLLECTION_NAME);
         this.userCollectionDB = DB.collection(GlobalConstants.USERS_COLLECTION_NAME);
     
         /* initialize firebase storage */
@@ -66,63 +70,71 @@ public class userReadingService {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public ArrayList<String> getUsersGeneresInterests(String userID) throws InterruptedException, ExecutionException {
-        ArrayList<String> userInterests = new ArrayList<String>();
+    public ArrayList<String> getUsersGeneresInterests(String userID) {
+        DocumentReference user = userCollectionDB.document(userID);
+        User founduser;
+        ArrayList<String> interests = new ArrayList<String>();
+        try {
+            founduser = user.get().get().toObject(User.class);
+            interests = founduser.getInterests();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        userInterests = (ArrayList<String>) userCollectionDB.document(userID).get().get()
-                .get(UserCollectionFields.INTERESTS.getFieldName());
-
-        System.out.println("interests user\n");
-        System.out.println(userInterests);
-        return userInterests;
+        return interests;
     }
 
-    public HashMap<String, Integer> getUserCurrentReadings(String userID) {
+    public ArrayList<BookDTO> getUserCurrentReadings(String userID) {
         DocumentReference user = null;
-        HashMap<String, Integer> currentReadings = null;
+        HashMap<String, String> currentReadings = null;
+        ArrayList<BookDTO> bookDTOs = null;
 
         try {
             user = userCollectionDB.document(userID);
             User foundUser = user.get().get().toObject(User.class);
           
-            currentReadings = new HashMap<String, Integer>();
+            currentReadings = new HashMap<String, String>();
             currentReadings = foundUser.getCurrentReadings();
+            
+            bookDTOs = new ArrayList<BookDTO>();
+            // Convert the key set to a list
+            ArrayList<String> keys = new ArrayList<>(currentReadings.keySet());
+
+            for(int i = 0; i < keys.size(); i++) {
+                bookDTOs.add(createBookDTO(keys.get(i)));
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return currentReadings;
+        return bookDTOs;
     }
 
 
-    public ArrayList<HashMap<String, String>> getUserFinalizedReadings(String userID) {
-        booksService localBookService = new booksService(DB);
-        ArrayList<HashMap<String, String>> booksToReturn = new ArrayList<HashMap<String, String>>();
+    public ArrayList<BookDTO> getUserFinalizedReadings(String userID) {
+        DocumentReference user = null;
+        ArrayList<String> finalizedReadings = null;
+        ArrayList<BookDTO> bookDTOs = null;
 
-        User user;
         try {
-            user = userCollectionDB.document(userID).get().get().toObject(User.class);
-            //System.out.println(user.getFinalizedReadings());
-            for (String bookID : user.getFinalizedReadings()) {
-                HashMap<String, String> book = new HashMap<String, String>();
-
-                Book foundBook = localBookService.getBookByID(bookID);
-                // retrieve only relevant fields: book id, book name, author, cover
-                book.put(BookCollectionFields.ID.getFieldName(),  bookID);
-
-                book.put(BookCollectionFields.NAME.getFieldName(), foundBook.getName());
-
-                book.put(BookCollectionFields.AUTHOR_USERNAME.getFieldName(), foundBook.getAuthorUsername());
-
-                booksToReturn.add(book);
+            user = userCollectionDB.document(userID);
+            User foundUser = user.get().get().toObject(User.class);
+          
+            finalizedReadings = new ArrayList<String>();
+            finalizedReadings = foundUser.getFinalizedReadings();
+            
+            bookDTOs = new ArrayList<BookDTO>();
+    
+            for(int i = 0; i < finalizedReadings.size(); i++) {
+                bookDTOs.add(createBookDTO(finalizedReadings.get(i)));
             }
-        } 
-        catch (Exception e) {
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        
-        return booksToReturn;
+
+        return bookDTOs;
     }
 
     public String getDownloadURL(String imagePath) {
@@ -254,7 +266,7 @@ public class userReadingService {
     public ArrayList<Integer> getUserPositionInBook(String UID, String bookID) {
         ArrayList<Integer> returnValue = new ArrayList<Integer>();
         int status = GlobalConstants.STATUS_FAILED;
-        int userPosition = -1;
+        String userPosition = "";
         DocumentReference user = null;
 
         try {
@@ -267,12 +279,12 @@ public class userReadingService {
         }
 
         returnValue.add(status);
-        returnValue.add(userPosition);
+        returnValue.add(Integer.parseInt(userPosition));
         return returnValue;
     }
     
 
-    public int updateUserPositionInBook(String UID, String bookID, Integer chapterNumber) {
+    public int updateUserPositionInBook(String UID, String bookID, String chapterNumber) {
         int status = GlobalConstants.STATUS_FAILED;
         DocumentReference user = null;
 
@@ -288,4 +300,40 @@ public class userReadingService {
 
         return status;
     }
+
+    public HashMap<String, String> getAllBookInLibraryWithPosition(String UID) {
+        DocumentReference user = null;
+        HashMap<String, String> positions = new HashMap<String, String>();
+
+        try {
+            user = userCollectionDB.document(UID);
+            User foundUser = user.get().get().toObject(User.class);
+            positions = foundUser.getCurrentReadings();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return positions;
+    }
+
+     public BookDTO createBookDTO(String bookID) {
+        DocumentSnapshot book = null;
+        BookDTO foundBookDTO = null;
+
+        try {
+            book = booksCollectionDB.document(bookID).get().get();
+            Book foundBook = new Book(book);
+            foundBook = book.toObject(Book.class);
+
+            foundBookDTO = new BookDTO();
+            foundBookDTO.setBookID(bookID);
+            foundBookDTO.setAuthorUsername(foundBook.getAuthorUsername());
+            foundBookDTO.setBookTitle(foundBook.getName());
+            foundBookDTO.setNumberOfChapters(foundBook.getNumberOfChapters());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } 
+        return foundBookDTO;
+    }
+
 }

@@ -1,6 +1,7 @@
 package booksapp.root.services;
 
 import booksapp.root.models.Book;
+import booksapp.root.models.BookDTO;
 import booksapp.root.models.GlobalConstants.BookCollectionFields;
 import booksapp.root.models.GlobalConstants.GlobalConstants;
 import booksapp.root.models.bookcomponents.BookChapter;
@@ -8,6 +9,7 @@ import booksapp.root.models.bookcomponents.BookParagraph;
 
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.Query;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
@@ -15,6 +17,7 @@ import com.google.cloud.firestore.Query.Direction;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,159 +37,92 @@ public class booksService {
         this.userReadingService = new userReadingService(DB);
     }
 
-    public ArrayList<HashMap<String, String>> getAllPopularBooks() throws ExecutionException, InterruptedException {
-        // get all documents from the book collection
+    public List<BookDTO> getAllPopularBooks() throws ExecutionException, InterruptedException {
         Query collectionDocumentsQuery = booksCollectionDB.get().get().getQuery();
     
-        // order documents descending by popularity; get the first 10 popular
         collectionDocumentsQuery = collectionDocumentsQuery
                 .orderBy(BookCollectionFields.READERS.getFieldName(), Direction.DESCENDING)
                 .limit(GlobalConstants.DISPLAYED_BOOKS_IN_HOME_SCREEN);
     
-        // get the list of documents resulted from the query
         List<QueryDocumentSnapshot> documentsList = collectionDocumentsQuery.get().get().getDocuments();
     
-        // get a list of maps with the id, cover, name, author name from the documents list
-        ArrayList<HashMap<String, String>> resultedBooks = new ArrayList<HashMap<String, String>>();
-        for (int i = 0; i < GlobalConstants.DISPLAYED_BOOKS_IN_HOME_SCREEN && i < documentsList.size(); i++) {
-            if (documentsList.get(i) != null) {
-                String bookID = documentsList.get(i).getId();
-                HashMap<String, String> book = new HashMap<String, String>();
-                book.put(BookCollectionFields.ID.getFieldName(), bookID);
-                book.put(BookCollectionFields.NAME.getFieldName(), documentsList.get(i).get(BookCollectionFields.NAME.getFieldName()).toString());
-                book.put(BookCollectionFields.AUTHOR_USERNAME.getFieldName(), documentsList.get(i).get(BookCollectionFields.AUTHOR_USERNAME.getFieldName()).toString());
-                resultedBooks.add(book);
+        List<BookDTO> popularBooks = new ArrayList<>();
+    
+        for (QueryDocumentSnapshot document : documentsList) {
+            BookDTO bookDTO = new BookDTO(document);
+            popularBooks.add(bookDTO);
+        }
+    
+        return popularBooks;
+    }
+
+    public List<BookDTO> getRecommendationsForUserWithID(String userID) throws InterruptedException, ExecutionException {
+        ArrayList<String> usersInterests = userReadingService.getUsersGeneresInterests(userID);
+
+        List<BookDTO> booksToReturn = new ArrayList<>();
+
+        int numberOfBooksOfEachGenre = 3;
+        ArrayList<QueryDocumentSnapshot> bookSnapshots = new ArrayList<QueryDocumentSnapshot>();
+   
+        for (String genre : usersInterests) {
+            bookSnapshots.addAll(getXBooksWithGenre(genre, numberOfBooksOfEachGenre));
+        }
+
+        if(!bookSnapshots.isEmpty()) {
+            for (int i = 0; i < bookSnapshots.size(); i++) {
+                QueryDocumentSnapshot book = bookSnapshots.get(i);
+
+                BookDTO bookDTO = new BookDTO(book);
+                booksToReturn.add(bookDTO);
             }
         }
     
-        System.out.println(resultedBooks);
+        return booksToReturn;
+    }
+
+
+    public ArrayList<QueryDocumentSnapshot> getXBooksWithGenre(String genre, int X) throws InterruptedException, ExecutionException {
+        Query collectionDocumentsQuery = booksCollectionDB.get().get().getQuery();
+    
+        collectionDocumentsQuery = collectionDocumentsQuery
+                .whereEqualTo(BookCollectionFields.GENRE.getFieldName(), genre)
+                .limit(X);
+    
+        ArrayList<QueryDocumentSnapshot> resultedBooks = new ArrayList<>(collectionDocumentsQuery.get().get().getDocuments());
         return resultedBooks;
     }
 
-    public ArrayList<HashMap<String, String>> getRecommendationsForUserWithID(String userID)
-            throws InterruptedException, ExecutionException {
-        // get users interests
-        ArrayList<String> usersInterests = userReadingService.getUsersGeneresInterests(userID);
-
-        ArrayList<HashMap<String, String>> booksToReturn = new ArrayList<HashMap<String, String>>(
-                GlobalConstants.DISPLAYED_BOOKS_IN_HOME_SCREEN);
-        //Integer numberOfBooksOfEachGenre = Math.floorDiv(GlobalConstants.DISPLAYED_BOOKS_IN_HOME_SCREEN, usersInterests.size());
-        Integer numberOfBooksOfEachGenre = 3;
-        // for GlobalConstants.DISPLAYED_BOOKS_IN_HOME_SCREEN number / user interests ->
-        // choose a random book with that genre
-        for (String genre : usersInterests) {
-            ArrayList<HashMap<String, String>> booksWithGenre = getXBooksWithGenre(genre, numberOfBooksOfEachGenre);
-            booksToReturn.addAll(booksWithGenre);
-        }
-
-        return booksToReturn;
-    }   
-
-    public ArrayList<HashMap<String, String>> getXBooksWithGenre(String genre, Integer X)
-            throws ExecutionException, InterruptedException {
-        // get all documents from the book collection
-        Query collectionDocumentsQuery = booksCollectionDB.get().get().getQuery();
-
-        // the genre shall have the first letter capital
-        genre = genre.substring(0, 1).toUpperCase() + genre.substring(1);
-
-        // get documents which contain the specified book genre
-        collectionDocumentsQuery = collectionDocumentsQuery
-                .whereEqualTo(BookCollectionFields.GENRE.getFieldName(), genre);
-
-        //keep track of book ID's
-        ArrayList<String> bookIds = new ArrayList<String>();
-
-        // get a random book from the resulted books
-        List<QueryDocumentSnapshot> resultedBooks = collectionDocumentsQuery.get().get().getDocuments();
-
-        ArrayList<HashMap<String, String>> booksToReturn = new ArrayList<HashMap<String, String>>(X);
-
-        for (int i = 0; (i < X) && (i < resultedBooks.size()); i++) {
-            int randomIndex = (int) (Math.random() * resultedBooks.size());
-
-            QueryDocumentSnapshot book = resultedBooks.get(randomIndex);
-
-            if(!bookIds.contains(book.getId().toString())) {
-                bookIds.add(book.getId().toString());
-                HashMap<String, String> bookFields = new HashMap<String, String>();
-                // book id
-                bookFields.put(BookCollectionFields.ID.getFieldName(), book.getId().toString());
-                // book name
-                bookFields.put(BookCollectionFields.NAME.getFieldName(), book.get(BookCollectionFields.NAME.getFieldName()).toString());
-                // book author
-                bookFields.put(BookCollectionFields.AUTHOR_USERNAME.getFieldName(), book.get(BookCollectionFields.AUTHOR_USERNAME.getFieldName()).toString());
-
-                booksToReturn.add(bookFields);
-            } else {
-                i--;
-            }
-        }
-        return booksToReturn;
-    }
-
-    public ArrayList<HashMap<String, String>> getBooksWithGenre(String genre) throws ExecutionException, InterruptedException {
-        // get all documents from the book collection
-        Query collectionDocumentsQuery = booksCollectionDB.get().get().getQuery();
-
-        // the genre shall have the first letter capital
-        genre = genre.substring(0, 1).toUpperCase() + genre.substring(1);
-
-        // get documents which contain the specified book genre
-        collectionDocumentsQuery = collectionDocumentsQuery
-                .whereEqualTo(BookCollectionFields.GENRE.getFieldName(), genre);
-        
-        // get resulted books
-        List<QueryDocumentSnapshot> resultedBooks = collectionDocumentsQuery.get().get().getDocuments();
-        System.out.println(resultedBooks);
-
-        ArrayList<HashMap<String, String>> booksToReturn = new ArrayList<HashMap<String, String>>();
-
-        for (int i = 0; i < resultedBooks.size(); i++) {
-            QueryDocumentSnapshot book = resultedBooks.get(i);
-            HashMap<String, String> bookFields = new HashMap<String, String>();
-            String bookID = book.getId().toString();
-
-            bookFields.put(BookCollectionFields.ID.getFieldName(), bookID);
-            // book name
-            bookFields.put(BookCollectionFields.NAME.getFieldName(), book.get(BookCollectionFields.NAME.getFieldName()).toString());
-            // book author
-            bookFields.put(BookCollectionFields.AUTHOR_USERNAME.getFieldName(), book.get(BookCollectionFields.AUTHOR_USERNAME.getFieldName()).toString());
-
-            booksToReturn.add(bookFields);
-        }
-
-        return booksToReturn;
-    }
-
-    public ArrayList<HashMap<String, String>> getBooksWithName(String name) throws ExecutionException, InterruptedException {
-        // get all documents from the book collection
-        Query collectionDocumentsQuery = booksCollectionDB.get().get().getQuery();
-        
-        // get resulted books
-        List<QueryDocumentSnapshot> resultedBooks = collectionDocumentsQuery.get().get().getDocuments();
-        System.out.println(resultedBooks);
-
-        ArrayList<HashMap<String, String>> booksToReturn = new ArrayList<HashMap<String, String>>();
-
-
-        for (int i = 0; i < resultedBooks.size(); i++) {
-            QueryDocumentSnapshot book = resultedBooks.get(i);
-            String bookID = book.getId().toString();
-            String bookName = book.get(BookCollectionFields.NAME.getFieldName()).toString();
-            if(name.toLowerCase().contains(bookName.toLowerCase())) {
-                HashMap<String, String> bookFields = new HashMap<String, String>();
-
-                bookFields.put(BookCollectionFields.ID.getFieldName(), bookID);
-                // book name
-                bookFields.put(BookCollectionFields.NAME.getFieldName(), bookName);
-                // book author
-                bookFields.put(BookCollectionFields.AUTHOR_USERNAME.getFieldName(), book.get(BookCollectionFields.AUTHOR_USERNAME.getFieldName()).toString());
     
-                booksToReturn.add(bookFields);
-            }
+    public List<BookDTO> getBooksWithGenre(String genre) throws ExecutionException, InterruptedException {
+        Query collectionDocumentsQuery = booksCollectionDB.get().get().getQuery();
+        collectionDocumentsQuery = collectionDocumentsQuery.whereEqualTo(BookCollectionFields.GENRE.getFieldName(), genre);
+        List<QueryDocumentSnapshot> resultedBooks = collectionDocumentsQuery.get().get().getDocuments();
+
+        List<BookDTO> booksToReturn = new ArrayList<>();
+        for (QueryDocumentSnapshot book : resultedBooks) {
+            BookDTO bookDTO = new BookDTO(book);
+            booksToReturn.add(bookDTO);
         }
 
+        return booksToReturn;
+    }
+
+    public List<BookDTO> getBooksWithName(String name) throws ExecutionException, InterruptedException {
+        Query collectionDocumentsQuery = booksCollectionDB.get().get().getQuery();
+        
+        List<QueryDocumentSnapshot> resultedBooks = collectionDocumentsQuery.get().get().getDocuments();
+    
+        List<BookDTO> booksToReturn = new ArrayList<>();
+    
+        for (QueryDocumentSnapshot book : resultedBooks) {
+            String bookName = book.getString(BookCollectionFields.NAME.getFieldName());
+
+            if (bookName != null && name.toLowerCase().contains(bookName.toLowerCase())) {
+                BookDTO bookDTO = new BookDTO(book);
+                booksToReturn.add(bookDTO);
+            }
+        }
+    
         return booksToReturn;
     }
 
@@ -208,8 +144,11 @@ public class booksService {
 
     public int getBookChapters(String bookID) {
         Book book = getBookByID(bookID);
-        System.out.println(book.getNumberOfChapters());
-        int numberOfChapers = book.getNumberOfChapters();
+        int numberOfChapers = 0;
+        if(book != null) {
+            System.out.println(book.getNumberOfChapters());
+            numberOfChapers = book.getNumberOfChapters();
+        }
         return numberOfChapers;
     }
 
@@ -247,5 +186,6 @@ public class booksService {
         }
         return content;
     }
+
 
 }

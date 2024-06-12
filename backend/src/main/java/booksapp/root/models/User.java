@@ -17,7 +17,7 @@ public class User {
     private String password;
     private String salt;
     private ArrayList<String> interests;
-    private HashMap<String, Integer> currentReadings;
+    private HashMap<String, String> currentReadings;
     private ArrayList<String> finalizedReadings;
     private HashMap<String, ArrayList<String>> plannedBooks; //month : [array of books]
 
@@ -48,7 +48,7 @@ public class User {
 
     private void initializeArrays() {
         this.interests = new ArrayList<String>();
-        this.currentReadings = new HashMap<String, Integer>();
+        this.currentReadings = new HashMap<String, String>();
         this.finalizedReadings = new ArrayList<String>();
         this.plannedBooks = new HashMap<String, ArrayList<String>>();
     }
@@ -103,7 +103,7 @@ public class User {
         return dictionary;
     }
 
-    public HashMap<String, Integer> getCurrentReadings() {
+    public HashMap<String, String> getCurrentReadings() {
         return currentReadings;
     }
 
@@ -119,7 +119,7 @@ public class User {
         return plannedBooks;
     }
 
-    public void setCurrentReadings(HashMap<String, Integer> currentReadings) {
+    public void setCurrentReadings(HashMap<String, String> currentReadings) {
         this.currentReadings = currentReadings;
     }
 
@@ -129,7 +129,7 @@ public class User {
         }
     }
 
-    public void updateUserCurrentPositionInBook(String bookID, Integer chapter) {
+    public void updateUserCurrentPositionInBook(String bookID, String chapter) {
         if(currentReadings.containsKey(bookID)) {
             currentReadings.put(bookID, chapter);
         }
@@ -138,12 +138,12 @@ public class User {
     public void addBookToCurrentReadings(String bookID) {
         //if it is not already there, add it with current position 0
         if(!currentReadings.containsKey(bookID)){
-            currentReadings.put(bookID, 0);
+            currentReadings.put(bookID, "0");
         }
     }
 
-    public int retrieveUserCurrentPositionInBook(String bookID) {
-        int userPositionInBook = -1;
+    public String retrieveUserCurrentPositionInBook(String bookID) {
+        String userPositionInBook = "-1";
         if(currentReadings.containsKey(bookID)) {
             userPositionInBook = currentReadings.get(bookID);
         }

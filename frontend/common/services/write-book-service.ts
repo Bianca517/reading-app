@@ -1,5 +1,5 @@
 import Globals from "../UI/_globals/Globals"
-import { GetIsFinishedResponseType, ResponseType, ResponseTypePOST } from "../types";
+import { GetIsFinishedResponseType, ResponseType, ResponseTypePOST, bookDTO } from "../types";
 
 const ADD_NEW_BOOK_ENDPOINT: string = "/addnewbook"
 const GET_BOOKS_WRITTEN_BY_ENDPOINT: string = "/getallbooksbyuser"
@@ -59,10 +59,10 @@ export async function add_new_book(bookTitle: string, authorUsername: string, de
     return statusToReturn;
 }
 
-export async function get_users_written_books(userID: string) : Promise<ResponseType> {
+export async function get_users_written_books(userID: string) : Promise<bookDTO[]> {
     let HTTPS_REQUEST = Globals.BACKEND_HTTP + GET_BOOKS_WRITTEN_BY_ENDPOINT + USER_ID_PARAMETER_IN_ENDPOINT + userID;
 
-    let response: ResponseType = {success: false, message: ""};
+    let responseBooks: bookDTO[] = [];
 
     await fetch(HTTPS_REQUEST, {
         method: "GET",
@@ -73,18 +73,21 @@ export async function get_users_written_books(userID: string) : Promise<Response
     })
         .then((response) => response.json())
         .then((responseData) => {
-            const {success, message} = responseData;
-            response.success = success == 0 ? true : false;
-            response.message = message;
+            responseBooks = responseData.map((book: any) => {
+                return {
+                    bookTitle: book.bookTitle,
+                    authorUsername: book.authorUsername,
+                    bookID: book.bookID,
+                    numberOfChapters: book.numberOfChapters
+                };
+            });
         })
         .catch(async (e) => {
             console.log("intra pe catch");
             console.log(e);
-            response.success = false;
-            response.message = "";
         })
 
-    return response;
+    return responseBooks;
 }
 
 
