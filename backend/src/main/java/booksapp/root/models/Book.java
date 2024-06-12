@@ -21,6 +21,7 @@ public class Book {
     private String name;
     private int numberOfChapters;
     private int readers;
+    private boolean isFinished;
 
     // Constructors
 
@@ -29,10 +30,11 @@ public class Book {
         this.numberOfChapters = 0;
         this.readers = 0;
         this.chaptersTitles = new ArrayList<String>();
+        this.isFinished = false;
     }
 
     public Book(String authorUsername, BookContent bookcontent, List<String> chaptersTitles,
-                String description, String genre, String name, int numberOfChapters, int readers) {
+                String description, String genre, String name, int numberOfChapters, int readers, boolean isFinished) {
         this.authorUsername = authorUsername;
         this.bookContent = bookcontent;
         this.chaptersTitles = chaptersTitles;
@@ -41,6 +43,7 @@ public class Book {
         this.name = name;
         this.numberOfChapters = numberOfChapters;
         this.readers = readers;
+        this.isFinished = isFinished;
     }
 
     @SuppressWarnings("unchecked")
@@ -55,10 +58,10 @@ public class Book {
         this.name = bookSnapshot.get(BookCollectionFields.NAME.getFieldName()).toString();
         this.numberOfChapters = Integer.parseInt(bookSnapshot.get(BookCollectionFields.NUMBER_OF_CHAPTERS.getFieldName()).toString());
         this.readers = Integer.parseInt(bookSnapshot.get(BookCollectionFields.READERS.getFieldName()).toString());
+        this.isFinished = Boolean.parseBoolean(bookSnapshot.get(BookCollectionFields.IS_FINISHED.getFieldName()).toString());
     }
 
     // Getters
-
     public String getAuthorUsername() {
         return authorUsername;
     }
@@ -96,6 +99,10 @@ public class Book {
         return readers;
     }
 
+    public boolean getIsFinished() {
+        return isFinished;
+    }
+
     public void setAuthorUsername(String authorUsername) {
         this.authorUsername = authorUsername;
     }
@@ -126,6 +133,10 @@ public class Book {
 
     public void setReaders(int readers) {
         this.readers = readers;
+    }
+
+    public void setIsFinished(boolean isFinished) {
+        this.isFinished = isFinished;
     }
 
     public void addChapterTitle(String title) {

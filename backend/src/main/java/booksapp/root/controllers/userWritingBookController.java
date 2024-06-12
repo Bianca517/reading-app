@@ -210,4 +210,42 @@ public class userWritingBookController {
             return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
         }
     }
+
+    @PutMapping(value= "/setfinished")
+    public ResponseEntity<String> setBookFinished(@RequestParam String bookID) {
+        int status = GlobalConstants.STATUS_FAILED;
+
+        if(bookID != null) {
+            status = this.writingBookService.setBookFinished(bookID);
+        }
+
+        JsonObject response = new JsonObject();
+        if(status == GlobalConstants.STATUS_SUCCESSFUL) {
+            response.addProperty("status", Integer.toString(status));
+            return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+        }
+        else {
+            response.addProperty("status", Integer.toString(status));
+            return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping(value= "/setunfinished")
+    public ResponseEntity<String> setBookUnfinished(@RequestParam String bookID) {
+        int status = GlobalConstants.STATUS_FAILED;
+
+        if(bookID != null) {
+            status = this.writingBookService.setBookUnfinished(bookID);
+        }
+
+        JsonObject response = new JsonObject();
+        if(status == GlobalConstants.STATUS_SUCCESSFUL) {
+            response.addProperty("status", Integer.toString(status));
+            return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+        }
+        else {
+            response.addProperty("status", Integer.toString(status));
+            return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
+        }
+    }
 }

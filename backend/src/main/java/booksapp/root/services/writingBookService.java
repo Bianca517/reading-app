@@ -367,4 +367,39 @@ public class writingBookService {
     private String constructSongName(String bookID, String chapterNumber) {
         return bookID + '_' + chapterNumber;
     }
+
+    public int setBookFinished(String bookID) {
+        int status = GlobalConstants.STATUS_FAILED;
+        DocumentReference book = null;
+
+        try {
+            book = booksCollectionDB.document(bookID);
+            Book foundBook = book.get().get().toObject(Book.class);
+            //System.out.println("am trecut de to object");
+            foundBook.setIsFinished(true);
+            book.set(foundBook);
+            status = GlobalConstants.STATUS_SUCCESSFUL;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return status;
+    }
+
+    public int setBookUnfinished(String bookID) {
+        int status = GlobalConstants.STATUS_FAILED;
+        DocumentReference book = null;
+
+        try {
+            book = booksCollectionDB.document(bookID);
+            Book foundBook = book.get().get().toObject(Book.class);
+            foundBook.setIsFinished(false);
+            book.set(foundBook);
+            status = GlobalConstants.STATUS_SUCCESSFUL;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return status;
+    }
 }

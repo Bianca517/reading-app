@@ -195,7 +195,7 @@ public class debugService {
         try {
             Book foundBook = book.get().get().toObject(Book.class);
             foundBook.setChaptersTitles(foundBook.getChaptersTitles().subList(0, 4));
-            foundBook.getBookContent().getChapters().
+            foundBook.getBookContent().getChapters();
             book.set(foundBook);
         } catch (Exception e) {
             e.printStackTrace();
