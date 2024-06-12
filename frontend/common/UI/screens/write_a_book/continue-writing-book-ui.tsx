@@ -74,18 +74,18 @@ export default function ContinueWritingBookUI( {route} ) {
         });
     }
 
-    const renderItem = ({ item }: { item: string }) => {
+    const renderItem = ({ item, index }) => {
         return (
             <TouchableOpacity style={styles.chapter_container} 
                     onPress={() => navigation.navigate("Reading Screen", 
                         { 
                             "id" : bookID, 
-                            "chapterNumber" : bookChapters.indexOf(item), 
+                            "chapterNumber" : index, 
                             "bookCoverImage" : "", 
                             "name": "", 
                             "authorUsername": ""
                         })}>
-                    <Text style={[styles.chapter_number]}> Chapter {bookChapters.indexOf(item) + 1} - </Text>
+                    <Text style={[styles.chapter_number]}> Chapter {index + 1} - </Text>
                     <Text style={styles.chapter_titles}>{item}</Text>
             </TouchableOpacity>
         );
@@ -153,11 +153,11 @@ export default function ContinueWritingBookUI( {route} ) {
                 <FlatList
                     data={bookChapters}
                     renderItem={renderItem}
-                    keyExtractor={item => item.id}
-                    numColumns={1} 
+                    keyExtractor={(item, index) => index.toString()}
+                    numColumns={1}
                     initialNumToRender={10}
-                    ListEmptyComponent={() => renderWhenEmpty()}
-                    ListFooterComponent={footerComponent()}
+                    ListEmptyComponent={renderWhenEmpty}
+                    ListFooterComponent={footerComponent}
                 />
            
            </View>
