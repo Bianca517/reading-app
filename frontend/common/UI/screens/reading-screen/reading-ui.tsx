@@ -172,8 +172,9 @@ export default function ReadingScreen( {route} ) {
                 if (typeof chapterNumber !== 'undefined' && isBookInLibrary) {
                     console.log("on removeeeeeeeeee", chapterNumber);
                     GlobalBookData.USER_CURRENT_POSITIONS[bookID] = chapterNumber.toString();
+                    console.log(GlobalBookData.USER_CURRENT_POSITIONS);
                     updateUserCurrentPositionInBook(GlobalUserData.LOGGED_IN_USER_DATA.uid, bookID, chapterNumber.toString());
-                    if(chapterNumber !== (totalNumberOfChapters-1)) {
+                    if(chapterNumber == (totalNumberOfChapters-1)) {
                         handleEndOfTheBook();
                     }
                 }
@@ -383,6 +384,7 @@ export default function ReadingScreen( {route} ) {
         .then(
             async (fetchedResponse: GetIsFinishedResponseType) => {
                 //if the status was successful, take into consideration the isFinished field
+                console.log("book is finished");
                 if(fetchedResponse.status == 0) {
                     const isThisBookFinished: boolean = fetchedResponse.isFinished == 0 ? false : true;
                     if(isThisBookFinished) {

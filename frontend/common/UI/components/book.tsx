@@ -88,6 +88,8 @@ export default function Book(props: BookProps) {
     function calculateReadPercentageOfBook(): number {
         // p/100 * total_chapter = nr_chapter
         let percentage: number = 0;
+        console.log("haipls");
+        console.log(userCurrentChapterInBook);
         if(userCurrentChapterInBook > 0 && totalNumberOfChapters != 0) {
             percentage = Math.round(userCurrentChapterInBook * 100 / totalNumberOfChapters);
         }
@@ -194,7 +196,10 @@ export default function Book(props: BookProps) {
                         styles.book_container_button, 
                         { width: props.bookCoverWidth, height: props.bookCoverHeight }
                     ]}
-                    onLongPress={() => setIsLongPressed(true)}
+                    onLongPress={() => {
+                        setIsLongPressed(true)
+                        getUserCurrentPositionInBook();
+                    }}
                     onPressOut={() => setIsLongPressed(false)}
                     onPress={() => handleNavigation()}
                 >
