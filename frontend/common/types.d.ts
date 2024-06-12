@@ -17,6 +17,11 @@ export type UserAuthenticationResponseType = {
     }
 }
 
+export type GetIsFinishedResponseType = { 
+    status: number;
+    isFinished: number;
+}
+
 export type textParagraph = {
         id: string;
         content: string;

@@ -368,7 +368,7 @@ public class writingBookService {
         return bookID + '_' + chapterNumber;
     }
 
-    public int setBookFinished(String bookID) {
+    public int setBookFinished(String bookID, boolean isFinished) {
         int status = GlobalConstants.STATUS_FAILED;
         DocumentReference book = null;
 
@@ -376,8 +376,10 @@ public class writingBookService {
             book = booksCollectionDB.document(bookID);
             Book foundBook = book.get().get().toObject(Book.class);
             //System.out.println("am trecut de to object");
-            foundBook.setIsFinished(true);
-            book.set(foundBook);
+            if(foundBook.getIsFinished() != isFinished) {
+                foundBook.setIsFinished(isFinished);
+                book.set(foundBook);
+            }
             status = GlobalConstants.STATUS_SUCCESSFUL;
         } catch (Exception e) {
             e.printStackTrace();
@@ -386,20 +388,22 @@ public class writingBookService {
         return status;
     }
 
-    public int setBookUnfinished(String bookID) {
+    public ArrayList<Integer> getIsBookFinished(String bookID) {
+        ArrayList<Integer> returnedStatus = new ArrayList<Integer>();
         int status = GlobalConstants.STATUS_FAILED;
+        boolean isFinished = false;
         DocumentReference book = null;
 
         try {
             book = booksCollectionDB.document(bookID);
             Book foundBook = book.get().get().toObject(Book.class);
-            foundBook.setIsFinished(false);
-            book.set(foundBook);
+            isFinished = foundBook.getIsFinished();
             status = GlobalConstants.STATUS_SUCCESSFUL;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
-        return status;
+        returnedStatus.add(status);
+        returnedStatus.add(isFinished == true ? 1 : 0);
+        return returnedStatus;
     }
 }

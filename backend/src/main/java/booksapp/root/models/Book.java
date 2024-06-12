@@ -58,7 +58,14 @@ public class Book {
         this.name = bookSnapshot.get(BookCollectionFields.NAME.getFieldName()).toString();
         this.numberOfChapters = Integer.parseInt(bookSnapshot.get(BookCollectionFields.NUMBER_OF_CHAPTERS.getFieldName()).toString());
         this.readers = Integer.parseInt(bookSnapshot.get(BookCollectionFields.READERS.getFieldName()).toString());
-        this.isFinished = Boolean.parseBoolean(bookSnapshot.get(BookCollectionFields.IS_FINISHED.getFieldName()).toString());
+        
+        //different handling for is finished because it was added afterwards
+        if(bookSnapshot.get(BookCollectionFields.IS_FINISHED.getFieldName()) != null) {
+            this.isFinished = Boolean.parseBoolean(bookSnapshot.get(BookCollectionFields.IS_FINISHED.getFieldName()).toString());
+        }
+        else {
+            this.isFinished = false;
+        }
     }
 
     // Getters

@@ -212,11 +212,11 @@ public class userWritingBookController {
     }
 
     @PutMapping(value= "/setfinished")
-    public ResponseEntity<String> setBookFinished(@RequestParam String bookID) {
+    public ResponseEntity<String> setBookFinished(@RequestParam String bookID, @RequestParam Boolean isFinished) {
         int status = GlobalConstants.STATUS_FAILED;
 
         if(bookID != null) {
-            status = this.writingBookService.setBookFinished(bookID);
+            status = this.writingBookService.setBookFinished(bookID, isFinished);
         }
 
         JsonObject response = new JsonObject();
@@ -230,22 +230,28 @@ public class userWritingBookController {
         }
     }
 
-    @PutMapping(value= "/setunfinished")
-    public ResponseEntity<String> setBookUnfinished(@RequestParam String bookID) {
+    @GetMapping(value= "/getisfinished")
+    public ResponseEntity<String> getIsBookFinished(@RequestParam String bookID) {
         int status = GlobalConstants.STATUS_FAILED;
+        int isFinished = 0;
 
         if(bookID != null) {
-            status = this.writingBookService.setBookUnfinished(bookID);
+            ArrayList<Integer> returnedStatus = this.writingBookService.getIsBookFinished(bookID);
+            status = returnedStatus.get(0);
+            isFinished = returnedStatus.get(1);
         }
 
         JsonObject response = new JsonObject();
         if(status == GlobalConstants.STATUS_SUCCESSFUL) {
             response.addProperty("status", Integer.toString(status));
+            response.addProperty("isFinished", Integer.toString(isFinished));
             return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
         }
         else {
             response.addProperty("status", Integer.toString(status));
+            response.addProperty("isFinished", Integer.toString(isFinished));
             return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
         }
     }
+
 }

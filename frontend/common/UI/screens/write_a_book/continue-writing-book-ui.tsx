@@ -1,8 +1,8 @@
 import React, { useState, useEffect, ReactNode, JSXElementConstructor } from 'react';
 import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, SafeAreaView, TextInput , ScrollView, FlatList} from 'react-native';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { get_all_chapters_from_book } from '../../../services/write-book-service';
-import { NavigationParameters, ResponseType } from '../../../types';
+import { get_all_chapters_from_book, setBookFinished, getIsBookFinished } from '../../../services/write-book-service';
+import { GetIsFinishedResponseType, NavigationParameters, ResponseType } from '../../../types';
 import Globals from '../../_globals/Globals';
 import { useIsFocused } from "@react-navigation/native";
 import Checkbox from 'expo-checkbox';
@@ -24,8 +24,14 @@ export default function ContinueWritingBookUI( {route} ) {
         if (isFocused) {
             console.log(bookID);
             loadAllBookChapters();
+            loadIsFinishedBook();
         }
       }, [isFocused]);
+
+    
+    useEffect(() => {
+        
+    }, []);
 
 
     async function loadAllBookChapters() {
@@ -45,6 +51,27 @@ export default function ContinueWritingBookUI( {route} ) {
         } else {
             setBookHasChapters(false);
         }
+    }
+
+
+    async function loadIsFinishedBook() {
+        await getIsBookFinished(bookID)
+        .then(
+            (fetchedResponse: GetIsFinishedResponseType) => {
+                //if the status was successful, take into consideration the isFinished field
+                if(fetchedResponse.status == 0) {
+                    //console.log(fetchedResponse);
+                    //console.log("setting is finished use state to  ", fetchedResponse.isFinished);
+                    const aux: boolean = fetchedResponse.isFinished == 0 ? false : true;
+                    console.log(aux);
+                    //setIsBookMarkedAsFinished(aux);
+                    //checkBoxValueChanged(fetchedResponse.isFinished);
+                }
+            }
+        )
+        .catch((e) => {
+            console.log("could not fetch is book finised ", e.message);
+        });
     }
 
     const renderItem = ({ item }: { item: string }) => {
@@ -75,9 +102,18 @@ export default function ContinueWritingBookUI( {route} ) {
         }
     }
 
+    function checkBoxValueChanged(value: boolean) {
+        console.log("value changed");
+        console.log(value);
+        setIsBookMarkedAsFinished(value);
+        setBookFinished(bookID, value);
+    }
+
     function footerComponent() {
         //if book if already marked as finished, dont show the button to add new chapter
-        //instead, show just the checkbox, which is checked
+        //instead, show just the checkbox, which is checked. backend functions needed for this
+
+        //in current readings, should be a map in the db like bookid: position
 
         return (
             <View style={styles.button_and_checkbox_view}>
@@ -85,17 +121,18 @@ export default function ContinueWritingBookUI( {route} ) {
                     <Checkbox
                         style={styles.checkbox}
                         value={isBookMarkedAsFinished}
-                        onValueChange={setIsBookMarkedAsFinished}
-                        color={isBookMarkedAsFinished ? Globals.COLORS.PURPLE : undefined}
+                        onValueChange={checkBoxValueChanged}
+                        color={isBookMarkedAsFinished ? Globals.COLORS.PURPLE : 'white'}
                     />
                     <Text style={[styles.title_text, {fontSize: 16, alignSelf: 'center', marginTop: -1}]}> Mark book as finished </Text>
                 </View>
                 <TouchableOpacity 
                     activeOpacity={0.7} 
-                    style={styles.write_new_chapter_button}
+                    disabled={isBookMarkedAsFinished == true}
+                    style={[styles.write_new_chapter_button, {backgroundColor: isBookMarkedAsFinished == true ? '#D3D3D3' : 'white'}]}
                     onPress={() => navigation.navigate("Write New Chapter", {bookID: bookID, numberOfChapters: numberOfChapters})}
                 >
-                        <Text style = {styles.write_new_chapter_text}>
+                        <Text style = {[styles.write_new_chapter_text, {color: isBookMarkedAsFinished == true ? '#A9A9A9' : Globals.COLORS.PURPLE}]}>
                             + Add New Chapter
                         </Text>
                 </TouchableOpacity>
@@ -183,7 +220,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     write_new_chapter_button: {
-        backgroundColor: 'white',
         borderRadius: 20,
         paddingHorizontal: 10,
         paddingVertical: 5,
@@ -195,7 +231,6 @@ const styles = StyleSheet.create({
     },
     write_new_chapter_text: {
         marginTop: 3,
-        color: Globals.COLORS.PURPLE,
         fontWeight: 'bold',
         fontSize: 15,
         justifyContent: 'flex-start',
