@@ -51,48 +51,51 @@ public class userRegisterService {
         return "hello bee";
     }
 
-    public ArrayList<String> saveUser(User user, boolean loggedInWithGoogle) {
-        final String salt = BCrypt.gensalt();
-        user.setSalt(salt);
-        Map<String, Object> userMap = user.toHashMap();
 
-        String UID = "";
-        String userName = "";
-        String errorCode = "";
+    private Integer checkUserEmailAndPassword(String emailAddress, String password, String userName, boolean loggedInWithGoogle) {
+        Integer errorCode = 0;
+        if (!this.isUserEmailOK(emailAddress)) {
+            errorCode = GlobalConstants.EMAIL_NOT_MEETING_CRITERIA_ERROR_CODE;
+        } 
+        else if (!loggedInWithGoogle && !this.isUserPasswordOK(password)) {
+            //password will be null if user authenticates with google
+            errorCode = GlobalConstants.PASSWORD_NOT_MEETING_CRITERIA_ERROR_CODE;
+        } 
+        else if (this.emailAlreadyExistsInDB(emailAddress)) {
+            errorCode = GlobalConstants.EMAIL_OR_USERNAME_ALREADY_USED_ERROR_CODE;
+        } 
+        else if (this.userNameAlreadyExistsInDB(userName)) {
+            errorCode = GlobalConstants.EMAIL_OR_USERNAME_ALREADY_USED_ERROR_CODE;
+        } 
+
+        return errorCode;
+    }
+
+
+    public ArrayList<String> saveUser(String emailAddress, String password, String userName, boolean loggedInWithGoogle) {
         ArrayList<String> returnList = new ArrayList<String>();
 
-        if (!this.isUserEmailOK(user.getEmailAddress())) {
-            errorCode = Integer.toString(GlobalConstants.EMAIL_NOT_MEETING_CRITERIA_ERROR_CODE);
-        } 
-        else if (!loggedInWithGoogle && !this.isUserPasswordOK(user.getPassword())) {
-            //password will be null if user authenticates with google
-            errorCode = Integer.toString(GlobalConstants.PASSWORD_NOT_MEETING_CRITERIA_ERROR_CODE);
-        } 
-        else if (this.emailAlreadyExistsInDB(user.getEmailAddress())) {
-            errorCode = Integer.toString(GlobalConstants.EMAIL_OR_USERNAME_ALREADY_USED_ERROR_CODE);
-        } 
-        else if (this.userNameAlreadyExistsInDB(user.getUserName())) {
-            errorCode = Integer.toString(GlobalConstants.EMAIL_OR_USERNAME_ALREADY_USED_ERROR_CODE);
-        } 
-        else {
+        Integer errorCode = GlobalConstants.STATUS_FAILED;
+        errorCode = checkUserEmailAndPassword(emailAddress, password, userName, loggedInWithGoogle);
+
+        String UID = "";
+        if(0 == errorCode) {
+            final String salt = BCrypt.gensalt();
+            User user = new User(userName, emailAddress, password, salt);
             user.setPassword(BCrypt.hashpw(user.getPassword(), salt));
-
-            userMap.put(UserCollectionFields.PASSWORD.getFieldName(), user.getPassword());
-
-            ApiFuture<DocumentReference> addedDocRef = userCollectionDB.add(userMap);
-            
-            errorCode = Integer.toString(GlobalConstants.USER_CREATED);
+            errorCode = GlobalConstants.USER_CREATED;
 
             //save user ID
             try {
+                ApiFuture<DocumentReference> addedDocRef = userCollectionDB.add(user);
                 UID = addedDocRef.get().get().get().getId();
-                userName = user.getUserName();
             } catch (Exception e) {
                 e.printStackTrace();
             } 
         }
+   
 
-        returnList.add(errorCode);
+        returnList.add(errorCode.toString());
         returnList.add(UID);
         returnList.add(userName);
 

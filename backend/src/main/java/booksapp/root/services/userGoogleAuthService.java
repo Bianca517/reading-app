@@ -47,9 +47,7 @@ public class userGoogleAuthService {
         }
         //else, create new account
         else {
-            final User newUser = new User(userName, userEmail, "");
-            
-            ArrayList<String> registerStatus = this.userRegisterService.saveUser(newUser, true);
+            ArrayList<String> registerStatus = this.userRegisterService.saveUser(userEmail, "", userName, true);
             returnedCode = registerStatus.get(0);
             UID = registerStatus.get(1);
         }
