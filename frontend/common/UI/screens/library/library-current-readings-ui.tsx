@@ -13,27 +13,35 @@ import { useIsFocused } from '@react-navigation/native';
 
 export default function LibraryPageCurrentReadingsUI() {
     const [currentReadingBooks, setCurrentReadingBooks] = useState([]);
+    const [isLibraryEmpty, setIsLibraryEmpty] = useState(true);
+
     const isFocused = useIsFocused();
 
     async function loadCurrentReadingBooks() {
         const fetchResponse: ResponseTypeRetrieveBooks = await get_current_readings(GlobalUserData.LOGGED_IN_USER_DATA.uid).then();
 
-        if (fetchResponse.status == 0) {
-            if(fetchResponse.books.length > 0) {
-                setCurrentReadingBooks(fetchResponse.books);
-            }
+        if (fetchResponse.status == 0 && (fetchResponse.books.length > 0)) {
+            setCurrentReadingBooks(fetchResponse.books);
+            setIsLibraryEmpty((fetchResponse.books.length == 0) || (fetchResponse.books == null));
+        }
+        else {
+            setCurrentReadingBooks([]);
+            setIsLibraryEmpty(true);
         }
     }
 
     //this executes on page load
     useEffect(() => {
         if(isFocused){
-            if(!GlobalBookData.CURRENT_READINGS) {
+            console.log("poiii");
+            console.log(GlobalBookData.CURRENT_READINGS);
+            
+            if(GlobalBookData.CURRENT_READINGS.length == 0) {
                 loadCurrentReadingBooks();
             }
             else {
-                console.log(GlobalBookData.CURRENT_READINGS);
                 setCurrentReadingBooks(GlobalBookData.CURRENT_READINGS);
+                setIsLibraryEmpty(false);
             }
         }
     }, [isFocused]);
@@ -49,14 +57,28 @@ export default function LibraryPageCurrentReadingsUI() {
 
             <View style={styles.booksContainer}>
                 <View style={{flex: 1}}>   
-                    <ScrollView style = {styles.scrollview} contentContainerStyle={styles.booksContainerScrollView}>
-                    {
-                        /*Warning: Each child in a list should have a unique "key" prop.*/
-                        currentReadingBooks.map((book, index) => (
-                            <Book key={index} bookDTO={book} bookCoverWidth={100} bookCoverHeight={180} bookWithDetails={true} bookNavigationOptions={Globals.BOOK_NAVIGATION_OPTIONS.TO_READING_SCREEN}/>
-                        ))
+                   
+                    {   
+                    isLibraryEmpty ? 
+                    (
+                        <Text style={[styles.empty_library_info, {alignSelf: 'center'}]}>
+                            Your library is currently empty :(
+                        </Text>
+                    )
+                    :
+                    (
+                        <ScrollView style = {styles.scrollview} contentContainerStyle={styles.booksContainerScrollView}>
+                         {
+                            /*Warning: Each child in a list should have a unique "key" prop.*/
+                            currentReadingBooks.map((book, index) => (
+                                <Book key={index} bookDTO={book} bookCoverWidth={100} bookCoverHeight={180} bookWithDetails={true} bookNavigationOptions={Globals.BOOK_NAVIGATION_OPTIONS.TO_READING_SCREEN}/>
+                            
+                            ))
+                        }
+                        </ScrollView>  
+                    )
                     }
-                    </ScrollView>
+                     
                 </View> 
             </View>
 
@@ -102,6 +124,15 @@ const styles = StyleSheet.create({
     scrollview: {
         flex: 1,
         width: '100%',
-    }
+    },
+    empty_library_info: {
+        flex: 3,
+        marginTop: 3,
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 20,
+        justifyContent: 'center',
+        textAlign: 'center',
+    },
 })
 

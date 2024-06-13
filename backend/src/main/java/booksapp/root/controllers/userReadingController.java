@@ -96,13 +96,22 @@ public class userReadingController {
     }
 
     @GetMapping(value = "/getusersplannedreadings")
-    public String getUserPlannedReadings(@RequestParam String UID, String monthName) throws ExecutionException, InterruptedException {
-        System.out.println("in backend");
-        ArrayList<HashMap<String, String>> books = this.userReadingService
-                .getUserPlannedReadingsForMonth(UID, monthName);
-        Gson gson = new Gson();
-        String gsonData = gson.toJson(books);
-        return gsonData;
+    public ResponseEntity<ArrayList<BookDTO>> getUserPlannedReadings(@RequestParam String UID, String monthName) throws ExecutionException, InterruptedException {
+        ArrayList<BookDTO> books = null;
+        int status = GlobalConstants.STATUS_FAILED;
+
+        if (UID != null) {
+            books = this.userReadingService.getUserPlannedReadingsForMonth(UID, monthName);
+            if (books != null && !books.isEmpty()) {
+                status = GlobalConstants.STATUS_SUCCESSFUL;
+            }
+        }
+   
+        if (status == GlobalConstants.STATUS_SUCCESSFUL) {
+            return new ResponseEntity<>(books, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PostMapping(value = "/planbookformonth")
@@ -122,13 +131,13 @@ public class userReadingController {
     }
 
     @DeleteMapping(value = "/removebookplannedformonth")
-    public String removePlannedBookForMonth(@RequestParam String monthName, String bookID) throws ExecutionException, InterruptedException {
-        int returnedStatus = this.userReadingService.removeBookAsPlannedForMonth("4zgcWtT9c3RSy5FpFI18", monthName, bookID);
-        if(returnedStatus == 0) {
-            return "Successfully planned book with ID " + bookID + " for month " + monthName;
+    public ResponseEntity<String> removePlannedBookForMonth(@RequestParam String UID, String monthName, String bookID) throws ExecutionException, InterruptedException {
+        boolean success = this.userReadingService.removeBookAsPlannedForMonth(UID, monthName, bookID);
+        if(success) {
+            return new ResponseEntity<String>("Successfully removed book with ID " + bookID + " for month " + monthName, HttpStatus.OK);
         }
         else {
-            return "Could not plan book for month " + monthName;
+            return new ResponseEntity<String>("Could not remove book for month " + monthName, HttpStatus.BAD_REQUEST);
         }
     }
 

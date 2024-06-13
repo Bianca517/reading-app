@@ -18,8 +18,8 @@ async function handleLogin(userEmail: string, userPassword: string, navigation) 
 
     //TODO: remove this
     navigation.navigate('Home' as never);
-    GlobalUserData.LOGGED_IN_USER_DATA.uid = 'v8iP2KKX6xoQjltmyI3j';
-    GlobalUserData.LOGGED_IN_USER_DATA.username = 'Bianca Andreea Teregan';
+    GlobalUserData.LOGGED_IN_USER_DATA.uid = 'oie24V6tNlEjFCWKuhA3';
+    GlobalUserData.LOGGED_IN_USER_DATA.username = 'Perry';
 
     const HttpStatus: number = fetchResponse.HttpStatus;
   

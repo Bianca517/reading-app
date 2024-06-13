@@ -2,33 +2,39 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Image, Text, TouchableOpacity } from 'react-native';
 import Globals from '../_globals/Globals';
 import { delete_planned_book_for_month } from '../../services/reading-planner-service'
+import { bookDTO } from '../../types';
+import { constructURIForBookCover } from './construct-uri-for-bookcover';
+import GlobalUserData from '../_globals/GlobalUserData';
+import GlobalBookData from '../_globals/GlobalBookData';
 
 type BookProps = {
-    bookFields: string,
+    bookFields: bookDTO,
     bookCoverWidth: number,
     bookCoverHeight: number,
     currentMonthName: string,
-    onBookRemovedCallback: (bookID: string, bookTitle: string, bookAuthor: string) => void,
+    onBookRemovedCallback: (bookID: string, bookTitle: string, bookAuthor: string, numberOfChapters: number) => void,
 }
 
 export default function EditableBook({ bookFields, bookCoverWidth, bookCoverHeight, currentMonthName, onBookRemovedCallback }: BookProps) {
 
-    let bookFieldsJSON = JSON.parse(bookFields);
-    const bookTitle = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[0]];
-    const bookAuthor = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[1]];
-    const bookID = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[6]];
+    const bookTitle = bookFields.bookTitle;
+    const bookAuthor = bookFields.authorUsername;
+    const bookID = bookFields.bookID;
+    const numberOfChapters = bookFields.numberOfChapters;
     let bookCover = "";
 
     if(bookTitle && bookAuthor) {
-        var constructURIForBookCover = Globals.BOOK_COVER_URI_TEMPLATE_PNG.replace('NAME', bookTitle.toLowerCase());
-        constructURIForBookCover = constructURIForBookCover.replace('AUTHOR', bookAuthor.toLowerCase());
-        bookCover = constructURIForBookCover;
+        bookCover = constructURIForBookCover(bookTitle, bookAuthor);
     }
 
     async function bookRemovedCallback(bookID: string) {
-        await delete_planned_book_for_month(currentMonthName, bookID);
-        console.log("teoretic removed");
-        onBookRemovedCallback(bookID, bookTitle, bookAuthor);
+        //remove from DB and from local storage
+        delete_planned_book_for_month(GlobalUserData.LOGGED_IN_USER_DATA.uid, currentMonthName, bookID)
+        .then((success: boolean) => {
+            console.log("teoretic removed");
+            GlobalBookData.MONTH_PLANNED_BOOKS[currentMonthName].filter((book : bookDTO) => book.bookID != bookID);
+            onBookRemovedCallback(bookID, bookTitle, bookAuthor, numberOfChapters);
+        })
     }
 
     if(bookTitle && bookAuthor) {

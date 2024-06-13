@@ -6,6 +6,9 @@ import LibraryPageNavigator from '../../components/library-navigator';
 import MonthContainer from '../../components/month-container';
 import { get_readings_planned_for_month } from "../../../services/reading-planner-service";
 import { useIsFocused } from "@react-navigation/native";
+import GlobalUserData from '../../_globals/GlobalUserData';
+import { bookDTO } from '../../../types';
+import GlobalBookData from '../../_globals/GlobalBookData';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -18,18 +21,18 @@ export default function LibraryPageReadingTrackerUI() {
     const [booksAreLoaded, setBooksAreLoaded] = useState<boolean>(false);
     const isFocused = useIsFocused();
 
-    let [januaryPlannedBooks, setJanuaryPlannedBooks] = useState<yearlyBooksPlanned[]>([]);
-    let [februaryPlannedBooks, setFebruaryPlannedBooks] = useState<yearlyBooksPlanned[]>([]);
-    let [marchPlannedBooks, setMarchPlannedBooks] = useState<yearlyBooksPlanned[]>([]);
-    let [aprilPlannedBooks, setAprilPlannedBooks] = useState<yearlyBooksPlanned[]>([]);
-    let [mayPlannedBooks, setMayPlannedBooks] = useState<yearlyBooksPlanned[]>([]);
-    let [junePlannedBooks, setJunePlannedBooks] = useState<yearlyBooksPlanned[]>([]);
-    let [julyPlannedBooks, setJulyPlannedBooks] = useState<yearlyBooksPlanned[]>([]);
-    let [augustPlannedBooks, setAugustPlannedBooks] = useState<yearlyBooksPlanned[]>([]);
-    let [septemberPlannedBooks, setSeptemberPlannedBooks] = useState<yearlyBooksPlanned[]>([]);
-    let [octoberPlannedBooks, setOctoberPlannedBooks] = useState<yearlyBooksPlanned[]>([]);
-    let [novemberPlannedBooks, setNovemberPlannedBooks] = useState<yearlyBooksPlanned[]>([]);
-    let [decemberPlannedBooks, setDecemberPlannedBooks] = useState<yearlyBooksPlanned[]>([]);
+    let [januaryPlannedBooks, setJanuaryPlannedBooks] = useState<bookDTO[]>([]);
+    let [februaryPlannedBooks, setFebruaryPlannedBooks] = useState<bookDTO[]>([]);
+    let [marchPlannedBooks, setMarchPlannedBooks] = useState<bookDTO[]>([]);
+    let [aprilPlannedBooks, setAprilPlannedBooks] = useState<bookDTO[]>([]);
+    let [mayPlannedBooks, setMayPlannedBooks] = useState<bookDTO[]>([]);
+    let [junePlannedBooks, setJunePlannedBooks] = useState<bookDTO[]>([]);
+    let [julyPlannedBooks, setJulyPlannedBooks] = useState<bookDTO[]>([]);
+    let [augustPlannedBooks, setAugustPlannedBooks] = useState<bookDTO[]>([]);
+    let [septemberPlannedBooks, setSeptemberPlannedBooks] = useState<bookDTO[]>([]);
+    let [octoberPlannedBooks, setOctoberPlannedBooks] = useState<bookDTO[]>([]);
+    let [novemberPlannedBooks, setNovemberPlannedBooks] = useState<bookDTO[]>([]);
+    let [decemberPlannedBooks, setDecemberPlannedBooks] = useState<bookDTO[]>([]);
 
     const yearlyBooks = [
         januaryPlannedBooks,
@@ -46,7 +49,7 @@ export default function LibraryPageReadingTrackerUI() {
         decemberPlannedBooks,
     ];
     
-    function setMonthPlannedBooks(monthIndex: number, plannedBooks: any): void {
+    function setMonthPlannedBooks(monthIndex: number, plannedBooks: bookDTO[]): void {
         switch(monthIndex) {
             case 0:
                 setJanuaryPlannedBooks(plannedBooks);
@@ -92,6 +95,8 @@ export default function LibraryPageReadingTrackerUI() {
     }
 
     function renderMonths() {
+        console.log('renderMonths');
+        console.log(booksAreLoaded);
         if(booksAreLoaded) {
             return (
                 Globals.MONTHS_LIST.map((month, index) => (
@@ -109,9 +114,9 @@ export default function LibraryPageReadingTrackerUI() {
 
     async function loadCurrentPlannedBooks() {
         const promises = Globals.MONTHS_LIST.map(async (month, index) => {
-            let fetchResponse = await get_readings_planned_for_month(month).then();
-            if (fetchResponse.success) {
-                const booksForMonth = JSON.parse(fetchResponse.message);
+            let fetchResponse = await get_readings_planned_for_month(GlobalUserData.LOGGED_IN_USER_DATA.uid, month).then();
+            if (fetchResponse != null && fetchResponse.length > 0) {
+                const booksForMonth: bookDTO[] = fetchResponse;
                 setMonthPlannedBooks(index, booksForMonth);
             }
         });
@@ -122,9 +127,23 @@ export default function LibraryPageReadingTrackerUI() {
     //this executes on page load
     useEffect(() => {
         if (isFocused) {
-         loadCurrentPlannedBooks(); 
+            loadCurrentPlannedBooks();
+            /*
+            if(GlobalBookData.MONTH_PLANNED_BOOKS == null) {
+                loadCurrentPlannedBooks();
+            } 
+            else {
+               setPlannedBooksFromLocalStorage();
+            }*/
         }
     }, [isFocused]);
+
+    function setPlannedBooksFromLocalStorage() {
+        Globals.MONTHS_LIST.forEach((monthname, index) => {
+            setMonthPlannedBooks(index, GlobalBookData.MONTH_PLANNED_BOOKS[monthname]);
+        });
+        setBooksAreLoaded(true);
+    }
 
     return (
         <SafeAreaView style={styles.fullscreen_view}>

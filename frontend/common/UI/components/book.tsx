@@ -6,6 +6,7 @@ import GlobalBookData from '../_globals/GlobalBookData';
 import { NavigationParameters, bookDTO, ResponseType } from '../../types';
 import { get_total_nr_of_chapters } from '../../services/book-reading-service';
 import GlobalUserData from '../_globals/GlobalUserData';
+import { constructURIForBookCover } from './construct-uri-for-bookcover';
 
 type BookProps = {
     bookDTO: bookDTO,
@@ -50,8 +51,9 @@ export default function Book(props: BookProps) {
     */
 
     function checkIfBookIsInLibrary() {
+        setIsBookInLibrary(false);
+
         if(GlobalBookData.CURRENT_READINGS.length > 0) {
-            //console.log(GlobalBookData.CURRENT_READINGS);
             GlobalBookData.CURRENT_READINGS.forEach((book: bookDTO) => {
                 if(bookID == book.bookID) {
                     setIsBookInLibrary(true);
@@ -61,11 +63,13 @@ export default function Book(props: BookProps) {
         }
 
         if(!isBookInLibrary) {
-            GlobalBookData.FINALIZED_READINGS.forEach(book => {
-                if(bookID == book.bookID) {
-                    setIsBookInLibrary(true);
-                }
-            });
+            if(GlobalBookData.FINALIZED_READINGS.length > 0) {
+                GlobalBookData.FINALIZED_READINGS.forEach(book => {
+                    if(bookID == book.bookID) {
+                        setIsBookInLibrary(true);
+                    }
+                });
+            }
         }
     }
 
@@ -133,6 +137,8 @@ export default function Book(props: BookProps) {
             }
 
             case Globals.BOOK_NAVIGATION_OPTIONS.ADDITIONAL_CHECK: {
+                checkIfBookIsInLibrary();
+                console.log("podoososd ", isBookInLibrary);
                 if(!isBookInLibrary) {
                     navigation.navigate("Prologue", 
                     { 
@@ -159,31 +165,6 @@ export default function Book(props: BookProps) {
             }
         }
     }
-
-    function constructURIForBookCover(bookTitle: string, bookAuthor: string) {
-        //replace spaces from strings
-        if(bookTitle.includes(' ')) {
-            var bookTitleWords: string[] = bookTitle.split(' ');
-            bookTitle = "";
-            bookTitleWords.forEach(word => {
-                bookTitle += word;
-            });
-        }
-
-        if(bookAuthor.includes(' ')) {
-            var bookAuthorWords: string[] = bookAuthor.split(' ');
-            bookAuthor = "";
-            bookAuthorWords.forEach(word => {
-                bookAuthor += word;
-            });
-        }
-
-        var URIForBookCover = Globals.BOOK_COVER_URI_TEMPLATE_PNG.replace('NAME', bookTitle.toLowerCase());
-        URIForBookCover = URIForBookCover.replace('AUTHOR', bookAuthor.toLowerCase());
-        //console.log(URIForBookCover);
-        return URIForBookCover;
-    }
-
 
     if(bookAuthor && bookTitle) {
         bookCover = constructURIForBookCover(bookTitle, bookAuthor);

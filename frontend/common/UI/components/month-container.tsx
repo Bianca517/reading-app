@@ -6,6 +6,7 @@ import { get_readings_planned_for_month} from "../../services/reading-planner-se
 import Book from './book';
 import EditableBook from './book-editable';
 import { delete_planned_book_for_month } from '../../services/reading-planner-service'
+import { bookDTO } from '../../types';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -18,8 +19,8 @@ type Props = {
     index: number,
     height: number,
     inEditMode: boolean,
-    plannedBookList: any,
-    onBookRemovedCallback: (bookID: string, bookTitle: string, bookAuthor: string) => void,
+    plannedBookList: bookDTO[],
+    onBookRemovedCallback: (bookID: string, bookTitle: string, bookAuthor: string, numberOfChapters: number) => void,
 };
 
 export default function MonthContainer( {index, height, inEditMode, plannedBookList, onBookRemovedCallback}: Props) {
@@ -32,14 +33,14 @@ export default function MonthContainer( {index, height, inEditMode, plannedBookL
     currentMonthName = currentMonthName[0].toUpperCase() + currentMonthName.substring(1);
     //build firebase storage uri
     const monthImagePath = Globals.MONTHS_BACKGROUND_IMAGES.replace('MONTH', currentMonthName.toLowerCase());
-    console.log(monthImagePath);
+    //console.log(monthImagePath);
 
     let rightButtonText = inEditMode === true ? 'Done' : 'Edit';
 
     //this executes on page load
     useEffect(() => {
-        //console.log('rerender moonth ' + currentMonthName);
-        //console.log("am primit", plannedBookList);
+        console.log('rerender moonth ' + currentMonthName);
+        console.log("am primit", plannedBookList);
     }, []);
 
     useEffect(() => {
@@ -57,16 +58,22 @@ export default function MonthContainer( {index, height, inEditMode, plannedBookL
     }
 
     function renderBooks() {
-        if(plannedBookList.length > 0) {
+        if(plannedBookList != null && plannedBookList.length > 0) {
             return (
                 <View style={styles.booksGridContainer}>
                 {
                     /*Warning: Each child in a list should have a unique "key" prop.*/
                     statePlannedBookList.map((book, index) => (
                         inEditMode ? (
-                            <EditableBook key={index} bookFields={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={150} currentMonthName={currentMonthName} onBookRemovedCallback={onBookRemovedCallback}/>
+                            <EditableBook key={index} bookFields={book} bookCoverWidth={110} bookCoverHeight={150} currentMonthName={currentMonthName} onBookRemovedCallback={onBookRemovedCallback}/>
                         ) : (
-                            <Book key={index} bookDTO={JSON.stringify(book)} bookCoverWidth={110} bookCoverHeight={180} bookWithDetails={true} />
+                            <Book 
+                            key={index} 
+                            bookDTO={book} 
+                            bookCoverWidth={110} 
+                            bookCoverHeight={180} 
+                            bookWithDetails={true}
+                            bookNavigationOptions={Globals.BOOK_NAVIGATION_OPTIONS.TO_READING_SCREEN} />
                         )
                     ))
                 }
