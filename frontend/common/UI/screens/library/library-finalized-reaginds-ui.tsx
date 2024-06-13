@@ -46,7 +46,7 @@ export default function LibraryPageFinalizedReadingsUI() {
                 {
                     /*Warning: Each child in a list should have a unique "key" prop.*/
                     finalizedBooks.map((book, index) => (
-                        <Book key={index} bookDTO={book} bookCoverWidth={95} bookCoverHeight={180} bookWithDetails = {true} bookNavigationOptions={Globals.BOOK_NAVIGATION_OPTIONS.TO_READING_SCREEN}/>
+                        <Book key={index} bookDTO={book} bookCoverWidth={95} bookCoverHeight={180} bookWithDetails = {false} bookNavigationOptions={Globals.BOOK_NAVIGATION_OPTIONS.TO_READING_SCREEN}/>
                     ))
                 }
                 </ScrollView>
