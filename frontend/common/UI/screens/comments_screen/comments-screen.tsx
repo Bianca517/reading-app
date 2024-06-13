@@ -1,10 +1,11 @@
 import React, { useState, useEffect, ReactNode } from 'react';
-import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, SafeAreaView, TextInput , ScrollView} from 'react-native';
+import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, SafeAreaView, TextInput , ScrollView, Alert} from 'react-native';
 import Globals from '../../_globals/Globals';
 import { useNavigation } from '@react-navigation/native';
 import { FontAwesome } from '@expo/vector-icons';
-import { get_book_paragraph_comments } from '../../../services/paragraph-comments-service'
+import { add_new_comment, get_book_paragraph_comments } from '../../../services/paragraph-comments-service'
 import { ResponseType } from '../../../types';
+import GlobalUserData from '../../_globals/GlobalUserData';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -26,16 +27,20 @@ export default function CommentsView({ route }) {
     const [paragraphComments, setParagraphComments] = useState<comment[]>([]);
     const [enteredComment, onChangeEnteredComment] = React.useState("");
 
-    async function handleComments(comments: Object[]) {
+    async function handleComments(comments: Object) {
+        let commentsArray = Object.entries(comments).map(([author, content]) => ({ [author]: content }));
         let commentsOK: Comment[] = [];
+        console.log(comments[0]);
+        console.log("oldfk");
 
-        comments.forEach(comment => {
+        commentsArray.forEach(comment => {
             const author: string = Object.keys(comment)[0];
             const content: string = comment[author];
             const oneComment: Comment = {
                 author: author,
                 content: content,
             }
+            
             commentsOK.push(oneComment);
         });
 
@@ -50,6 +55,7 @@ export default function CommentsView({ route }) {
         const fetchedResponse: ResponseType = await get_book_paragraph_comments(bookID, chapterNumber, paragraphNumber);
 
         if(fetchedResponse.success) {
+            console.log("aici", fetchedResponse);
             const paragraphCommentsReceived = JSON.parse(fetchedResponse.message);
             console.log(paragraphCommentsReceived);
             handleComments(paragraphCommentsReceived);
@@ -62,7 +68,15 @@ export default function CommentsView({ route }) {
             author: 'You',
             content: enteredComment,
         }
-        setParagraphComments([...paragraphComments, commentToBeAdded]);
+        add_new_comment(GlobalUserData.LOGGED_IN_USER_DATA.uid, bookID, chapterNumber, paragraphNumber, enteredComment)
+        .then((success: boolean) => {
+            if(!success) {
+                Alert.alert("Comment could not be added!");
+            }
+            else {
+                setParagraphComments([...paragraphComments, commentToBeAdded]);
+            }
+        })
     }
 
     useEffect(() => {
