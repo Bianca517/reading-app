@@ -66,22 +66,28 @@ export default function MonthContainer( {index, height, inEditMode, plannedBookL
         let i: number = 0;
         plannedBookListPages = [[]];
 
-        plannedBookList.forEach((book: bookDTO) => {
-            if(plannedBookListPages[i] == null) {
-                plannedBookListPages[i] = [];
+        if(plannedBookList) {
+            plannedBookList.forEach((book: bookDTO) => {
+                if(plannedBookListPages[i] == null) {
+                    plannedBookListPages[i] = [];
+                }
+    
+                if(!plannedBookListPages[i].includes(book)){
+                    console.log("face push");
+                    plannedBookListPages[i].push(book);
+                }
+                //once there are 4 books in a page, increase i to indicate new page
+                if(plannedBookListPages[i].length >= 4) {
+                    i++;
+                }
+            });
+            if(plannedBookListPages) {
+                setPlannedBookListPages(plannedBookListPages);
             }
-
-            if(!plannedBookListPages[i].includes(book)){
-                console.log("face push");
-                plannedBookListPages[i].push(book);
-            }
-            //once there are 4 books in a page, increase i to indicate new page
-            if(plannedBookListPages[i].length >= 4) {
-                i++;
-            }
-        });
-        setPlannedBookListPages(plannedBookListPages);
-        console.log(plannedBookListPages);
+            
+            console.log(plannedBookListPages);
+        }
+       
     }
 
     function emptyPlannedBookList() {

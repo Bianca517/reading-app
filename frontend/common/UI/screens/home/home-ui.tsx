@@ -27,6 +27,8 @@ export default function HomePageUI() {
         loadRecommendedReadingBooks();
         loadPopularBooks();
         loadCurrentReadingBooks().then((books: bookDTO[]) => {
+            console.log("sicciiiiiiiiii");
+            console.log(books);
             if(books!=null) {
                 setCurrentReadingBooks(books);
             }

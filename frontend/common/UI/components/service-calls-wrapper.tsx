@@ -128,11 +128,11 @@ export async function loadFinalizedReadingBooks() {
 
 export async function loadCurrentReadingBooks(): Promise<bookDTO[]> {
     GlobalBookData.CURRENT_READINGS = [];
-    get_current_readings(GlobalUserData.LOGGED_IN_USER_DATA.uid).then((fetchResponse: bookDTO[]) => {
-        if (fetchResponse != null && fetchResponse.length > 0) {
-            GlobalBookData.CURRENT_READINGS = fetchResponse;
-        }
-        return fetchResponse;
-    });
-    return null;
+    let fetchResponse: bookDTO[] = await get_current_readings(GlobalUserData.LOGGED_IN_USER_DATA.uid).then();
+    console.log(fetchResponse);
+    console.log("dlsfskhvnfsdjv");
+    if (fetchResponse != null && fetchResponse.length > 0) {
+        GlobalBookData.CURRENT_READINGS = fetchResponse;
+    }
+    return fetchResponse;
 }

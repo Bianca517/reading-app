@@ -23,11 +23,12 @@ export async function get_readings_planned_for_month(UID: string, monthName: str
         .then((responseData) => {
             console.log("am reusit");
             responseBooks = responseData.map((book: any) => {
+                console.log(book)
                 return {
                     bookTitle: book.bookTitle,
                     authorUsername: book.authorUsername,
                     bookID: book.bookID,
-                    numberOfChapters: book.numberOfChapters
+                    numberOfChapters: book.numberOfChapters,
                 };
             });
         })

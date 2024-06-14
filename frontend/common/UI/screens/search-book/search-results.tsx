@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, SafeAreaView, TextInput , ScrollView} from 'react-native';
 import Globals from '../../_globals/Globals';
 import { useNavigation } from '@react-navigation/native';
-import { ResponseType } from '../../../types';
+import { ResponseType, bookDTO } from '../../../types';
 
 import { get_books_with_specified_genre, get_books_with_specified_name } from '../../../services/retrieve-books-service';
 import Book from '../../components/book';
@@ -42,7 +42,7 @@ export default function SearchResultsUI({route}) {
     }, []);
 
     async function loadBooks() {
-        let fetchResponse: ResponseType;
+        let fetchResponse: bookDTO[];
         
         if(searchByGenre) {
             fetchResponse = await get_books_with_specified_genre(searchedBookGenre).then();
@@ -52,8 +52,9 @@ export default function SearchResultsUI({route}) {
         }
         
         console.log("Fetching books", fetchResponse);
-        if (fetchResponse.success) {
-            const books: [] = JSON.parse(fetchResponse.message);
+        if (fetchResponse != null && fetchResponse.length>0)
+        {
+            const books: bookDTO[] = fetchResponse;
             if(books.length > 0) {
             setSearchedBooks(books);
             console.log("Saved books", books);
@@ -100,7 +101,7 @@ export default function SearchResultsUI({route}) {
                         !booksNotFound && searchedBooks &&
                     /*Warning: Each child in a list should have a unique "key" prop.*/
                         searchedBooks.map((book, index) => (
-                            <Book key={index} bookDTO={JSON.stringify(book)} bookCoverWidth={95} bookCoverHeight={180} bookWithDetails = {false} bookNavigationOptions={Globals.BOOK_NAVIGATION_OPTIONS.ADDITIONAL_CHECK}/>
+                            <Book key={index} bookDTO={book} bookCoverWidth={95} bookCoverHeight={180} bookWithDetails = {false} bookNavigationOptions={Globals.BOOK_NAVIGATION_OPTIONS.ADDITIONAL_CHECK}/>
                         ))
                     }
                 </ScrollView>

@@ -115,6 +115,8 @@ export default function LibraryPageReadingTrackerUI() {
     async function loadCurrentPlannedBooks() {
         const promises = Globals.MONTHS_LIST.map(async (month, index) => {
             let fetchResponse = await get_readings_planned_for_month(GlobalUserData.LOGGED_IN_USER_DATA.uid, month).then();
+            console.log("dijidsfjs");
+            console.log(fetchResponse);
             if (fetchResponse != null && fetchResponse.length > 0) {
                 const booksForMonth: bookDTO[] = fetchResponse;
                 setMonthPlannedBooks(index, booksForMonth);
@@ -128,13 +130,18 @@ export default function LibraryPageReadingTrackerUI() {
     useEffect(() => {
         if (isFocused) {
             loadCurrentPlannedBooks();
+            
             /*
             if(GlobalBookData.MONTH_PLANNED_BOOKS == null) {
                 loadCurrentPlannedBooks();
             } 
             else {
                setPlannedBooksFromLocalStorage();
-            }*/
+            }
+               */
+
+            console.log("IAIAISAIA");
+            console.log(GlobalBookData.MONTH_PLANNED_BOOKS);
         }
     }, [isFocused]);
 
