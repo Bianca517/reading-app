@@ -43,6 +43,10 @@ export type UserPositions = {
     [key: string]: string 
 };
 
+export type plannedBooks = {
+    [monthName: string] : bookDTO[];
+}
+
 export type NavigationParameters = {
     "Reading Screen":
     { 

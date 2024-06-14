@@ -22,4 +22,19 @@ public class GlobalConstants {
 
         public final static int STATUS_SUCCESSFUL = 0;
         public final static int STATUS_FAILED = 1;
+
+        public final static String[] INTERESTS_LIST = {
+                "Fiction",
+                "Science Fiction",
+                "Romance",
+                "Comedy",
+                "Horror",
+                "Thriller",
+                "War",
+                "History",
+                "Music",
+                "Biography",
+                "Drama",
+                "Fan-Fiction"
+        };
 }

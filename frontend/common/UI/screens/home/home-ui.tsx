@@ -8,7 +8,7 @@ import Globals from '../../_globals/Globals';
 import { useNavigation } from '@react-navigation/native';
 import GlobalBookData from '../../_globals/GlobalBookData';
 import { ResponseType, ResponseTypeRetrieveBooks, bookDTO } from '../../../types';
-import { loadCurrentPlannedBooks, loadUserCurrentPositions } from '../../components/service-calls-wrapper';
+import { loadCurrentPlannedBooks, loadUserCurrentPositions, loadFinalizedReadingBooks, loadCurrentReadingBooks } from '../../components/service-calls-wrapper';
 import GlobalUserData from '../../_globals/GlobalUserData';
 
 export default function HomePageUI() {
@@ -18,6 +18,26 @@ export default function HomePageUI() {
     const [currentReadingBooks, setCurrentReadingBooks] = useState<bookDTO[]>([]);
     const [recommendedBooks, setRecommendedBooks] = useState<bookDTO[]>([]);
 
+    //this executes on page load
+    useEffect(() => {
+        navigation.setOptions({
+            headerBackVisible: false
+        });
+        
+        loadRecommendedReadingBooks();
+        loadPopularBooks();
+        loadCurrentReadingBooks().then((books: bookDTO[]) => {
+            if(books!=null) {
+                setCurrentReadingBooks(books);
+            }
+        });
+        
+        loadFinalizedReadingBooks();
+        //load this for the reading planner here as it takes a long time and it shall be prepared until user gets there
+        loadCurrentPlannedBooks();
+        loadUserCurrentPositions();
+    }, []);
+
     async function loadPopularBooks() {
         get_popular_readings().then((fetchResponse: bookDTO[]) => {
             if (fetchResponse != null && fetchResponse.length > 0) {
@@ -26,49 +46,16 @@ export default function HomePageUI() {
         });
     }
 
-    async function loadCurrentReadingBooks() {
-        GlobalBookData.CURRENT_READINGS = [];
-        get_current_readings(GlobalUserData.LOGGED_IN_USER_DATA.uid).then((fetchResponse: bookDTO[]) => {
-            if (fetchResponse != null && fetchResponse.length > 0) {
-                setCurrentReadingBooks(fetchResponse);
-                GlobalBookData.CURRENT_READINGS = fetchResponse;
-            }
-        });
-    }
-
     async function loadRecommendedReadingBooks() {
         get_recommended_readings(GlobalUserData.LOGGED_IN_USER_DATA.uid).then((fetchResponse: bookDTO[]) => {
             if (fetchResponse != null && fetchResponse.length > 0) {
-                //console.log("recommended");
+                console.log("recommended");
                 //console.log(fetchResponse);
                 setRecommendedBooks(fetchResponse);
             }
         });
     }
 
-    async function loadFinalizedReadingBooks() {
-        get_finalized_readings(GlobalUserData.LOGGED_IN_USER_DATA.uid).then((fetchResponse: bookDTO[]) => {
-            if (fetchResponse != null && fetchResponse.length > 0) {
-                setRecommendedBooks(fetchResponse);
-                GlobalBookData.FINALIZED_READINGS = fetchResponse;
-            }
-        });
-    }
-
-    //this executes on page load
-    useEffect(() => {
-        navigation.setOptions({
-            headerBackVisible: false
-        });
-    
-        loadPopularBooks();
-        loadCurrentReadingBooks();
-        loadRecommendedReadingBooks();
-        loadFinalizedReadingBooks();
-        //load this for the reading planner here as it takes a long time and it shall be prepared until user gets there
-        loadCurrentPlannedBooks();
-        loadUserCurrentPositions();
-    }, []);
 
     return (
         <LinearGradient
@@ -103,7 +90,9 @@ export default function HomePageUI() {
                                         ))
                                     ) : 
                                     (
-                                        <View></View>
+                                        <Text style={[styles.section_text, {alignSelf: 'center'}]}>
+                                            Your library is currently empty :( 
+                                        </Text>
                                     )
                                 }
                             </ScrollView>
@@ -155,7 +144,7 @@ export default function HomePageUI() {
                                     popularBooks &&
                                     /*Warning: Each child in a list should have a unique "key" prop.*/
                                     popularBooks.map((book, index) => (
-                                        <Book key={index} bookDTO={book} bookCoverWidth={110} bookCoverHeight={175} bookWithDetails={true} bookNavigationOptions={Globals.BOOK_NAVIGATION_OPTIONS.ADDITIONAL_CHECK}/>
+                                        <Book key={index} bookDTO={book} bookCoverWidth={110} bookCoverHeight={175} bookWithDetails={false} bookNavigationOptions={Globals.BOOK_NAVIGATION_OPTIONS.ADDITIONAL_CHECK}/>
                                     ))
                                 }
                             </ScrollView>
