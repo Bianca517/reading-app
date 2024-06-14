@@ -23,7 +23,6 @@ export default function LibraryPageFinalizedReadingsUI() {
 
     //this executes on page load
     useEffect(() => {
-        loadFinalizedReadingBooks();
         if(!GlobalBookData.FINALIZED_READINGS) {
             loadFinalizedReadingBooks();
         }

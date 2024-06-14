@@ -32,6 +32,7 @@ export default function BookDraggable({ bookFields, bookCoverWidth, bookCoverHei
     const translateY = useSharedValue(0);
     let isPressed = useSharedValue(false);
     let isLongPressed = useSharedValue(false);
+    
 
     const panGestureEvent = useAnimatedGestureHandler<PanGestureHandlerGestureEvent, ContextInterface>({
         onStart: (event, context) => {
@@ -73,6 +74,7 @@ export default function BookDraggable({ bookFields, bookCoverWidth, bookCoverHei
                 { translateY: translateY.value },
             ],
             opacity,
+            elevation: 99,
         }
     })
 
@@ -103,11 +105,11 @@ export default function BookDraggable({ bookFields, bookCoverWidth, bookCoverHei
                     style={[
                         styles.book_container, 
                         reanimatedStyle,
-                        { width: bookCoverWidth, height: bookCoverHeight}
+                        { width: bookCoverWidth, height: bookCoverHeight, elevation: isLongPressed.value ? 99 : 1}
                     ]}
                 >
                     
-                    <Image style={[styles.book_cover, {opacity: isLongPressed.value ? 0.8 : 1, zIndex: isLongPressed.value ? 1: 99}]} source={{ uri: bookCover }}></Image>
+                    <Image style={[styles.book_cover, {opacity: isLongPressed.value ? 0.8 : 1, zIndex: isLongPressed.value ? 99 : 1}]} source={{ uri: bookCover }}></Image>
                 
                 </Animated.View>
         </PanGestureHandler>
@@ -121,7 +123,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 2,
+        marginTop: 5,
         marginHorizontal: 10,
     },
     book_cover: {

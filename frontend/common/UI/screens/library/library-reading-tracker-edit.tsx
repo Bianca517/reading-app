@@ -6,6 +6,7 @@ import {
   View,
   SafeAreaView,
   Dimensions,
+  FlatList,
 } from "react-native";
 import Globals from "../../_globals/Globals";
 import BookDraggable from "../../components/book-draggable";
@@ -57,13 +58,6 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
         filterCurrentReadingBooks(GlobalBookData.CURRENT_READINGS);
       }
 
-      //get readings plan for a month
-      loadPlannedBooksForAMonth(currentMonthName).then((books: bookDTO[]) => {
-        setPlannedBookList(books);
-    });
-
-    /*
-    TO DO: PLS ADD THIS BACK
       if(GlobalBookData.MONTH_PLANNED_BOOKS[currentMonthName].length != null || GlobalBookData.MONTH_PLANNED_BOOKS[currentMonthName].length > 0) {
         loadPlannedBooksForAMonth(currentMonthName).then((books: bookDTO[]) => {
             setPlannedBookList(books);
@@ -72,7 +66,7 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
       else {
         setPlannedBookList(GlobalBookData.MONTH_PLANNED_BOOKS[currentMonthName]);
       }
-      */
+      
     }
   }, [isFocused]);
 
@@ -136,6 +130,17 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
     
   }
 
+  const renderItem = ({ item }: { item: bookDTO }) => {
+    return (
+      <BookDraggable
+        bookFields={item}
+        bookCoverWidth={90}
+        bookCoverHeight={140}
+        bookAddedCallback={onAddedBook}
+      />
+    );
+  };
+
   return (
     <SafeAreaView style={styles.fullscreen_view}>
       <View style={styles.navigation_view}>
@@ -153,7 +158,6 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
             colors={["#626261", "#494948", "#3a3a39"]}
             style={styles.currentReadingsContainer}
           >
-            <ScrollView>
 
               <MonthContainer
                 index={currentMonthIndex}
@@ -166,25 +170,18 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
               <View style={styles.yourLibraryInfo}>
                 <Text style={styles.yourLibraryInfoText}> Your Library </Text>
               </View>
-
-              <View style={styles.currentReadingsContainer}>
-                <ScrollView style={styles.scrollview} contentContainerStyle={styles.scrollviewContent}>
+              
                 {
                   /*Warning: Each child in a list should have a unique "key" prop.*/
-                  currentReadingFilteredBooks.map((book, index) => (
-                      <BookDraggable
-                        key={index}
-                        bookFields={book}
-                        bookCoverWidth={100}
-                        bookCoverHeight={150}
-                        bookAddedCallback={onAddedBook}
-                      />
-                  ))
+                  <FlatList
+                  data={currentReadingFilteredBooks}
+                  keyExtractor={(item) => item.bookID}
+                  horizontal={true}
+                  renderItem={renderItem}
+                  contentContainerStyle={styles.scrollviewContent}
+                />
                 }
-                </ScrollView>
-              </View>
-
-            </ScrollView>
+             
           </LinearGradient>
         </View>
       </GestureHandlerRootView>
@@ -209,8 +206,8 @@ const styles = StyleSheet.create({
     width: "90%",
     height: 1,
     marginHorizontal: 20,
-    marginTop: 10,
-    marginBottom: 20,
+    marginTop: 0,
+    marginBottom: 5,
   },
   bodyContentContainer: {
     flex: 6,
@@ -221,11 +218,13 @@ const styles = StyleSheet.create({
     backgroundColor: Globals.COLORS.BACKGROUND_GRAY,
   },
   currentReadingsContainer: {
+    backgroundColor: 'blue',
     width: windowWidth - 30,
     borderRadius: 20,
     marginTop: 0,
-    height: windowHeight - 230,
-    paddingHorizontal: 0,
+    height: windowHeight - 210,
+    paddingRight: 0,
+    flexGrow: 1,
   },
   yourLibraryInfo: {
     width: 130,
@@ -233,7 +232,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "white",
-    marginTop: 7,
+    marginTop: 5,
     marginLeft: 15,
     marginRight: 500,
     borderRadius: 10,
@@ -248,11 +247,11 @@ const styles = StyleSheet.create({
 
   },
   scrollviewContent: {
+    //backgroundColor: 'purple',
     flexGrow: 1,
     flexDirection: "row",
-    flexWrap: "wrap",
     justifyContent: "flex-start",
-    alignItems: "center", // Align items to the start within each row
-    columnGap: -15
+    //alignItems: "center", // Align items to the start within each row
+    columnGap: 3,
   }
 });

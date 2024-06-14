@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Dimensions, ImageBackground, TouchableHighlight, ScrollView } from 'react-native';
+import React, { ReactNode, useEffect, useState } from 'react';
+import { StyleSheet, Text, View, Dimensions, ImageBackground, TouchableHighlight, ScrollView, FlatList } from 'react-native';
 import Globals from '../_globals/Globals';
 import { useNavigation } from '@react-navigation/native';
 import { get_readings_planned_for_month} from "../../services/reading-planner-service";
@@ -26,6 +26,7 @@ type Props = {
 export default function MonthContainer( {index, height, inEditMode, plannedBookList, onBookRemovedCallback}: Props) {
     const navigation = useNavigation();
     let [statePlannedBookList, setStatePlannedBookList] = useState([]);
+    let [plannedBookListPages, setPlannedBookListPages] = useState<bookDTO[][]>([]);
 
     //fetch image background path based on received index
     //get name from index 
@@ -45,6 +46,7 @@ export default function MonthContainer( {index, height, inEditMode, plannedBookL
 
     useEffect(() => {
         setStatePlannedBookList(plannedBookList);
+        distributeBooksInPages();
     }, [plannedBookList]);
 
     function checkNavigationOfRightButton() {
@@ -57,29 +59,64 @@ export default function MonthContainer( {index, height, inEditMode, plannedBookL
         }
     }
 
-    function renderBooks() {
-        if(plannedBookList != null && plannedBookList.length > 0) {
+    function distributeBooksInPages() {
+        console.log('distributeBooksInPages');
+        console.log(plannedBookListPages);
+        console.log(plannedBookList);
+        let i: number = 0;
+        plannedBookListPages = [[]];
+
+        plannedBookList.forEach((book: bookDTO) => {
+            if(plannedBookListPages[i] == null) {
+                plannedBookListPages[i] = [];
+            }
+
+            if(!plannedBookListPages[i].includes(book)){
+                console.log("face push");
+                plannedBookListPages[i].push(book);
+            }
+            //once there are 4 books in a page, increase i to indicate new page
+            if(plannedBookListPages[i].length >= 4) {
+                i++;
+            }
+        });
+        setPlannedBookListPages(plannedBookListPages);
+        console.log(plannedBookListPages);
+    }
+
+    function emptyPlannedBookList() {
+        plannedBookListPages.forEach((books: bookDTO[]) => {
+            books = [];
+        })
+    }
+
+    function renderBooksInPage({ item }: { item: bookDTO[] }) {
+        if (item != null && item.length > 0) {
             return (
-                <View style={styles.booksGridContainer}>
-                {
-                    /*Warning: Each child in a list should have a unique "key" prop.*/
-                    statePlannedBookList.map((book, index) => (
-                        inEditMode ? (
-                            <EditableBook key={index} bookFields={book} bookCoverWidth={110} bookCoverHeight={150} currentMonthName={currentMonthName} onBookRemovedCallback={onBookRemovedCallback}/>
-                        ) : (
-                            <Book 
-                            key={index} 
-                            bookDTO={book} 
-                            bookCoverWidth={110} 
-                            bookCoverHeight={180} 
-                            bookWithDetails={true}
-                            bookNavigationOptions={Globals.BOOK_NAVIGATION_OPTIONS.TO_READING_SCREEN} />
-                        )
-                    ))
-                }
-            </View>
-            )
+                <View style={styles.book_page}>
+                    {item.map((book: bookDTO, index: number) => (
+                        renderBook(book)
+                    ))}
+                </View>
+            );
         }
+    }
+
+    function renderBook(book: bookDTO): ReactNode {
+        return (
+            inEditMode ? (
+                <EditableBook key={book.bookID} bookFields={book} bookCoverWidth={110} bookCoverHeight={140} currentMonthName={currentMonthName} onBookRemovedCallback={onBookRemovedCallback}/>
+            ) : (
+                <Book 
+                    key={book.bookID} 
+                    bookDTO={book} 
+                    bookCoverWidth={110} 
+                    bookCoverHeight={180} 
+                    bookWithDetails={true}
+                    bookNavigationOptions={Globals.BOOK_NAVIGATION_OPTIONS.TO_READING_SCREEN} 
+                />
+            )
+        )    
     }
 
     return (
@@ -100,7 +137,12 @@ export default function MonthContainer( {index, height, inEditMode, plannedBookL
 
                 </View>
                 
-                {renderBooks()}
+                <FlatList
+                    data={plannedBookListPages}
+                    renderItem={renderBooksInPage}
+                    horizontal={true}
+                    contentContainerStyle = {styles.booksGridContainer}
+                />
                 
             </ImageBackground>
         </View>
@@ -113,14 +155,19 @@ const styles = StyleSheet.create({
         paddingTop: 10,
         paddingHorizontal: 5,
         marginBottom: 25,
+        //flex: 1,
+        //flexDirection: 'column',
+        //justifyContent: 'flex-start',
     },
     headerMonthContainer: {
-        flex: 1,
+        //backgroundColor: 'blue',
+        //flex: 1,
         width: '100%',
         flexDirection: 'row',
         flexWrap: 'nowrap',
         paddingHorizontal: 10,
         marginBottom: 0,
+        height: 'auto',
     },
     monthTextContainer: {
         borderRadius: 10,
@@ -139,14 +186,20 @@ const styles = StyleSheet.create({
         paddingTop: 15,
     },
     booksGridContainer: {
-        flex: 15,
+        //backgroundColor: 'red',
+        //flex: 9,
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        //alignItems: 'flex-end',
+        //paddingHorizontal: 10,
+        //height: 500,
+        //width: '100%',
+    },
+    book_page: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'flex-start',
-        alignItems: 'flex-end',
-        paddingHorizontal: 10,
-        height: 500,
-        width: '100%',
-    },
+        width: windowWidth - 40, // or any width that makes sense for your layout   
+    }
 })
 
