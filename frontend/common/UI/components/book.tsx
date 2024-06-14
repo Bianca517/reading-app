@@ -174,8 +174,9 @@ export default function Book(props: BookProps) {
                 <TouchableOpacity 
                     style={[
                         styles.book_container_button, 
-                        { width: props.bookCoverWidth, height: props.bookCoverHeight }
+                        { width: props.bookCoverWidth, height: props.bookCoverHeight}
                     ]}
+                    activeOpacity={props.bookWithDetails ? 0.5 : 0.8}
                     onLongPress={() => {
                         setIsLongPressed(true)
                         getUserCurrentPositionInBook();
