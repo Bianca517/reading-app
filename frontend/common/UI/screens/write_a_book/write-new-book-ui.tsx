@@ -2,7 +2,7 @@ import React, { useState, useEffect, ReactNode } from 'react';
 import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, SafeAreaView, TextInput , ScrollView, Alert} from 'react-native';
 import Globals from '../../_globals/Globals';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { NavigationParameters, ResponseType } from '../../../types';
+import { NavigationParameters, ResponseType, ResponseTypeAddNewBook, bookDTO } from '../../../types';
 import { SelectList } from 'react-native-dropdown-select-list';
 import * as ImagePicker from 'expo-image-picker';
 import { AntDesign } from '@expo/vector-icons';
@@ -10,6 +10,8 @@ import {Keyboard} from 'react-native';
 import { add_new_book } from '../../../services/write-book-service';
 import GlobalUserData from '../../_globals/GlobalUserData';
 import { upload_book_cover } from '../../../services/upload-media-services';
+import GlobalBookData from '../../_globals/GlobalBookData';
+import { loadBooksWrittenByUser } from '../../components/service-calls-wrapper';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -76,14 +78,29 @@ export default function WriteNewBookUI() {
         
     };
 
+    function createBookDTO(newBookId: string): bookDTO {
+        const book: bookDTO = {
+            bookTitle: bookTitle,
+            authorUsername: GlobalUserData.LOGGED_IN_USER_DATA.username,
+            bookID: newBookId,
+            numberOfChapters: 0,
+        }
+        return book;
+    }
+
     async function handlePostChapter() {
         if(bookTitle !== null && bookCoverImage !== null && bookDescrption !== null && selectedBookGnere !== null) {
-            let addedBookStatus = await add_new_book(bookTitle, GlobalUserData.LOGGED_IN_USER_DATA.username, bookDescrption, selectedBookGnere);
+            let addedBookStatus: ResponseTypeAddNewBook = await add_new_book(bookTitle, GlobalUserData.LOGGED_IN_USER_DATA.username, bookDescrption, selectedBookGnere);
             let uploadedCoverStatus = await upload_book_cover(bookTitle, GlobalUserData.LOGGED_IN_USER_DATA.username, bookCoverImage);
             
-            if((addedBookStatus == 0) && (uploadedCoverStatus == 0)) {
+            if((addedBookStatus.status == 0) && (uploadedCoverStatus == 0)) {
                 Alert.alert("New Book Added Successfully!");
-                navigation.navigate('Home');
+                navigation.navigate('Write a Book');
+                //call this function to force update of array in global data
+                //loadBooksWrittenByUser();
+                GlobalBookData.BOOKS_WRITTEN_BY_USER.push(createBookDTO(addedBookStatus.id));
+                console.log("am creat cartea");
+                console.log(GlobalBookData.BOOKS_WRITTEN_BY_USER);
             }
             else {
                 Alert.alert("New Book Could Not Be Added!");

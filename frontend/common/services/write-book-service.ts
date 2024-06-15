@@ -1,5 +1,5 @@
 import Globals from "../UI/_globals/Globals"
-import { GetIsFinishedResponseType, ResponseType, ResponseTypePOST, bookDTO } from "../types";
+import { GetIsFinishedResponseType, ResponseType, ResponseTypeAddNewBook, ResponseTypePOST, bookDTO } from "../types";
 
 const ADD_NEW_BOOK_ENDPOINT: string = "/addnewbook"
 const GET_BOOKS_WRITTEN_BY_ENDPOINT: string = "/getallbooksbyuser"
@@ -19,7 +19,7 @@ const CHAPTER_CONTENT_PARAMETER_IN_ENDPOINT: string = "chapterContent="
 const IS_FINISHED_PARAMETER_IN_ENDPOINT: string = "isFinished="
 
 
-export async function add_new_book(bookTitle: string, authorUsername: string, description: string, bookGenre: string): Promise<number> {
+export async function add_new_book(bookTitle: string, authorUsername: string, description: string, bookGenre: string): Promise<ResponseTypeAddNewBook> {
     let HTTPS_REQUEST = Globals.BACKEND_HTTP + ADD_NEW_BOOK_ENDPOINT + '?';
     HTTPS_REQUEST += "bookTitle=" + bookTitle + '&'
     HTTPS_REQUEST += "authorUsername=" + authorUsername + '&'
@@ -27,7 +27,7 @@ export async function add_new_book(bookTitle: string, authorUsername: string, de
     HTTPS_REQUEST += "bookGenre=" + bookGenre
     //console.log("aici\n");
     //console.log(HTTPS_REQUEST);
-    let statusToReturn: number = -1;
+    let statusToReturn: ResponseTypeAddNewBook = {status: -1, id: ""};
 
     await fetch(HTTPS_REQUEST, {
         method: "POST",
@@ -46,14 +46,15 @@ export async function add_new_book(bookTitle: string, authorUsername: string, de
         .then((responseData) => {
             //console.log("in add book fetch");
             //console.log(JSON.stringify(responseData));
-            const {status} = responseData;
-            statusToReturn = status;
+            const {status, id} = responseData;
+            statusToReturn.status = status;
+            statusToReturn.id = id;
             //console.log("status", statusToReturn);
         })
         .catch(async (e) => {
             console.log("intra pe catch");
             console.log(e);
-            statusToReturn = 1;
+            statusToReturn.status = 1;
         })
 
     return statusToReturn;
@@ -140,7 +141,7 @@ export async function add_new_chapter_to_book(bookID: string, chapterTitle: stri
         .then((responseData) => {
             console.log("in service");
             console.log(responseData);
-            const {status} = responseData;
+            const {status, id} = responseData;
             returnedStatus.status = status;
         })
         .catch(async (e) => {

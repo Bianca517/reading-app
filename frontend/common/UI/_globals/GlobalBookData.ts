@@ -6,4 +6,5 @@ export default {
     FINALIZED_READINGS: [] as bookDTO[],
     MONTH_PLANNED_BOOKS: {} as plannedBooks,
     USER_CURRENT_POSITIONS: {} as UserPositions, 
+    BOOKS_WRITTEN_BY_USER: [] as bookDTO[],
 }

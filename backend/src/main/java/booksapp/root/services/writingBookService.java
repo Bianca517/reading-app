@@ -249,7 +249,7 @@ public class writingBookService {
         return chapters;
     }
 
-    public int addNewBook(String bookTitle, String authorUsername, String description, String bookGenre) {
+    public List<String> addNewBook(String bookTitle, String authorUsername, String description, String bookGenre) {
         /* 
         Map<String, Object> bookMap = new HashMap<>();
 
@@ -264,7 +264,8 @@ public class writingBookService {
           
         booksCollectionDB.add(bookMap);
         */
-        int returnedStatus = GlobalConstants.STATUS_FAILED;
+        Integer returnedStatus = GlobalConstants.STATUS_FAILED;
+        String newBookId = "";
 
         Book book = new Book();
         book.setAuthorUsername(authorUsername);
@@ -273,13 +274,18 @@ public class writingBookService {
         book.setDescription(description);
         ApiFuture<DocumentReference> resp = booksCollectionDB.add(book);
         try {
+            newBookId = resp.get().get().get().getId();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
             resp.get();
             returnedStatus = GlobalConstants.STATUS_SUCCESSFUL;
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return returnedStatus;
+        return List.of(returnedStatus.toString(), newBookId);
     }
 
     

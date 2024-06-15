@@ -1,11 +1,13 @@
 import React, { useState, useEffect, ReactNode } from 'react';
 import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, SafeAreaView, TextInput , ScrollView, FlatList, ActivityIndicator} from 'react-native';
 import Globals from '../../_globals/Globals';
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { ResponseType, bookDTO } from '../../../types';
 import Book from '../../components/book';
 import { get_users_written_books } from '../../../services/write-book-service';
 import GlobalUserData from '../../_globals/GlobalUserData';
+import GlobalBookData from '../../_globals/GlobalBookData';
+import { loadBooksWrittenByUser } from '../../components/service-calls-wrapper';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -16,25 +18,36 @@ export default function WriteABookUI() {
     const [booksWrittenByUser, setBooksWrittenByUser] = useState<bookDTO[]>([]);
     const [booksAreLoaded, setBooksAreLoaded] = useState<boolean>(false);
     
+    const isFocused = useIsFocused();
+
     //this loads at start of page
     useEffect(() => {
-        loadBooksWrittenByUser();
-    }, []);
+        if(isFocused) {
+            loadUsersBooks();
+        }
+    }, [isFocused]);
 
-    async function loadBooksWrittenByUser() {
-        let fetchedResponse: bookDTO[] = await get_users_written_books(GlobalUserData.LOGGED_IN_USER_DATA.uid).then();
-        console.log("books by user:");
-        console.log(fetchedResponse);
-        if(fetchedResponse) {
-            setBooksWrittenByUser(fetchedResponse);
+
+    async function loadUsersBooks() {
+        if(GlobalBookData.BOOKS_WRITTEN_BY_USER != null && GlobalBookData.BOOKS_WRITTEN_BY_USER.length > 0) {
+            setBooksWrittenByUser(GlobalBookData.BOOKS_WRITTEN_BY_USER);
             setBooksAreLoaded(true);
+        }
+        else {
+            await loadBooksWrittenByUser().then((books: bookDTO[]) => {
+                if(books != null) {
+                    setBooksWrittenByUser(books);
+                    setBooksAreLoaded(false);
+                    GlobalBookData.BOOKS_WRITTEN_BY_USER = books;
+                }
+            })
+        }
 
-            if(fetchedResponse.length > 0) {
-                setUserHasWrittenBooks(true);
-            }
-            else {
-                setUserHasWrittenBooks(false);
-            }
+        if(booksWrittenByUser.length > 0) {
+            setUserHasWrittenBooks(true);
+        }
+        else {
+            setUserHasWrittenBooks(false);
         }
     }
 

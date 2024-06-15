@@ -140,15 +140,20 @@ public class userWritingBookController {
         System.out.println("in controller for addnewbook, am primit\n");
         System.out.println(bookTitle);
  
-        int status = this.writingBookService.addNewBook(bookTitle, authorUsername, description, bookGenre);
-        
+        List<String> serviceResponse = this.writingBookService.addNewBook(bookTitle, authorUsername, description, bookGenre);
+        Integer status = Integer.parseInt(serviceResponse.get(0));
+        String newBookId = serviceResponse.get(1);
+
+
         JsonObject response = new JsonObject();
         if(status == GlobalConstants.STATUS_SUCCESSFUL) {
             response.addProperty("status", Integer.toString(status));
+            response.addProperty("id", newBookId);
             return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
         }
         else {
             response.addProperty("status", Integer.toString(status));
+            response.addProperty("id", "");
             return new ResponseEntity<String>(response.toString(), HttpStatus.BAD_REQUEST);
         }
     }

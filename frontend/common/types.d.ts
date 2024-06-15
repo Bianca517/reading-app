@@ -10,8 +10,13 @@ export type ResponseTypeRetrieveBooks = {
 }
 
 export type ResponseTypePOST = {
-        status: number;
-    }
+    status: number;
+}
+
+export type ResponseTypeAddNewBook = {
+    status: number;
+    id: string;
+}
 
 export type UserAuthenticationResponseType = {
     HttpStatus: number;

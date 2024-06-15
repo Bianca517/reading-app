@@ -2,11 +2,12 @@
 import GlobalBookData from "../_globals/GlobalBookData";
 import Globals from "../_globals/Globals";
 import { get_readings_planned_for_month } from "../../services/reading-planner-service";
-import { ResponseType, UserPositions, bookDTO, plannedBooks } from "../../types";
+import { ResponseType, UserPositions, bookDTO } from "../../types";
 import { get_total_nr_of_chapters, get_book_chapter_title, get_book_chapter_content } from "../../services/book-reading-service";
 import { textParagraph } from "../../types";
 import { getAllUserPositions } from "../../services/monitor-user-position-service";
 import GlobalUserData from "../_globals/GlobalUserData";
+import { get_users_written_books } from "../../services/write-book-service";
 import { get_current_readings, get_finalized_readings } from "../../services/retrieve-books-service";
 
 interface chapterContentFromBackend {
@@ -30,17 +31,6 @@ export async function loadCurrentPlannedBooks() {
        );
     });
 }
-
-export async function loadPlannedBooksForAMonth(currentMonthName: string) {
-    let plannedBookList: bookDTO[];
-
-    let fetchResponse = await get_readings_planned_for_month(GlobalUserData.LOGGED_IN_USER_DATA.uid, currentMonthName).then();
-    if (fetchResponse != null && fetchResponse.length > 0) {
-        plannedBookList = fetchResponse;
-        //console.log("planned book list ", plannedBookList);
-    }
-    return plannedBookList;
-  }
 
 export async function loadTotalNumberOfChapters(bookID: string) {
     let fetchResponse: ResponseType = await get_total_nr_of_chapters(bookID).then();
@@ -136,3 +126,14 @@ export async function loadCurrentReadingBooks(): Promise<bookDTO[]> {
     }
     return fetchResponse;
 }
+
+export async function loadBooksWrittenByUser(): Promise<bookDTO[]> {
+    get_users_written_books(GlobalUserData.LOGGED_IN_USER_DATA.uid).then((fetchedResponse: bookDTO[]) => {
+        if(fetchedResponse != null) {
+            GlobalBookData.BOOKS_WRITTEN_BY_USER = fetchedResponse;
+            return fetchedResponse;
+        }
+    });
+    return null;
+}
+
