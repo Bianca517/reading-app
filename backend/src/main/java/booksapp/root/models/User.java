@@ -3,6 +3,7 @@ package booksapp.root.models;
 import org.springframework.stereotype.Component;
 
 import booksapp.root.models.GlobalConstants.GlobalConstants;
+import booksapp.root.models.GlobalConstants.Months;
 import booksapp.root.models.GlobalConstants.UserCollectionFields;
 
 import java.util.ArrayList;
@@ -50,7 +51,15 @@ public class User {
         this.interests = new ArrayList<String>();
         this.currentReadings = new HashMap<String, String>();
         this.finalizedReadings = new ArrayList<String>();
+        initializePlannedBooks();
+    }
+
+    private void initializePlannedBooks() {
         this.plannedBooks = new HashMap<String, ArrayList<String>>();
+        ArrayList<String> emptyList = new ArrayList<>();
+        for (Months month : Months.values()) {
+            plannedBooks.put(month.getFieldName(), emptyList);
+        }
     }
 
     public String getUserName() {

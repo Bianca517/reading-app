@@ -3,12 +3,14 @@ import { StyleSheet, View, Image, Text } from 'react-native';
 import Globals from '../_globals/Globals';
 import  Animated, { runOnJS, useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { PanGestureHandler, PanGestureHandlerGestureEvent, State } from 'react-native-gesture-handler';
+import { bookDTO } from '../../types';
+import { constructURIForBookCover } from './construct-uri-for-bookcover';
 
 type BookProps = {
-    bookFields: string,
+    bookFields: bookDTO,
     bookCoverWidth: number,
     bookCoverHeight: number,
-    bookAddedCallback: (bookId: string, bookTitle: string, bookAuthor: string) => void,
+    bookAddedCallback: (bookId: string, bookTitle: string, bookAuthor: string, numberOfChapters: number) => void,
 }
 
 type ContextInterface = {
@@ -17,19 +19,20 @@ type ContextInterface = {
 }
 
 export default function BookDraggable({ bookFields, bookCoverWidth, bookCoverHeight, bookAddedCallback }: BookProps) {
-    //console.log("am primit in draggable", bookFields);
+    console.log("am primit in draggable", bookFields);
 
-    let bookFieldsJSON = JSON.parse(bookFields);
-    const bookTitle = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[0]];
-    const bookAuthor = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[1]];
-    const bookID = bookFieldsJSON[Globals.BOOK_COLLECTION_FIELDS[6]];
+    const bookTitle = bookFields.bookTitle;
+    const bookAuthor = bookFields.authorUsername;
+    const bookID = bookFields.bookID;
+    const numberOfChapters = bookFields.numberOfChapters;
 
-    var constructURIForBookCover = Globals.BOOK_COVER_URI_TEMPLATE_PNG.replace('NAME', bookTitle.toLowerCase());
-    constructURIForBookCover = constructURIForBookCover.replace('AUTHOR', bookAuthor.toLowerCase());
-    const bookCover = constructURIForBookCover;
+    const bookCover = constructURIForBookCover(bookTitle, bookAuthor);
 
     const translateX = useSharedValue(0);
     const translateY = useSharedValue(0);
+    let isPressed = useSharedValue(false);
+    let isLongPressed = useSharedValue(false);
+    
 
     const panGestureEvent = useAnimatedGestureHandler<PanGestureHandlerGestureEvent, ContextInterface>({
         onStart: (event, context) => {
@@ -40,16 +43,19 @@ export default function BookDraggable({ bookFields, bookCoverWidth, bookCoverHei
             if(isLongPressed.value == true) {
                 translateX.value = event.translationX + context.translateX;
                 translateY.value = event.translationY + context.translateY;
+
+                //console.log("x:", translateX.value);
+                //console.log("y:", translateY.value);
             }
         },
         onEnd: () => {
+            const distance = Math.sqrt(translateX.value ** 2 + translateY.value ** 2); //pythagoras
             if(translateY.value > Globals.Y_INDEX_OF_BEGINNING_MONTH_CONTAINER) {
                 translateX.value = withSpring(0);
                 translateY.value = withSpring(0);
             }
             else {
-                const distance = Math.sqrt(translateX.value ** 2 + translateY.value ** 2); //pythagoras
-                runOnJS(bookAddedCallback)(bookID, bookTitle, bookAuthor); //run on JS needed because otherwise the app would crash  
+                runOnJS(bookAddedCallback)(bookID, bookTitle, bookAuthor, numberOfChapters); //run on JS needed because otherwise the app would crash  
                 //By using runOnJS, you ensure that the function is executed on the JavaScript thread rather than the UI thread
                 translateX.value = withSpring(0);
                 translateY.value = withSpring(0);
@@ -58,18 +64,6 @@ export default function BookDraggable({ bookFields, bookCoverWidth, bookCoverHei
             isPressed.value = false;
         },
     })
-
-    let isPressed = useSharedValue(false);
-    let isLongPressed = useSharedValue(false);
-
-    const handleLongPress = () => {
-        isPressed.value = true;
-        setTimeout(() => {
-          if (true == isPressed.value) {
-            isLongPressed.value = true;
-        }          
-        }, 500);
-      };
 
     const reanimatedStyle = useAnimatedStyle(() => {
         const opacity = isLongPressed.value ? withSpring(0.3) : withSpring(1);
@@ -80,8 +74,18 @@ export default function BookDraggable({ bookFields, bookCoverWidth, bookCoverHei
                 { translateY: translateY.value },
             ],
             opacity,
+            elevation: 99,
         }
     })
+
+    const handleLongPress = () => {
+        isPressed.value = true;
+        setTimeout(() => {
+          if (true == isPressed.value) {
+            isLongPressed.value = true;
+        }          
+        }, 500);
+      };
 
     return (
         <PanGestureHandler 
@@ -101,7 +105,7 @@ export default function BookDraggable({ bookFields, bookCoverWidth, bookCoverHei
                     style={[
                         styles.book_container, 
                         reanimatedStyle,
-                        { width: bookCoverWidth, height: bookCoverHeight, elevation: isLongPressed.value ? 99 : 1 }
+                        { width: bookCoverWidth, height: bookCoverHeight, elevation: isLongPressed.value ? 99 : 1}
                     ]}
                 >
                     
@@ -119,7 +123,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 2,
+        marginTop: 5,
         marginHorizontal: 10,
     },
     book_cover: {

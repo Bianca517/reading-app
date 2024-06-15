@@ -6,6 +6,7 @@ import {
   View,
   SafeAreaView,
   Dimensions,
+  FlatList,
 } from "react-native";
 import Globals from "../../_globals/Globals";
 import BookDraggable from "../../components/book-draggable";
@@ -19,6 +20,8 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useIsFocused } from "@react-navigation/native";
 import GlobalBookData from "../../_globals/GlobalBookData";
 import GlobalUserData from "../../_globals/GlobalUserData";
+import { loadCurrentReadingBooks, loadPlannedBooksForAMonth } from "../../components/service-calls-wrapper";
+import { bookDTO } from "../../../types";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -32,9 +35,9 @@ interface Book {
 export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
   const isFocused = useIsFocused();
   const currentMonthIndex = routeProps.params["monthIndex"];
-  const [currentReadingBooks, setCurrentReadingBooks] = useState<Book[]>([]);
-  const [currentReadingFilteredBooks, setCurrentReadingFilteredBooks] = useState<Book[]>([]);
-  const [plannedBookList, setPlannedBookList] = useState<Book[]>(routeProps.params["plannedBookList"]);
+  const [currentReadingBooks, setCurrentReadingBooks] = useState<bookDTO[]>([]);
+  const [currentReadingFilteredBooks, setCurrentReadingFilteredBooks] = useState<bookDTO[]>([]);
+  const [plannedBookList, setPlannedBookList] = useState<bookDTO[]>(routeProps.params["plannedBookList"]);
 
   //get month name as string because it is needed for the backend GET request
   let currentMonthName: string = Globals.MONTHS_LIST[currentMonthIndex].toLowerCase();
@@ -43,75 +46,100 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
   //this executes on page load
   useEffect(() => {
     if (isFocused) {
-      if(!GlobalBookData.CURRENT_READINGS) {
-        loadCurrentReadingBooks();
+
+      //get current readings
+      if(GlobalBookData.CURRENT_READINGS == null || GlobalBookData.CURRENT_READINGS.length == 0) {
+        loadCurrentReadingBooks().then((books: bookDTO[]) => {
+          setCurrentReadingBooks(books);
+          filterCurrentReadingBooks(GlobalBookData.CURRENT_READINGS);
+        });
       }
       else {
         filterCurrentReadingBooks(GlobalBookData.CURRENT_READINGS);
       }
-      loadPlannedBooksForAMonth();
+
+      if(GlobalBookData.MONTH_PLANNED_BOOKS[currentMonthName].length != null || GlobalBookData.MONTH_PLANNED_BOOKS[currentMonthName].length > 0) {
+        loadPlannedBooksForAMonth(currentMonthName).then((books: bookDTO[]) => {
+            setPlannedBookList(books);
+        });
+      }
+      else {
+        setPlannedBookList(GlobalBookData.MONTH_PLANNED_BOOKS[currentMonthName]);
+      }
+      
     }
   }, [isFocused]);
 
-  async function loadCurrentReadingBooks() {
-    let fetchResponse = await get_current_readings(GlobalUserData.LOGGED_IN_USER_DATA.uid).then();
 
-    if (fetchResponse.success) {
-        const parsedData = JSON.parse(fetchResponse.message);
-        filterCurrentReadingBooks(parsedData); //used parsedData because if I used setCurrentReadingFilteredBooks it would take too long to filer
-        //and the filter function would use an empty array
-    }
-  }
 
-  async function loadPlannedBooksForAMonth() {
-    let fetchResponse = await get_readings_planned_for_month(currentMonthName).then();
-    if (fetchResponse.success) {
-        setPlannedBookList(JSON.parse(fetchResponse.message));
-        //console.log("planned book list ", plannedBookList);
-    }
-  }
 
-  function filterCurrentReadingBooks(parsedData: any) {
+  function filterCurrentReadingBooks(currentBooks: bookDTO[]) {
     // get IDs from the planned books
-    const plannedBookIDs: Set<string> = new Set(plannedBookList.map((book: { [x: string]: any; }) => book[Globals.BOOK_COLLECTION_FIELDS[6]]));
+    const plannedBookIDs: Set<string> = new Set(plannedBookList.map((book: bookDTO) => book.bookID));
     // filter books in current readings that dont have the id in planned books
-    const result: string[] = parsedData.filter((book: { id: string; }) => !plannedBookIDs.has(book.id));
-     
+    const result: bookDTO[] = currentBooks.filter((book: bookDTO) => !plannedBookIDs.has(book.bookID));
+    console.log("result"); 
+    console.log(result);
     setCurrentReadingFilteredBooks(result);
     //console.log("filtered current readings: ", currentReadingFilteredBooks);
   }
 
-  const createBook = (bookId: string, bookTitle: string, bookAuthor: string): Book => {
-    return {
-      id: bookId,
-      name: bookTitle,
-      authorUsername: bookAuthor,
-    } as Book;
+  function createBook (bookId: string, bookTitle: string, bookAuthor: string, numberOfChapters: number): bookDTO {
+    let book: bookDTO = {
+      bookID : bookId,
+      bookTitle : bookTitle,
+      authorUsername : bookAuthor,
+      numberOfChapters : numberOfChapters,
+    };
+
+    return book;
   };
 
-  async function onAddedBook(bookId: string, bookTitle: string, bookAuthor: string) {
+  async function onAddedBook(bookId: string, bookTitle: string, bookAuthor: string, numberOfChapters: number) {
+    console.log("book was dropped");
     //if book was dropped => add it as planned for the current month
-    await plan_book_for_month(currentMonthName, bookId);
-    const addedBook: Book = createBook(bookId, bookTitle, bookAuthor);
+    plan_book_for_month(GlobalUserData.LOGGED_IN_USER_DATA.uid, currentMonthName, bookId)
+    .then((success: Boolean) => {
+      console.log(success);
+      if(success) {
+        console.log("adaug peste tot cartea");
+        const addedBook: bookDTO = createBook(bookId, bookTitle, bookAuthor, numberOfChapters);
 
-    //console.log("teoretic added");
-    setPlannedBookList((plannedBookList: Book[]) => [...plannedBookList, addedBook]);
+        //GlobalBookData.MONTH_PLANNED_BOOKS[currentMonthName].push(addedBook);
+        //console.log("teoretic added");
+        setPlannedBookList((plannedBookList: bookDTO[]) => [...plannedBookList, addedBook]);
 
-    setCurrentReadingFilteredBooks((prevBooks: Book[]) =>
-      prevBooks.filter((book: Book) => book["id"] !== bookId)
-    );
+        setCurrentReadingFilteredBooks((prevBooks: bookDTO[]) =>
+          prevBooks.filter((book: bookDTO) => book.bookID !== bookId)
+        );
+      }
+    })
+    .catch(() => {
+      
+    })
   }
 
-  function onBookRemovedCallback(bookId: string, bookTitle: string, bookAuthor: string,) {
-    const removedPlannedBook: Book = createBook(bookId, bookTitle, bookAuthor);
+  function onBookRemovedCallback(bookId: string, bookTitle: string, bookAuthor: string, numberOfChapters: number) {
+    const removedPlannedBook: bookDTO = createBook(bookId, bookTitle, bookAuthor, numberOfChapters);
 
     //if book was dropped => remove it from planned for the current month
-    //console.log("book was removed ", removedPlannedBook);
-    setPlannedBookList(plannedBookList.filter((book: { [x: string]: any; }) => book[Globals.BOOK_COLLECTION_FIELDS[6]] !== bookId));
+    console.log("book was removed ", removedPlannedBook);
+    setPlannedBookList(plannedBookList.filter((book: bookDTO) => book.bookID != bookId));
     //console.log("filtered current readings: ", [...currentReadingFilteredBooks, removedPlannedBook]);
     setCurrentReadingFilteredBooks([...currentReadingFilteredBooks, removedPlannedBook]);
     
   }
+
+  const renderItem = ({ item }: { item: bookDTO }) => {
+    return (
+      <BookDraggable
+        bookFields={item}
+        bookCoverWidth={90}
+        bookCoverHeight={140}
+        bookAddedCallback={onAddedBook}
+      />
+    );
+  };
 
   return (
     <SafeAreaView style={styles.fullscreen_view}>
@@ -130,7 +158,6 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
             colors={["#626261", "#494948", "#3a3a39"]}
             style={styles.currentReadingsContainer}
           >
-            <ScrollView>
 
               <MonthContainer
                 index={currentMonthIndex}
@@ -143,25 +170,18 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
               <View style={styles.yourLibraryInfo}>
                 <Text style={styles.yourLibraryInfoText}> Your Library </Text>
               </View>
-
-              <View style={styles.currentReadingsContainer}>
-                <ScrollView style={styles.scrollview} contentContainerStyle={styles.scrollviewContent}>
+              
                 {
                   /*Warning: Each child in a list should have a unique "key" prop.*/
-                  currentReadingFilteredBooks.map((book, index) => (
-                      <BookDraggable
-                        key={index}
-                        bookFields={JSON.stringify(book)}
-                        bookCoverWidth={100}
-                        bookCoverHeight={150}
-                        bookAddedCallback={onAddedBook}
-                      />
-                  ))
+                  <FlatList
+                  data={currentReadingFilteredBooks}
+                  keyExtractor={(item) => item.bookID}
+                  horizontal={true}
+                  renderItem={renderItem}
+                  contentContainerStyle={styles.scrollviewContent}
+                />
                 }
-                </ScrollView>
-              </View>
-
-            </ScrollView>
+             
           </LinearGradient>
         </View>
       </GestureHandlerRootView>
@@ -186,8 +206,8 @@ const styles = StyleSheet.create({
     width: "90%",
     height: 1,
     marginHorizontal: 20,
-    marginTop: 10,
-    marginBottom: 20,
+    marginTop: 0,
+    marginBottom: 5,
   },
   bodyContentContainer: {
     flex: 6,
@@ -198,11 +218,13 @@ const styles = StyleSheet.create({
     backgroundColor: Globals.COLORS.BACKGROUND_GRAY,
   },
   currentReadingsContainer: {
+    backgroundColor: 'blue',
     width: windowWidth - 30,
     borderRadius: 20,
     marginTop: 0,
-    height: windowHeight - 230,
-    paddingHorizontal: 0,
+    height: windowHeight - 210,
+    paddingRight: 0,
+    flexGrow: 1,
   },
   yourLibraryInfo: {
     width: 130,
@@ -210,7 +232,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "white",
-    marginTop: 7,
+    marginTop: 5,
     marginLeft: 15,
     marginRight: 500,
     borderRadius: 10,
@@ -225,11 +247,11 @@ const styles = StyleSheet.create({
 
   },
   scrollviewContent: {
+    //backgroundColor: 'purple',
     flexGrow: 1,
     flexDirection: "row",
-    flexWrap: "wrap",
     justifyContent: "flex-start",
-    alignItems: "center", // Align items to the start within each row
-    columnGap: -15
+    //alignItems: "center", // Align items to the start within each row
+    columnGap: 3,
   }
 });

@@ -5,6 +5,7 @@ import com.google.cloud.firestore.*;
 import booksapp.root.models.GlobalConstants.GlobalConstants;
 import booksapp.root.models.GlobalConstants.UserCollectionFields;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,14 @@ public class userInterestsService {
     }
 
     public void saveUserInterests(String userID, List<String> userInterests) {
+        if(userInterests.size() == 0 || userInterests == null) {
+            //add all interests
+            userInterests = new ArrayList<String>();
+            for(String interest : GlobalConstants.INTERESTS_LIST) {
+                userInterests.add(interest);
+            }
+        }
+
         DocumentReference userReference = userCollectionDB.document(userID);
         userReference.update(UserCollectionFields.INTERESTS.getFieldName(), userInterests);
         System.out.println("User Interests added");

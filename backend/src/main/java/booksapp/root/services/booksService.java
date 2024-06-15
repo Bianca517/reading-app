@@ -17,6 +17,7 @@ import com.google.cloud.firestore.Query.Direction;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -63,9 +64,13 @@ public class booksService {
 
         int numberOfBooksOfEachGenre = 3;
         ArrayList<QueryDocumentSnapshot> bookSnapshots = new ArrayList<QueryDocumentSnapshot>();
-   
+        Collections.shuffle(usersInterests);
+        
         for (String genre : usersInterests) {
             bookSnapshots.addAll(getXBooksWithGenre(genre, numberOfBooksOfEachGenre));
+            if(bookSnapshots.size() > 10) {
+                break;
+            }
         }
 
         if(!bookSnapshots.isEmpty()) {

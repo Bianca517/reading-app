@@ -83,7 +83,7 @@ export default function WriteNewBookUI() {
             
             if((addedBookStatus == 0) && (uploadedCoverStatus == 0)) {
                 Alert.alert("New Book Added Successfully!");
-                navigation.navigate('Write a Book');
+                navigation.navigate('Home');
             }
             else {
                 Alert.alert("New Book Could Not Be Added!");

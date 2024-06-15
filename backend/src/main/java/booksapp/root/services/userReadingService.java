@@ -147,25 +147,29 @@ public class userReadingService {
     }
 
 
-    public ArrayList<HashMap<String, String>> getUserPlannedReadingsForMonth(String userID, String monthName) throws InterruptedException, ExecutionException {
-        HashMap<String, ArrayList<String>> userPlannedReadingsForCurrentMonth = new HashMap<String, ArrayList<String>>();
+    public ArrayList<BookDTO> getUserPlannedReadingsForMonth(String userID, String monthName) {
+        DocumentReference user = null;
+        ArrayList<String> plannedBooks = null;
+        ArrayList<BookDTO> bookDTOs = null;
 
-        userPlannedReadingsForCurrentMonth = (HashMap<String, ArrayList<String>>) userCollectionDB.document(userID).get().get()
-                .get(UserCollectionFields.PLANNED_BOOKS.getFieldName());
+        try {
+            user = userCollectionDB.document(userID);
+            User foundUser = user.get().get().toObject(User.class);
+          
+            plannedBooks = new ArrayList<String>();
+            plannedBooks = foundUser.getPlannedBooks().get(monthName);
+            
+            bookDTOs = new ArrayList<BookDTO>();
+    
+            for(int i = 0; i < plannedBooks.size(); i++) {
+                bookDTOs.add(createBookDTO(plannedBooks.get(i)));
+            }
 
-        System.out.println(userCollectionDB.document(userID).get().get()
-                .get(UserCollectionFields.PLANNED_BOOKS.getFieldName()).toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        System.out.println(userPlannedReadingsForCurrentMonth.get(monthName));
-
-        ArrayList<String> bookIDsPlannedForCurrentMonth = userPlannedReadingsForCurrentMonth.get(monthName);
-        ArrayList<HashMap<String, String>> booksToReturn = new ArrayList<HashMap<String, String>>();
-        
-        for (String bookID : bookIDsPlannedForCurrentMonth) {
-            booksToReturn.add(getBookJSONfromBookID(bookID));
-        };
-      
-        return booksToReturn;
+        return bookDTOs;
     }
 
 
@@ -189,7 +193,7 @@ public class userReadingService {
         return book;
     }
 
-    public int addBookAsPlannedForMonth(String userID, String monthName, String bookID)                 throws InterruptedException, ExecutionException {
+    public int addBookAsPlannedForMonth(String userID, String monthName, String bookID) throws InterruptedException, ExecutionException {
         DocumentReference userDocument = userCollectionDB.document(userID);
         User user = userDocument.get().get().toObject(User.class);
         user.addBookAsPlannedForMonth(bookID, monthName);
@@ -206,15 +210,23 @@ public class userReadingService {
         return 0;
     }   
 
-    public int removeBookAsPlannedForMonth(String userID, String monthName, String bookID) throws InterruptedException, ExecutionException {
+    public Boolean removeBookAsPlannedForMonth(String userID, String monthName, String bookID) {
         DocumentReference userDocument = userCollectionDB.document(userID);
-        String planningFieldName = UserCollectionFields.PLANNED_BOOKS.getFieldName(); 
-        String formattedUpdateString = "" + planningFieldName + "." + monthName + "";
-        ApiFuture<WriteResult> updateResult = userDocument.update(formattedUpdateString, FieldValue.arrayRemove(bookID));
+        User user;
+        boolean success = false;
 
-        //System.out.println(updateResult.toString());
-        //i wanted to test the value of updateResult but it does not containt the update status as expected
-        return 0;
+        try {
+            user = userDocument.get().get().toObject(User.class);
+            HashMap<String,ArrayList<String>> currentPlannedBooks = user.getPlannedBooks();
+            currentPlannedBooks.get(monthName).remove(bookID);
+            user.setPlannedBooks(currentPlannedBooks);
+            userDocument.set(user);
+            success = true;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        
+        return success;
     }   
 
     public int addBookToCurrentReadings(String userID, String bookID) {
