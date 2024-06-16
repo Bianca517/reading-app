@@ -59,7 +59,16 @@
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
         }
       ],
-      ["@react-native-google-signin/google-signin"]
+      ["@react-native-google-signin/google-signin"],
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "note": "Use SENTRY_AUTH_TOKEN env to authenticate with Sentry.",
+          "project": "bookhub-project",
+          "organization": "bookhub-org"
+        }
+      ]
     ],
     "scheme": "face-recognition"
   }

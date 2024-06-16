@@ -66,6 +66,7 @@ export default function HomePageUI() {
 
     function handleLogout() {
         console.log("logged out");
+        //Sentry.captureException(new Error("First error"));
         navigation.navigate("Login");
         showAllAsyncStorage();
     }
