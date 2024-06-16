@@ -80,7 +80,10 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
     const result: bookDTO[] = currentBooks.filter((book: bookDTO) => !plannedBookIDs.has(book.bookID));
     console.log("result"); 
     console.log(result);
-    setCurrentReadingFilteredBooks(result);
+    if(result && result.length > 0) {
+      console.log("bug1", result);
+      setCurrentReadingFilteredBooks(result);
+    }
     //console.log("filtered current readings: ", currentReadingFilteredBooks);
   }
 
@@ -105,10 +108,18 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
         console.log("adaug peste tot cartea");
         const addedBook: bookDTO = createBook(bookId, bookTitle, bookAuthor, numberOfChapters);
 
-        //GlobalBookData.MONTH_PLANNED_BOOKS[currentMonthName].push(addedBook);
-        //console.log("teoretic added");
-        setPlannedBookList((plannedBookList: bookDTO[]) => [...plannedBookList, addedBook]);
+        GlobalBookData.MONTH_PLANNED_BOOKS[currentMonthName].push(addedBook);
+        // console.log("teoretic added");
+        // console.log(plannedBookList);
 
+        if(plannedBookList === undefined) {
+          const aux: bookDTO[] = [addedBook];
+          setPlannedBookList(aux);
+        }
+        else {
+          setPlannedBookList((plannedBookList: bookDTO[]) => [...plannedBookList, addedBook]);
+        }
+        
         setCurrentReadingFilteredBooks((prevBooks: bookDTO[]) =>
           prevBooks.filter((book: bookDTO) => book.bookID !== bookId)
         );
@@ -123,7 +134,13 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
     const removedPlannedBook: bookDTO = createBook(bookId, bookTitle, bookAuthor, numberOfChapters);
 
     //if book was dropped => remove it from planned for the current month
+    GlobalBookData.MONTH_PLANNED_BOOKS[currentMonthName] = GlobalBookData.MONTH_PLANNED_BOOKS[currentMonthName].filter((book: bookDTO) => book.bookID != bookId);
+
     console.log("book was removed ", removedPlannedBook);
+    console.log("book was removed ", currentMonthName);
+    console.log("book was removed ", GlobalBookData.MONTH_PLANNED_BOOKS[currentMonthName]);
+    console.log(GlobalBookData.MONTH_PLANNED_BOOKS);
+
     setPlannedBookList(plannedBookList.filter((book: bookDTO) => book.bookID != bookId));
     //console.log("filtered current readings: ", [...currentReadingFilteredBooks, removedPlannedBook]);
     setCurrentReadingFilteredBooks([...currentReadingFilteredBooks, removedPlannedBook]);
