@@ -137,3 +137,13 @@ export async function loadBooksWrittenByUser(): Promise<bookDTO[]> {
     return null;
 }
 
+export async function loadPlannedBooksForAMonth(currentMonthName: string) {
+    let plannedBookList: bookDTO[];
+
+    let fetchResponse = await get_readings_planned_for_month(GlobalUserData.LOGGED_IN_USER_DATA.uid, currentMonthName).then();
+    if (fetchResponse != null && fetchResponse.length > 0) {
+        plannedBookList = fetchResponse;
+        //console.log("planned book list ", plannedBookList);
+    }
+    return plannedBookList;
+  }

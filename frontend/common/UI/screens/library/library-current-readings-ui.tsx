@@ -7,8 +7,9 @@ import LibraryPageNavigator from '../../components/library-navigator';
 import { get_current_readings } from '../../../services/retrieve-books-service';
 import GlobalBookData from '../../_globals/GlobalBookData';
 import GlobalUserData from '../../_globals/GlobalUserData';
-import { ResponseTypeRetrieveBooks } from '../../../types';
+import { ResponseTypeRetrieveBooks, bookDTO } from '../../../types';
 import { useIsFocused } from '@react-navigation/native';
+import { loadCurrentReadingBooks } from '../../components/service-calls-wrapper';
 
 
 export default function LibraryPageCurrentReadingsUI() {
@@ -17,17 +18,17 @@ export default function LibraryPageCurrentReadingsUI() {
 
     const isFocused = useIsFocused();
 
-    async function loadCurrentReadingBooks() {
-        const fetchResponse: ResponseTypeRetrieveBooks = await get_current_readings(GlobalUserData.LOGGED_IN_USER_DATA.uid).then();
-
-        if (fetchResponse.status == 0 && (fetchResponse.books.length > 0)) {
-            setCurrentReadingBooks(fetchResponse.books);
-            setIsLibraryEmpty((fetchResponse.books.length == 0) || (fetchResponse.books == null));
-        }
-        else {
-            setCurrentReadingBooks([]);
-            setIsLibraryEmpty(true);
-        }
+    async function loadBooks() {
+        await loadCurrentReadingBooks().then((books: bookDTO[]) => {
+            if(books != null) {
+                setCurrentReadingBooks(null);
+                setIsLibraryEmpty(books.length == 0);
+            }
+            else {
+                setCurrentReadingBooks([]);
+                setIsLibraryEmpty(true);
+            }
+        })
     }
 
     //this executes on page load
@@ -37,7 +38,7 @@ export default function LibraryPageCurrentReadingsUI() {
             console.log(GlobalBookData.CURRENT_READINGS);
             
             if(GlobalBookData.CURRENT_READINGS.length == 0) {
-                loadCurrentReadingBooks();
+                loadBooks();
             }
             else {
                 setCurrentReadingBooks(GlobalBookData.CURRENT_READINGS);

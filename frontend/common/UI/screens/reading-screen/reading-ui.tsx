@@ -1,5 +1,5 @@
 import React, { ReactElement, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ScrollView, Image, Dimensions, Button, FlatList, Platform } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ScrollView, Image, Dimensions, Button, FlatList, Platform, Alert } from 'react-native';
 import Globals from '../../_globals/Globals';
 import BottomSheet, { BottomSheetView, SCREEN_WIDTH } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -127,6 +127,7 @@ export default function ReadingScreen( {route} ) {
 
     useEffect(() => {
         //updateTextInPages(paragraphsInPages);
+        console.log("setting total page number");
         setTotalPageNumbers(paragraphsInPages.length);
         //console.log("updating total page numbers", totalPageNumbers);
         //console.log(paragraphsInPages);
@@ -164,23 +165,32 @@ export default function ReadingScreen( {route} ) {
         //console.log("gesture scroll active ", isGestureScrollingActive);
     }, [isGestureScrollingActive]);
     
-    useFocusEffect(
-        React.useCallback(() => {
-            // This function will be called when the screen is focused
+    useFocusEffect( 
+        // This function will be called when the screen is focused
+        useCallback(() => {
             return () => {
                 // This function will be called when the screen loses focus or unmounts
-                if (typeof chapterNumber !== 'undefined' && isBookInLibrary) {
+                console.log("unmount", isBookInLibrary);
+                console.log("chapter number", chapterNumber);
+                console.log("total chapter numbers", totalNumberOfChapters);
+                console.log("total pages: " + totalPageNumbers);
+                console.log("current page: " + currentPage.current);
+
+                const isBookInCurrentReadings: boolean = (undefined != GlobalBookData.CURRENT_READINGS.find((book: bookDTO) => book.bookID == bookID));
+
+                if (typeof chapterNumber !== 'undefined' && isBookInCurrentReadings) {
                     console.log("on removeeeeeeeeee", chapterNumber);
                     GlobalBookData.USER_CURRENT_POSITIONS[bookID] = chapterNumber.toString();
                     console.log(GlobalBookData.USER_CURRENT_POSITIONS);
                     updateUserCurrentPositionInBook(GlobalUserData.LOGGED_IN_USER_DATA.uid, bookID, chapterNumber.toString());
-                    if(chapterNumber == (totalNumberOfChapters-1)) {
+                    if(chapterNumber == (totalNumberOfChapters-1) && currentPage.current == (totalPageNumbers - 1)) {
                         handleEndOfTheBook();
                     }
                 }
             };
-        }, [chapterNumber, bookID])
+        }, [chapterNumber, currentPage, bookID, totalNumberOfChapters])
     );
+        
 
     function checkPreviousScreen() {
         /*
@@ -388,17 +398,21 @@ export default function ReadingScreen( {route} ) {
                     const isThisBookFinished: boolean = fetchedResponse.isFinished == 0 ? false : true;
                     if(isThisBookFinished) {
                         //post book to finished ones in db and fetch again because the array is global book data shall be of DTOs.. :/
-                        await add_book_to_finished_books(bookID, GlobalUserData.LOGGED_IN_USER_DATA.uid);
-                        get_finalized_readings(GlobalUserData.LOGGED_IN_USER_DATA.uid).then((fetchResponse: bookDTO[]) => {
-                            if (fetchResponse != null && fetchResponse.length > 0) {
-                                GlobalBookData.FINALIZED_READINGS = fetchResponse;
-                            }
-                            console.log("AM ADAUGAT LA FINISHED");
-                        });
-
-                        //remove from current readings
-                        GlobalBookData.CURRENT_READINGS = GlobalBookData.CURRENT_READINGS.filter((book: bookDTO) => book.bookID != route.params.id);
-                        remove_book_from_library(bookID, GlobalUserData.LOGGED_IN_USER_DATA.uid);
+                        let fetchedAddToFinished = await add_book_to_finished_books(bookID, GlobalUserData.LOGGED_IN_USER_DATA.uid);
+                        if(fetchedAddToFinished.success) {
+                            get_finalized_readings(GlobalUserData.LOGGED_IN_USER_DATA.uid).then((fetchResponse: bookDTO[]) => {
+                                if (fetchResponse != null && fetchResponse.length > 0) {
+                                    GlobalBookData.FINALIZED_READINGS = fetchResponse;
+                                }
+                                Alert.alert("Congratulations! You just finished this book!");
+                                navigation.navigate('Finalized Books' as never);
+                                console.log("AM ADAUGAT LA FINISHED");
+                            });
+    
+                            //remove from current readings
+                            GlobalBookData.CURRENT_READINGS = GlobalBookData.CURRENT_READINGS.filter((book: bookDTO) => book.bookID != route.params.id);
+                            remove_book_from_library(bookID, GlobalUserData.LOGGED_IN_USER_DATA.uid);
+                        }
                     }
                 }
             });

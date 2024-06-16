@@ -92,7 +92,9 @@ export default function Book(props: BookProps) {
     function calculateReadPercentageOfBook(): number {
         // p/100 * total_chapter = nr_chapter
         let percentage: number = 0;
+        console.log("current, total");
         console.log(userCurrentChapterInBook);
+        console.log(totalNumberOfChapters);
         if(userCurrentChapterInBook > 0 && totalNumberOfChapters != 0) {
             percentage = Math.round(userCurrentChapterInBook * 100 / totalNumberOfChapters);
         }
