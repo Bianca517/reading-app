@@ -129,17 +129,17 @@ export default function LibraryPageReadingTrackerUI() {
     //this executes on page load
     useEffect(() => {
         if (isFocused) {
-            loadCurrentPlannedBooks();
             
-            /*
-            if(GlobalBookData.MONTH_PLANNED_BOOKS == null) {
-                loadCurrentPlannedBooks();
-            } 
-            else {
-               setPlannedBooksFromLocalStorage();
-            }
-               */
-
+            //loadCurrentPlannedBooks();
+            //setBooksAreLoaded(false);
+    
+             if(GlobalBookData.MONTH_PLANNED_BOOKS == null) {
+                 loadCurrentPlannedBooks();
+             } 
+             else {
+                setPlannedBooksFromLocalStorage();
+             }
+            
             console.log("IAIAISAIA");
             console.log(GlobalBookData.MONTH_PLANNED_BOOKS);
         }
@@ -164,6 +164,7 @@ export default function LibraryPageReadingTrackerUI() {
             <View style={styles.monthsListContainer}>
                 <ScrollView>
                     {
+                        isFocused && 
                         renderMonths()
                     }
                 </ScrollView>
