@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, SafeAreaView, ScrollView, Image, FlatList } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, ScrollView, Image, FlatList, Button } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Footer from '../../components/footer';
 import Book from '../../components/book';
@@ -10,6 +10,7 @@ import GlobalBookData from '../../_globals/GlobalBookData';
 import { ResponseType, ResponseTypeRetrieveBooks, bookDTO } from '../../../types';
 import { loadCurrentPlannedBooks, loadUserCurrentPositions, loadFinalizedReadingBooks, loadCurrentReadingBooks } from '../../components/service-calls-wrapper';
 import GlobalUserData from '../../_globals/GlobalUserData';
+import { showAllAsyncStorage } from '../../components/persistent-login';
 
 export default function HomePageUI() {
     const navigation = useNavigation();
@@ -21,9 +22,16 @@ export default function HomePageUI() {
     //this executes on page load
     useEffect(() => {
         navigation.setOptions({
-            headerBackVisible: false
-        });
-        
+            headerBackVisible: false,
+            headerRight: () => (
+                <Button
+                  onPress={() => handleLogout()}
+                  title="Log Out"
+                  color="gray"
+                />
+        ),
+        }); 
+        showAllAsyncStorage();
         loadRecommendedReadingBooks();
         loadPopularBooks();
         loadCurrentReadingBooks().then((books: bookDTO[]) => {
@@ -56,6 +64,11 @@ export default function HomePageUI() {
         });
     }
 
+    function handleLogout() {
+        console.log("logged out");
+        navigation.navigate("Login");
+        showAllAsyncStorage();
+    }
 
     return (
         <LinearGradient

@@ -15,6 +15,8 @@ import { ResponseType, UserAuthenticationResponseType } from '../../../types';
 import { Section } from '../../components/section-login-or-register';
 import GlobalBookData from '../../_globals/GlobalBookData';
 import GlobalUserData from '../../_globals/GlobalUserData';
+import { getUserFromStorage, showAllAsyncStorage } from '../../components/persistent-login';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -31,6 +33,18 @@ export default function LoginPageUI() {
     headerShown: false,
   })
 
+  useEffect(() => {
+    console.log("la inceput");
+    showAllAsyncStorage();
+
+      getUserFromStorage().then((validUserStoredPersistent: boolean) => {
+        console.log(validUserStoredPersistent);
+        if(validUserStoredPersistent) {
+          navigation.navigate("Home");
+        }
+      });
+      
+  }, []);
   /* ======================================================= */
   /* ---------------- GOOGLE AUTH PART ----------------------*/
   /* ======================================================= */
