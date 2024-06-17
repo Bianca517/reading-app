@@ -121,8 +121,10 @@ public class booksService {
     
         for (QueryDocumentSnapshot book : resultedBooks) {
             String bookName = book.getString(BookCollectionFields.NAME.getFieldName());
+            String bookAuthor = book.getString(BookCollectionFields.AUTHOR_USERNAME.getFieldName());
 
-            if (bookName != null && name.toLowerCase().contains(bookName.toLowerCase())) {
+            if ((bookName != null && bookName.toLowerCase().contains(name.toLowerCase())) || 
+            (bookAuthor != null && bookAuthor.toLowerCase().contains(name.toLowerCase()))) {
                 BookDTO bookDTO = new BookDTO(book);
                 booksToReturn.add(bookDTO);
             }
