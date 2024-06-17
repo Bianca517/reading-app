@@ -22,6 +22,7 @@ import ContinueWritingBookUI from '../screens/write_a_book/continue-writing-book
 
 const Stack = createNativeStackNavigator();
 
+
 export default function Navigation() {
   return (
     <NavigationContainer>

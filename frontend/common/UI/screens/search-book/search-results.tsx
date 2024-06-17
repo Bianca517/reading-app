@@ -7,6 +7,8 @@ import { ResponseType, bookDTO } from '../../../types';
 import { get_books_with_specified_genre, get_books_with_specified_name } from '../../../services/retrieve-books-service';
 import Book from '../../components/book';
 
+import * as Sentry from "@sentry/react-native";
+
 
 export default function SearchResultsUI({route}) {
     const navigation = useNavigation();
@@ -36,7 +38,16 @@ export default function SearchResultsUI({route}) {
 
 
     useEffect(() => {
-        loadBooks();
+
+        const result =  Sentry.startSpan(
+            { name: "Search functionality" },
+            async () => {
+              //const res = await loadBooks();
+              return loadBooks();
+            },
+          )
+
+        //loadBooks();
         console.log("Searched book name", searchedBookName);
         console.log("Searched book genre", searchedBookGenre);
     }, []);

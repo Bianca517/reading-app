@@ -15,6 +15,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
 import MarqueeText from 'react-native-marquee';
 
+import * as Sentry from "@sentry/react-native";
+
+
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
@@ -167,16 +170,29 @@ export default function WritingScreenUI( {route} ) {
 
     async function handleSavingChapter() {
         if(chapterTitle !== null && chapterContent !== null) {
-            await saveParagraphs();
-        } 
+            const result = await Sentry.startSpan(
+                { name: "Save chapter" },
+                async () => {
+                  return await saveParagraphs();
+                },
+              );
+           
+        }
         else {
             Alert.alert("All fields are required!");
-        }   
-
+        }
+        
+     
         if(songUri != null) {
-            await upload_song_chapter(bookID, chapterNumberFromRoute, songUri);
+            const result = await Sentry.startSpan(
+                { name: "Upload song" },
+                async () => {
+                  return  await upload_song_chapter(bookID, chapterNumberFromRoute, songUri);
+                },
+              );
         }
     }
+    
 
     async function playSound() {
         console.log('Playing Sound');

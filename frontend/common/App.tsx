@@ -9,11 +9,15 @@ Sentry.init({
   // of transactions for tracing.
   // We recommend adjusting this value in production
   tracesSampleRate: 1.0,
+  debug: true,
   _experiments: {
     // The sampling rate for profiling is relative to TracesSampleRate.
     // In this case, we'll capture profiles for 100% of transactions.
     profilesSampleRate: 1.0,
   },
+  integrations: [
+    new Sentry.ReactNativeTracing({tracePropagationTargets: ['http://192.168.1.135:8080']})
+  ],
 });
 
  function App() {
