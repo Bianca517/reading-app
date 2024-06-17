@@ -19,6 +19,8 @@ import { add_book_to_finished_books, remove_book_from_library } from '../../../s
 import { get_finalized_readings } from '../../../services/retrieve-books-service';
 import { getIsBookFinished } from '../../../services/write-book-service';
 
+import * as Sentry from "@sentry/react-native";
+
 let FaceDetectionModule = null;
 
 // Conditionally include the module only for Android
@@ -98,26 +100,43 @@ export default function ReadingScreen( {route} ) {
     //this executes at the beginning
     useEffect(() => {
         if (isFocused) {
-            //console.log("Focused");
-            checkPreviousScreen();
-            //setCurrentPage(0);
-
-            loadTotalNumberOfChapters(bookID).then(returnValue => {
-                setTotalNumberOfChapters(returnValue);
-                //when total number of chapter is available => safe to check for chapter titles, until then it is undefined
-                loadChapterTitles(bookID, returnValue).then(chapterTitlesReceived => {
-                    setChapterTitles(chapterTitlesReceived);
-                })
-            });
+            const result = Sentry.startSpan(
+                { name: "Reading screen" },
+                async () => {
+                  
+                    //console.log("Focused");
+                    checkPreviousScreen();
+                    //setCurrentPage(0);
+                    return (
+                        loadTotalNumberOfChapters(bookID).then(returnValue => {
+                            setTotalNumberOfChapters(returnValue);
+                            //when total number of chapter is available => safe to check for chapter titles, until then it is undefined
+                            loadChapterTitles(bookID, returnValue).then(chapterTitlesReceived => {
+                                setChapterTitles(chapterTitlesReceived);
+                            })
+                        })
+                    )
+                },
+    );
         }
     }, [isFocused]);
 
     useEffect(() => {
-        loadBookChapterTitle(bookID, chapterNumber).then(chapterTitleReceived => setBookChapterTitle(chapterTitleReceived));
-        loadBookChapterContent(bookID, chapterNumber).then(chapterContentReceived => {
-            setBookChapterContent(chapterContentReceived);
+        function loadBookChapterTitleAndContent() {
+            loadBookChapterTitle(bookID, chapterNumber).then(chapterTitleReceived => setBookChapterTitle(chapterTitleReceived));
+        
+            loadBookChapterContent(bookID, chapterNumber).then(chapterContentReceived => {
+                setBookChapterContent(chapterContentReceived);
+                });
+            setChapterNumberToDisplay(chapterNumber + 1);
+        }
+
+        const result = Sentry.startSpan(
+            { name: "Reading screen" },
+                    async () => {
+                        return loadBookChapterTitleAndContent();
             });
-        setChapterNumberToDisplay(chapterNumber + 1);
+
     }, [bookID, chapterNumber, isFocused]);
 
     useEffect(() => {

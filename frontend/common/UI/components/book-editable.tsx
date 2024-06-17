@@ -7,6 +7,8 @@ import { constructURIForBookCover } from './construct-uri-for-bookcover';
 import GlobalUserData from '../_globals/GlobalUserData';
 import GlobalBookData from '../_globals/GlobalBookData';
 
+import * as Sentry from "@sentry/react-native";
+
 type BookProps = {
     bookFields: bookDTO,
     bookCoverWidth: number,
@@ -28,13 +30,18 @@ export default function EditableBook({ bookFields, bookCoverWidth, bookCoverHeig
     }
 
     async function bookRemovedCallback(bookID: string) {
-        //remove from DB and from local storage
-        delete_planned_book_for_month(GlobalUserData.LOGGED_IN_USER_DATA.uid, currentMonthName, bookID)
-        .then((success: boolean) => {
-            console.log("teoretic removed");
-            GlobalBookData.MONTH_PLANNED_BOOKS[currentMonthName].filter((book : bookDTO) => book.bookID != bookID);
-            onBookRemovedCallback(bookID, bookTitle, bookAuthor, numberOfChapters);
-        })
+        const result = await Sentry.startSpan(
+            { name: "Remove book from planning" },
+            async () => {
+                return (
+                    //remove from DB and from local storage
+                    delete_planned_book_for_month(GlobalUserData.LOGGED_IN_USER_DATA.uid, currentMonthName, bookID)
+                    .then((success: boolean) => {
+                        console.log("teoretic removed");
+                        GlobalBookData.MONTH_PLANNED_BOOKS[currentMonthName].filter((book : bookDTO) => book.bookID != bookID);
+                        onBookRemovedCallback(bookID, bookTitle, bookAuthor, numberOfChapters);
+                    })
+                )});
     }
 
     if(bookTitle && bookAuthor) {

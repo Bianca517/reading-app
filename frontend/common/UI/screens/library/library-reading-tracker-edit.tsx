@@ -23,6 +23,9 @@ import GlobalUserData from "../../_globals/GlobalUserData";
 import { loadCurrentReadingBooks, loadPlannedBooksForAMonth } from "../../components/service-calls-wrapper";
 import { bookDTO } from "../../../types";
 
+import * as Sentry from "@sentry/react-native";
+
+
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
@@ -100,34 +103,41 @@ export default function LibraryPageReadingTrackerEdit({ route: routeProps }) {
 
   async function onAddedBook(bookId: string, bookTitle: string, bookAuthor: string, numberOfChapters: number) {
     console.log("book was dropped");
-    //if book was dropped => add it as planned for the current month
-    plan_book_for_month(GlobalUserData.LOGGED_IN_USER_DATA.uid, currentMonthName, bookId)
-    .then((success: Boolean) => {
-      console.log(success);
-      if(success) {
-        console.log("adaug peste tot cartea");
-        const addedBook: bookDTO = createBook(bookId, bookTitle, bookAuthor, numberOfChapters);
 
-        GlobalBookData.MONTH_PLANNED_BOOKS[currentMonthName].push(addedBook);
-        // console.log("teoretic added");
-        // console.log(plannedBookList);
+    const result = await Sentry.startSpan(
+      { name: "Plan book for month" },
+      async () => {
+        return (
+            //if book was dropped => add it as planned for the current month
+            plan_book_for_month(GlobalUserData.LOGGED_IN_USER_DATA.uid, currentMonthName, bookId)
+            .then((success: Boolean) => {
+              console.log(success);
+              if(success) {
+                console.log("adaug peste tot cartea");
+                const addedBook: bookDTO = createBook(bookId, bookTitle, bookAuthor, numberOfChapters);
 
-        if(plannedBookList === undefined) {
-          const aux: bookDTO[] = [addedBook];
-          setPlannedBookList(aux);
-        }
-        else {
-          setPlannedBookList((plannedBookList: bookDTO[]) => [...plannedBookList, addedBook]);
-        }
-        
-        setCurrentReadingFilteredBooks((prevBooks: bookDTO[]) =>
-          prevBooks.filter((book: bookDTO) => book.bookID !== bookId)
-        );
-      }
-    })
-    .catch(() => {
-      
-    })
+                GlobalBookData.MONTH_PLANNED_BOOKS[currentMonthName].push(addedBook);
+                // console.log("teoretic added");
+                // console.log(plannedBookList);
+
+                if(plannedBookList === undefined) {
+                  const aux: bookDTO[] = [addedBook];
+                  setPlannedBookList(aux);
+                }
+                else {
+                  setPlannedBookList((plannedBookList: bookDTO[]) => [...plannedBookList, addedBook]);
+                }
+                
+                setCurrentReadingFilteredBooks((prevBooks: bookDTO[]) =>
+                  prevBooks.filter((book: bookDTO) => book.bookID !== bookId)
+                );
+              }
+            })
+            .catch(() => {
+              
+              })
+        )},
+    );
   }
 
   function onBookRemovedCallback(bookId: string, bookTitle: string, bookAuthor: string, numberOfChapters: number) {

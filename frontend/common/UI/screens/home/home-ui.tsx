@@ -11,6 +11,7 @@ import { ResponseType, ResponseTypeRetrieveBooks, bookDTO } from '../../../types
 import { loadCurrentPlannedBooks, loadUserCurrentPositions, loadFinalizedReadingBooks, loadCurrentReadingBooks } from '../../components/service-calls-wrapper';
 import GlobalUserData from '../../_globals/GlobalUserData';
 import { showAllAsyncStorage } from '../../components/persistent-login';
+import * as Sentry from "@sentry/react-native";
 
 export default function HomePageUI() {
     const navigation = useNavigation();
@@ -66,6 +67,7 @@ export default function HomePageUI() {
 
     function handleLogout() {
         console.log("logged out");
+        //Sentry.captureException(new Error("First error"));
         navigation.navigate("Login");
         showAllAsyncStorage();
     }

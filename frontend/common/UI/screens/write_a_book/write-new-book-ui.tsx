@@ -11,6 +11,8 @@ import { add_new_book } from '../../../services/write-book-service';
 import GlobalUserData from '../../_globals/GlobalUserData';
 import { upload_book_cover } from '../../../services/upload-media-services';
 
+import * as Sentry from "@sentry/react-native";
+
 const windowWidth = Dimensions.get('window').width;
 
 type dataInterest = {
@@ -77,19 +79,24 @@ export default function WriteNewBookUI() {
     };
 
     async function handlePostChapter() {
-        if(bookTitle !== null && bookCoverImage !== null && bookDescrption !== null && selectedBookGnere !== null) {
-            let addedBookStatus = await add_new_book(bookTitle, GlobalUserData.LOGGED_IN_USER_DATA.username, bookDescrption, selectedBookGnere);
-            let uploadedCoverStatus = await upload_book_cover(bookTitle, GlobalUserData.LOGGED_IN_USER_DATA.username, bookCoverImage);
-            
-            if((addedBookStatus == 0) && (uploadedCoverStatus == 0)) {
-                Alert.alert("New Book Added Successfully!");
-                navigation.navigate('Home');
+        if (bookTitle !== null && bookCoverImage !== null && bookDescrption !== null && selectedBookGnere !== null) {
+            try {
+                const result = await Sentry.startSpan({ name: "Adding New Book" }, async () => {
+                    let addedBookStatus = await add_new_book(bookTitle, GlobalUserData.LOGGED_IN_USER_DATA.username, bookDescrption, selectedBookGnere);
+                    let uploadedCoverStatus = await upload_book_cover(bookTitle, GlobalUserData.LOGGED_IN_USER_DATA.username, bookCoverImage);
+    
+                    if (addedBookStatus == 0 && uploadedCoverStatus == 0) {
+                        Alert.alert("New Book Added Successfully!");
+                        navigation.navigate('Home');
+                    } else {
+                        Alert.alert("New Book Could Not Be Added!");
+                    }
+                });
+            } catch (error) {
+                // Handle error if Sentry.startSpan() or any of the async functions inside it throws an error
+                console.error("Error:", error);
             }
-            else {
-                Alert.alert("New Book Could Not Be Added!");
-            }
-        }
-        else {
+        } else {
             Alert.alert("All fields are required!");
         }
     }
