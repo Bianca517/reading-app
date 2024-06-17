@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, SafeAreaView, TextInput , ScrollView} from 'react-native';
+import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, SafeAreaView, TextInput , ScrollView, Alert} from 'react-native';
 import Globals from '../../_globals/Globals';
 import { useNavigation } from '@react-navigation/native';
 import { ResponseType } from '../../../types';
@@ -22,6 +22,17 @@ export default function SearchBookUI() {
         console.log("Searched book", searchedBook);
     }, [searchedBook]);
 
+
+    function handleGoToResults() {
+        //console.log("navi", searchedBook);
+        if(searchedBook.trimStart().length > 0) {
+            navigation.navigate("Results", {'searchCriteriaIsGenre': false ,'searchedBook': searchedBook});
+        }
+        else {
+            Alert.alert("The input text is invalid! Please try again.");
+        }
+    }
+
     return(
         <SafeAreaView style={styles.fullscreen_container}>
             <View style={styles.search_by_name_container}>
@@ -35,9 +46,8 @@ export default function SearchBookUI() {
 
                 <TouchableOpacity 
                     style={styles.search_button} 
-                    onPress={() => {
-                        console.log("navi", searchedBook);
-                        navigation.navigate("Results", {'searchCriteriaIsGenre': false ,'searchedBook': searchedBook})}}>
+                    onPress={() => {handleGoToResults()}}
+                >
                 <Ionicons name="search-circle-sharp" size={40} color="white" />
                 </TouchableOpacity>
             </View>

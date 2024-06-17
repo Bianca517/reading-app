@@ -22,13 +22,15 @@ function InterestContainer( {key, genreName, onChosenInterest, onRemovedInterest
   }, []);
 
   useEffect(() => {
-    if(isChecked) {
-        onChosenInterest(genreName);
-        //console.log("apasat");
-    }
-    else {
-        onRemovedInterest(genreName);
-        //console.log("removed");
+    if(interestWithCheckbox) {
+        if(isChecked) {
+            onChosenInterest(genreName);
+            //console.log("apasat");
+        }
+        else {
+            onRemovedInterest(genreName);
+            //console.log("removed");
+        }
     }
   } , [isChecked]);
 
@@ -60,22 +62,37 @@ function InterestContainer( {key, genreName, onChosenInterest, onRemovedInterest
         return Globals.COLORS.INTEREST_CONTAINER_BACKGROUND_LIGHT_PINK;
     }
 
+    function handleButtonOnPress() {
+        if(interestWithCheckbox) {
+            setIsChecked(!isChecked)
+        }
+        else {
+            console.log("set is checked");
+            setIsChecked(true);
+            onChosenInterest(genreName);
+        }
+    }
+
   return (
     <View >
     <TouchableOpacity 
-        onPress={() => setIsChecked(!isChecked) } // Toggle the state on press
+        onPress={() =>  handleButtonOnPress()} // Toggle the state on press
         activeOpacity={0.5}
         >
         
         <View style={[styles.genreContainer, {backgroundColor: containerColor}]}>
             <Text style={styles.genreName}>{genreName}</Text>
            
+           {
+            interestWithCheckbox && 
             <Checkbox
                 style={[styles.checkbox, { opacity: isChecked ? 1 : 0 }]}
                 value={isChecked}
                 onValueChange={() => setIsChecked(!isChecked)}
                 color={isChecked ? Globals.COLORS.CHECKBOX_CHECKED_GREEN : undefined}
             />
+           }
+            
             
         </View>
 
