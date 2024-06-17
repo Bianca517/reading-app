@@ -118,7 +118,7 @@ export default function WriteNewBookUI() {
                 <View>
                     <Text style={styles.info_text}>Description*</Text>
                     <TextInput 
-                        style={[styles.text_inputs_style, {height: Math.max(45, descriptionTextInputHeight)}]} 
+                        style={[styles.text_inputs_style, {height: Math.max(45, descriptionTextInputHeight), padding:15}]} 
                         multiline={true} 
                         onContentSizeChange={(event) =>
                             setDescriptionTextInputHeight(event.nativeEvent.contentSize.height)
