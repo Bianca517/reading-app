@@ -63,6 +63,7 @@ export default function BottomSheetContent( {bookId, chapterNumber, isBookInLibr
     }), [selectedFont];
 
     useEffect(() => {
+        console.log("update background color to " + selectedBackgroundColor);
         updateBackgroundColor(selectedBackgroundColor);
     }, [selectedBackgroundColor]);
     
@@ -70,7 +71,7 @@ export default function BottomSheetContent( {bookId, chapterNumber, isBookInLibr
         Audio.setAudioModeAsync({
             //interruptionModeAndroid: Audio.INTERR,
             shouldDuckAndroid: true,
-            staysActiveInBackground: false,
+            staysActiveInBackground: true,
             playThroughEarpieceAndroid: true
         })
         loadSound();

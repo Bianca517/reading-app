@@ -64,7 +64,7 @@ export default function ReadingScreen( {route} ) {
     //const [textInPages, setTextInPages] = useState<string[]>([]);
     const [chapterNumber, setChapterNumber] = useState<number>(chapterNumberFromRoute);
     const [chapterNumberToDisplay, setChapterNumberToDisplay] = useState<number>(chapterNumber + 1);
-    const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false); 
+    const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(true); //true because the bottom sheet is opened by default at first page render 
     const [chapterTitles, setChapterTitles] = useState<string[]>([]);
     const [pagesWithContent, setPagesWithContent] = useState<ReactNode[]>([]);
     const [isDataReady, setIsDataReady] = useState<boolean>(false);
@@ -281,10 +281,10 @@ export default function ReadingScreen( {route} ) {
         setIsGestureScrollingActive(isEnabled);
     }
 
-    const handleSnapPress = (index: number) => {
+    const handleSnapPress = useCallback((index: number) => {
         sheetRef.current?.snapToIndex(index);
         setIsBottomSheetOpen(true);
-    }
+    }, []);
 
     function navigateToNextChapter() {
 
@@ -496,30 +496,27 @@ export default function ReadingScreen( {route} ) {
                     </View>
                 </View>
 
-                {
-                    isBottomSheetOpen && (
-                        <BottomSheet
-                        ref={sheetRef}
-                        snapPoints={snapPoints}
-                        enablePanDownToClose={true}
-                        onClose={() => setIsBottomSheetOpen(false)}
-                        style={{marginHorizontal: 10}}
-                    >
-                        <BottomSheetView>
-                            <BottomSheetContent 
-                            bookId={bookID} 
-                            chapterNumber={chapterNumber} 
-                            isBookInLibrary={isBookInLibrary} 
-                            updateFontFamily = {updateFontFamily} 
-                            updateFontSize = {updateFontSize} 
-                            updateBackgroundColor = {updateBackgroundColor} 
-                            updateGestureScroll = {updateGestureScroll}/>
-                        </BottomSheetView>
-                    </BottomSheet>
-                    )
-                }
-               
-                                
+                   
+                <BottomSheet
+                    ref={sheetRef}
+                    snapPoints={snapPoints}
+                    enablePanDownToClose={true}
+                    onClose={() => setIsBottomSheetOpen(false)}
+                    style={{marginHorizontal: 10}}
+                >
+                    <BottomSheetView>
+                        <BottomSheetContent 
+                        bookId={bookID} 
+                        chapterNumber={chapterNumber} 
+                        isBookInLibrary={isBookInLibrary} 
+                        updateFontFamily = {updateFontFamily} 
+                        updateFontSize = {updateFontSize} 
+                        updateBackgroundColor = {updateBackgroundColor} 
+                        updateGestureScroll = {updateGestureScroll}/>
+                    </BottomSheetView>
+                </BottomSheet>
+                    
+                         
                 {
                     navigateToNextChapterTrigger && !isBottomSheetOpen &&
 
