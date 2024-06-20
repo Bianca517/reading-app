@@ -60,6 +60,9 @@ public class bookController {
             if (books != null && !books.isEmpty()) {
                 status = GlobalConstants.STATUS_SUCCESSFUL;
             }
+            else {
+                System.out.println("books empty");
+            }
         }
    
         if (status == GlobalConstants.STATUS_SUCCESSFUL) {
