@@ -120,11 +120,12 @@ export default function ContinueWritingBookUI( {route} ) {
                 <View style={styles.checkbox_view}>
                     <Checkbox
                         style={styles.checkbox}
+                        disabled={!bookHasChapters}
                         value={isBookMarkedAsFinished}
                         onValueChange={checkBoxValueChanged}
                         color={isBookMarkedAsFinished ? Globals.COLORS.PURPLE : 'white'}
                     />
-                    <Text style={[styles.title_text, {fontSize: 16, alignSelf: 'center', marginTop: -1}]}> Mark book as finished </Text>
+                    <Text style={[styles.title_text, {color: bookHasChapters ? 'white' : '#A9A9A9', fontSize: 16, alignSelf: 'center', marginTop: -1}]}> Mark book as finished </Text>
                 </View>
                 <TouchableOpacity 
                     activeOpacity={0.7} 
@@ -188,9 +189,9 @@ const styles = StyleSheet.create({
         //backgroundColor: "blue"
     },
     title_text: {
+        color: 'white',
         flex: 5,
         marginTop: 3,
-        color: 'white',
         fontWeight: 'bold',
         fontSize: 15,
         marginHorizontal: 1,
