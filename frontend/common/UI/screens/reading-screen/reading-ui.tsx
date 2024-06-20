@@ -1,7 +1,7 @@
 import React, { ReactElement, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ScrollView, Image, Dimensions, Button, FlatList, Platform } from 'react-native';
 import Globals from '../../_globals/Globals';
-import BottomSheet, { BottomSheetView, SCREEN_WIDTH } from "@gorhom/bottom-sheet";
+import BottomSheet, { BottomSheetView, SCREEN_WIDTH, BottomSheetModalProvider, BottomSheetModal } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
 import BottomSheetContent from '../../components/bottom-sheet-content';
@@ -20,6 +20,11 @@ import { get_finalized_readings } from '../../../services/retrieve-books-service
 import { getIsBookFinished } from '../../../services/write-book-service';
 
 import * as Sentry from "@sentry/react-native";
+import bottomSheetModal from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheetModal';
+import { createUriForSong, loadSound, playSound, stopSound } from '../../components/song-handler';
+import { Playback } from 'expo-av/build/AV';
+import { constructURIForBookCover } from '../../components/construct-uri-for-bookcover';
+import { unloadAsync } from 'expo-font';
 
 let FaceDetectionModule = null;
 
@@ -73,6 +78,13 @@ export default function ReadingScreen( {route} ) {
     const [navigateToNextChapterTrigger, setNavigateToNextChapterTrigger] = useState<boolean>(false);
     const [navigatedToPreviousChapter, setNavigatedToPreviousChapter] = useState<boolean>(false);
 
+    //music player variables
+    const [sound, setSound] = useState(null);
+    const [songURI, setSongURI] = useState<string>("");
+    const [isPlaying, setIsPlaying] = useState<boolean>(false);
+    const [isLoaded, setIsLoaded] = useState<boolean>(false);
+
+
     let oldScrollRef = useRef<number>(0);
     let currentPage = useRef<number>(0);
 
@@ -81,7 +93,7 @@ export default function ReadingScreen( {route} ) {
 
     //refferences
     const flatlistRef = useRef<FlatList<string>>(null);
-    const sheetRef = useRef<BottomSheet>(null);
+    const sheetRef = useRef<BottomSheetModal>(null);
     
     const snapPoints = isAndroid ? ["60%"] : ["45%"];
 
@@ -131,12 +143,20 @@ export default function ReadingScreen( {route} ) {
             setChapterNumberToDisplay(chapterNumber + 1);
         }
 
+
         const result = Sentry.startSpan(
             { name: "Reading screen" },
                     async () => {
                         return loadBookChapterTitleAndContent();
             });
-
+        
+        
+        //if there is no sound loaded or if there is a sound, but not playing, load sound corresponding to this chapter
+        if((sound == null) || (isPlaying == false)) {
+            console.log("loading sound....");
+            loadSoundForCurrentChapter();
+        }
+      
     }, [bookID, chapterNumber, isFocused]);
 
     useEffect(() => {
@@ -174,6 +194,21 @@ export default function ReadingScreen( {route} ) {
         //console.log("text in page", textInPages);
     }, [textInPages]);
     */
+    function loadSoundForCurrentChapter() {
+        loadSound(bookID, chapterNumber).then((sound: Playback) => {
+            if(sound != null) {
+                setSound(sound);
+                setIsLoaded(true);
+                setSongURI(createUriForSong(bookID, chapterNumber.toString()));
+            }
+            else {
+                setSound(null);
+                setIsLoaded(false);
+                setSongURI("");
+            }
+        });
+    }
+
 
     useEffect(() => {
         //console.log("current page", currentPage);
@@ -187,6 +222,13 @@ export default function ReadingScreen( {route} ) {
         React.useCallback(() => {
             // This function will be called when the screen is focused
             return () => {
+                if(sound && (isPlaying == false)) {
+                    console.log("clear song");
+                    unloadAsync(sound);
+                    setSound(null);
+                    setIsPlaying(false);
+                }
+
                 // This function will be called when the screen loses focus or unmounts
                 if (typeof chapterNumber !== 'undefined' && isBookInLibrary) {
                     console.log("on removeeeeeeeeee", chapterNumber);
@@ -279,6 +321,25 @@ export default function ReadingScreen( {route} ) {
 
     function updateGestureScroll (isEnabled: boolean): void{
         setIsGestureScrollingActive(isEnabled);
+    }
+
+
+    function playSoundButtonWasPressed() {
+        playSound(sound);
+        setIsPlaying(true);
+    }
+
+
+    function pauseSoundButtonWasPressed() {
+        if(isPlaying) {
+            stopSound(sound);
+            setIsPlaying(false);
+        }
+
+        //song was paused inside other chapter => load new song
+        if(chapterNumber.toString() != songURI.split("_")[1]) {
+            loadSoundForCurrentChapter();
+        }
     }
 
     const handleSnapPress = useCallback((index: number) => {
@@ -430,6 +491,7 @@ export default function ReadingScreen( {route} ) {
     
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
+            <BottomSheetModalProvider>
             {
                 isGestureScrollingActive && isAndroid && (
                     <FaceDetectionModule userAlreadyGavePermission={true} scrollRightCallback={flatListScrollToNext} scrollLeftCallback={flatListScrollToPrevious}></FaceDetectionModule>
@@ -495,27 +557,37 @@ export default function ReadingScreen( {route} ) {
                     }
                     </View>
                 </View>
-
-                   
-                <BottomSheet
-                    ref={sheetRef}
-                    snapPoints={snapPoints}
-                    enablePanDownToClose={true}
-                    onClose={() => setIsBottomSheetOpen(false)}
-                    style={{marginHorizontal: 10}}
-                >
-                    <BottomSheetView>
-                        <BottomSheetContent 
-                        bookId={bookID} 
-                        chapterNumber={chapterNumber} 
-                        isBookInLibrary={isBookInLibrary} 
-                        updateFontFamily = {updateFontFamily} 
-                        updateFontSize = {updateFontSize} 
-                        updateBackgroundColor = {updateBackgroundColor} 
-                        updateGestureScroll = {updateGestureScroll}/>
-                    </BottomSheetView>
-                </BottomSheet>
-                    
+                
+                { 
+                     <BottomSheet
+                         ref={sheetRef}
+                         snapPoints={snapPoints}
+                         enablePanDownToClose={true}
+                         onClose={() => setIsBottomSheetOpen(false)}
+                         style={{marginHorizontal: 10}}
+                     >
+                         <BottomSheetView>
+                            {
+                                isBottomSheetOpen && 
+                                  <BottomSheetContent 
+                                  bookId={bookID} 
+                                  chapterNumber={chapterNumber} 
+                                  isBookInLibrary={isBookInLibrary} 
+                                  isSongLoaded={isLoaded}
+                                  isSongPlaying={isPlaying}
+                                  updateFontFamily = {updateFontFamily} 
+                                  updateFontSize = {updateFontSize} 
+                                  updateBackgroundColor = {updateBackgroundColor} 
+                                  updateGestureScroll = {updateGestureScroll}
+                                  playSoundPressed={playSoundButtonWasPressed}
+                                  pauseSoundPressed={pauseSoundButtonWasPressed}
+                                    />
+                            }
+                           
+                         </BottomSheetView>
+                     </BottomSheet>      
+                }
+                  
                          
                 {
                     navigateToNextChapterTrigger && !isBottomSheetOpen &&
@@ -546,6 +618,7 @@ export default function ReadingScreen( {route} ) {
                 }
                 
             </SafeAreaView>
+            </BottomSheetModalProvider>
         </GestureHandlerRootView>
     )
 }

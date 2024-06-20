@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { NavigationProp, useIsFocused, useNavigation } from '@react-navigation/native';
 import { StyleSheet, Text, View, Switch, Platform, Alert} from 'react-native'; 
 import Globals from '../_globals/Globals';
 import { FontPicker } from './font-picker';
 import { TouchableHighlight } from 'react-native-gesture-handler';
-import { TouchableOpacity } from '@gorhom/bottom-sheet';
+import { TouchableOpacity, useBottomSheetModal } from '@gorhom/bottom-sheet';
 import { AVPlaybackStatus, Audio } from 'expo-av';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
@@ -24,15 +24,22 @@ type props = {
     bookId: string,
     chapterNumber: number,
     isBookInLibrary: boolean,
+    isSongLoaded: boolean,
+    isSongPlaying: boolean,
     updateFontFamily: (fontFamily: string) => void;
     updateFontSize: (increaseFont: boolean) => void;
     updateBackgroundColor: (backgroundColor: string) => void;
     updateGestureScroll: (isEnabled: boolean) => void;
+    playSoundPressed: () => void;
+    pauseSoundPressed: () => void;
 }
 
 
-export default function BottomSheetContent( {bookId, chapterNumber, isBookInLibrary, updateFontFamily, updateFontSize, updateBackgroundColor, updateGestureScroll} : props) {
+export default function BottomSheetContent( 
+    {bookId, chapterNumber, isBookInLibrary, isSongLoaded, isSongPlaying, updateFontFamily, updateFontSize, updateBackgroundColor, updateGestureScroll, playSoundPressed, pauseSoundPressed} : props) {
     const toggleSwitch = () => setIsGestureScrollingActive(previousState => !previousState);
+
+    const { dismiss } = useBottomSheetModal();
 
     //platform OS
     const isAndroid: boolean = Platform.OS === 'android';
@@ -44,9 +51,6 @@ export default function BottomSheetContent( {bookId, chapterNumber, isBookInLibr
 
     const [isFontPickerVisible, setIsFontPickerVisible] = useState(false);
     
-    const [sound, setSound] = useState(null);
-    const [isPlaying, setIsPlaying] = useState<boolean>(false);
-    const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
     const navigation = useNavigation<NavigationProp<NavigationParameters>>();
 
@@ -74,46 +78,13 @@ export default function BottomSheetContent( {bookId, chapterNumber, isBookInLibr
             staysActiveInBackground: true,
             playThroughEarpieceAndroid: true
         })
-        loadSound();
     }, []);
 
+    useCallback(() => {
+        console.log("am deschis panoul de setari si am primit chapter number ", chapterNumber);
+    }, [chapterNumber]);    
 
-    function createUriForSong(): string {
-        let url: string = Globals.SONG_URI_TEMPLATE;
-        let customString: string = bookId + '_' + chapterNumber;
-        url = url.replace(Globals.SONG_URI_STRING_TO_REPLACE, customString);  
-        console.log(url);
-        return url; 
-    }
 
-    async function loadSound() {
-        console.log('Loading Sound');
-        try {
-            const { sound } = await Audio.Sound.createAsync( { uri: createUriForSong() });
-            setSound(sound);
-            setIsLoaded(true);
-        }
-        catch {
-            setIsLoaded(false);
-        }
-    } 
-
-    async function playSound() {
-        console.log('Playing Sound');
-        if(sound) {
-            setIsPlaying(true);
-            await sound.playAsync();
-        }
-    }
-
-    async function stopSound() {
-        console.log("Pausing Sound");
-        if(sound) {
-            setIsPlaying(false);
-            await sound.pauseAsync();
-        }
-    }
-    
     function handleRemoveBook() {
         //remove from current readings
         GlobalBookData.CURRENT_READINGS = GlobalBookData.CURRENT_READINGS.filter((book: bookDTO) => book.bookID != bookId);
@@ -140,18 +111,18 @@ export default function BottomSheetContent( {bookId, chapterNumber, isBookInLibr
                 </View>)
             }
 
-            { isLoaded && (
+            { isSongLoaded && (
                 <View style={styles.music_player_container}>
                     <Text style={styles.text_styles}>
                         Control Music Player
                     </Text>
                     <View style={styles.music_player_controllers}>
-                        <TouchableOpacity onPress={() => playSound()}>
-                            <FontAwesome6 name="play-circle" size={24} color={isPlaying ? 'gray' : Globals.COLORS.PURPLE} />
+                        <TouchableOpacity onPress={() => playSoundPressed()}>
+                            <FontAwesome6 name="play-circle" size={24} color={isSongPlaying ? 'gray' : Globals.COLORS.PURPLE} />
                         </TouchableOpacity>
 
-                        <TouchableOpacity onPress={() => stopSound()}>
-                            <Ionicons name="pause-circle" size={29} color={isPlaying ? Globals.COLORS.PURPLE: 'gray'} />
+                        <TouchableOpacity onPress={() => pauseSoundPressed()}>
+                            <Ionicons name="pause-circle" size={29} color={isSongPlaying ? Globals.COLORS.PURPLE: 'gray'} />
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -215,7 +186,7 @@ export default function BottomSheetContent( {bookId, chapterNumber, isBookInLibr
 
             {
                 isBookInLibrary && (
-                    <View style={[styles.remove_button_view, {marginTop: isLoaded ? 10 : 20}]}>
+                    <View style={[styles.remove_button_view, {marginTop: isSongLoaded ? 10 : 20}]}>
                     <TouchableOpacity style={styles.remove_button} onPress={() => handleRemoveBook()}>
                             <Text style={styles.remove_button_text}>Remove book from library</Text>
                     </TouchableOpacity>
