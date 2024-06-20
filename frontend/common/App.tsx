@@ -9,7 +9,7 @@ Sentry.init({
   // of transactions for tracing.
   // We recommend adjusting this value in production
   tracesSampleRate: 1.0,
-  debug: true,
+  //debug: true,
   _experiments: {
     // The sampling rate for profiling is relative to TracesSampleRate.
     // In this case, we'll capture profiles for 100% of transactions.

@@ -127,11 +127,12 @@ export async function loadFinalizedReadingBooks() {
 }
 
 export async function loadCurrentReadingBooks(): Promise<bookDTO[]> {
-    GlobalBookData.CURRENT_READINGS = [];
+    //GlobalBookData.CURRENT_READINGS = [];
     let fetchResponse: bookDTO[] = await get_current_readings(GlobalUserData.LOGGED_IN_USER_DATA.uid).then();
     console.log(fetchResponse);
-    console.log("dlsfskhvnfsdjv");
+    //console.log("dlsfskhvnfsdjv");
     if (fetchResponse != null && fetchResponse.length > 0) {
+        //console.log("din service call wrapper seteaza current r global");
         GlobalBookData.CURRENT_READINGS = fetchResponse;
     }
     return fetchResponse;
