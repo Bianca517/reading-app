@@ -5,14 +5,13 @@ import Globals from "../_globals/Globals";
 import Checkbox from 'expo-checkbox';
 
 type Props = {
-    key: number;
     genreName: string;
     onChosenInterest: (genreName: string) => void;
     onRemovedInterest: (genreName: string) => void;
     interestWithCheckbox: boolean;
 }
 
-function InterestContainer( {key, genreName, onChosenInterest, onRemovedInterest, interestWithCheckbox} : Props) {
+function InterestContainer( {genreName, onChosenInterest, onRemovedInterest, interestWithCheckbox} : Props) {
   const [isChecked, setIsChecked] = useState(false);
   const [containerColor, setContainerColor] = useState<string>(Globals.COLORS.INTEREST_CONTAINER_BACKGROUND_LIGHT_PINK);
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, SafeAreaView, TextInput , ScrollView} from 'react-native';
+import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, SafeAreaView, TextInput , ScrollView, ActivityIndicator} from 'react-native';
 import Globals from '../../_globals/Globals';
 import { useNavigation } from '@react-navigation/native';
 import { ResponseType, bookDTO } from '../../../types';
@@ -15,6 +15,7 @@ export default function SearchResultsUI({route}) {
     const searchByGenre = route.params.searchCriteriaIsGenre;
     const [searchedBooks, setSearchedBooks] = useState([]);
     const [booksNotFound, setBooksNotFound] = useState<boolean>(false);
+    const [booksLoading, setBooksLoading] = useState<boolean>(true);
     //const [searchedBookName, setsearchedBookName] = useState<string>("");
     //const [searchedBookGenre, setsearchedBookGenre] = useState<string>("");
 
@@ -52,6 +53,8 @@ export default function SearchResultsUI({route}) {
         console.log("Searched book genre", searchedBookGenre);
     }, []);
 
+
+
     async function loadBooks() {
         let fetchResponse: bookDTO[];
         
@@ -65,6 +68,7 @@ export default function SearchResultsUI({route}) {
         console.log("Fetching books", fetchResponse);
         if (fetchResponse != null && fetchResponse.length>0)
         {
+            setBooksLoading(false);
             const books: bookDTO[] = fetchResponse;
             if(books.length > 0) {
             setSearchedBooks(books);
@@ -79,6 +83,23 @@ export default function SearchResultsUI({route}) {
         }
     }
 
+    function renderWhenEmptyOrLoading() {
+        if(booksNotFound) {
+            return (
+                <View style={styles.view_when_empty}>
+                    <Text style={styles.text_when_empty}> No books found :(</Text>
+                </View>
+            )
+            
+        }
+        else if (booksLoading){
+            return (
+                <View style={styles.view_when_empty}>
+                    <ActivityIndicator size="large" color={Globals.COLORS.PURPLE}></ActivityIndicator>
+                </View>
+            )
+        }
+    }
     
     return(
         <SafeAreaView style={styles.fullscreen_container}>
@@ -104,10 +125,9 @@ export default function SearchResultsUI({route}) {
 
             <View style={styles.display_books_grid}>
                 <ScrollView contentContainerStyle={styles.display_books_scroll}>
-                    {
-                        booksNotFound &&
-                        <Text> No books found </Text>
-                    }
+                    
+                    {renderWhenEmptyOrLoading()}
+
                     {
                         !booksNotFound && searchedBooks &&
                     /*Warning: Each child in a list should have a unique "key" prop.*/
@@ -164,5 +184,16 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
         columnGap: -5,
         justifyContent: 'flex-start',
+    },
+    view_when_empty: {
+        //backgroundColor: 'pink',
+        width: "100%",
+        justifyContent: 'center',
+        marginTop: 250,
+    },
+    text_when_empty: {
+        textAlign: 'center',
+        color: 'white',
+        fontSize: 17,
     }
 })

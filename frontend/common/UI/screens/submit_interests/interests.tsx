@@ -47,7 +47,7 @@ function SubmitInterests() {
                     {
                         Globals.INTERESTS_LIST.map((genre, index) => {
                             return (
-                                <InterestContainer key={index} genreName={genre} onChosenInterest={onInterestChosen} onRemovedInterest={onRemovedInterest} interestWithCheckbox={true}/>
+                                <InterestContainer genreName={genre} onChosenInterest={onInterestChosen} onRemovedInterest={onRemovedInterest} interestWithCheckbox={true}/>
                             );
                         })
                     }

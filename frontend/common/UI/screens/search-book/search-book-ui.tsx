@@ -67,7 +67,7 @@ export default function SearchBookUI() {
                 {
                     Globals.INTERESTS_LIST.map((genre, index) => {
                         return (
-                            <InterestContainer key={index} genreName={genre} onChosenInterest={onChosenGenre} onRemovedInterest={onRemovedGenre} interestWithCheckbox={false}/>
+                            <InterestContainer genreName={genre} onChosenInterest={onChosenGenre} onRemovedInterest={onRemovedGenre} interestWithCheckbox={false}/>
                         );
                     })
                 }
