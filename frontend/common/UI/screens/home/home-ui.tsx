@@ -5,7 +5,7 @@ import Footer from '../../components/footer';
 import Book from '../../components/book';
 import { get_finalized_readings, get_current_readings, get_popular_readings, get_recommended_readings } from '../../../services/retrieve-books-service';
 import Globals from '../../_globals/Globals';
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import GlobalBookData from '../../_globals/GlobalBookData';
 import { ResponseType, ResponseTypeRetrieveBooks, bookDTO } from '../../../types';
 import { loadCurrentPlannedBooks, loadUserCurrentPositions, loadFinalizedReadingBooks, loadCurrentReadingBooks } from '../../components/service-calls-wrapper';
@@ -15,11 +15,22 @@ import * as Sentry from "@sentry/react-native";
 
 export default function HomePageUI() {
     const navigation = useNavigation();
+    const isFocused = useIsFocused();
 
     const [popularBooks, setPopularBooks] = useState<bookDTO[]>([]);
     const [currentReadingBooks, setCurrentReadingBooks] = useState<bookDTO[]>([]);
     const [recommendedBooks, setRecommendedBooks] = useState<bookDTO[]>([]);
 
+    useEffect(() => {
+        if(isFocused) {
+            loadCurrentReadingBooks().then((books: bookDTO[]) => {
+                if(books!=null) {
+                    setCurrentReadingBooks(books);
+                }
+            });
+        }
+    }, [isFocused]);
+    
     //this executes on page load
     useEffect(() => {
         navigation.setOptions({
@@ -35,12 +46,6 @@ export default function HomePageUI() {
         showAllAsyncStorage();
         loadRecommendedReadingBooks();
         loadPopularBooks();
-        loadCurrentReadingBooks().then((books: bookDTO[]) => {
-            if(books!=null) {
-                setCurrentReadingBooks(books);
-            }
-        });
-        
         loadFinalizedReadingBooks();
         //load this for the reading planner here as it takes a long time and it shall be prepared until user gets there
         loadCurrentPlannedBooks();
