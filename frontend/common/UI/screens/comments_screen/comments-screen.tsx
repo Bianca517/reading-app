@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
-        //backgroundColor: 'red',
+        //backgroundColor: 'yellow',
         paddingTop: 5,
         paddingLeft: 40,
     },
@@ -159,9 +159,10 @@ const styles = StyleSheet.create({
         fontStyle: 'italic',
         color: 'white',
         marginBottom: 5,
+        fontSize: 13
     },
     commentContent: {
-        fontSize: 18,
+        fontSize: 15,
         marginBottom: 5,
         color: 'white',
         fontStyle: 'italic',
@@ -169,9 +170,9 @@ const styles = StyleSheet.create({
     },
     oneCommentView: {
         borderBottomColor: 'white',
-        borderBottomWidth: 2,
+        borderBottomWidth: 1,
         width: windowWidth * 0.7,
-        marginBottom: 10,
+        marginBottom: 13,
     },
     textinputview: {
         justifyContent: 'center',
@@ -179,7 +180,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     scrollview: {
-
+        //backgroundColor: 'red',
     },
     textinput: {
         width: windowWidth * 0.7,

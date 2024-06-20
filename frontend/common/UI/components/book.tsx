@@ -186,7 +186,7 @@ export default function Book(props: BookProps) {
                 >
                 
                     <Image style={styles.book_cover} source={{ uri: bookCover }}></Image>
-                    <Text style={styles.book_title}>{bookTitle}</Text>
+                    <Text style={[styles.book_title, {fontSize: props.bookCoverWidth > 100 ? 11 : 9}]}>{bookTitle}</Text>
                     <Text style={styles.book_author}>{bookAuthor}</Text>
                 </TouchableOpacity>
 
@@ -226,7 +226,6 @@ const styles = StyleSheet.create({
     },
     book_title: {
         flex: 0.6,
-        fontSize: 11,
         fontWeight: "bold",
         fontStyle: 'italic',
     },

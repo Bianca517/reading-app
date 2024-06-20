@@ -4,12 +4,8 @@ import booksapp.root.models.Book;
 import booksapp.root.models.BookDTO;
 import booksapp.root.models.GlobalConstants.BookCollectionFields;
 import booksapp.root.models.GlobalConstants.GlobalConstants;
-import booksapp.root.models.bookcomponents.BookChapter;
-import booksapp.root.models.bookcomponents.BookParagraph;
-
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
-import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.Query;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
@@ -17,14 +13,10 @@ import com.google.cloud.firestore.Query.Direction;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
-
-import javax.swing.text.html.ImageView;
 
 @Service
 public class booksService {
@@ -59,24 +51,34 @@ public class booksService {
 
     public List<BookDTO> getRecommendationsForUserWithID(String userID) throws InterruptedException, ExecutionException {
         ArrayList<String> usersInterests = userReadingService.getUsersGeneresInterests(userID);
-
+        
         List<BookDTO> booksToReturn = new ArrayList<>();
-
+    
         int numberOfBooksOfEachGenre = 3;
         ArrayList<QueryDocumentSnapshot> bookSnapshots = new ArrayList<QueryDocumentSnapshot>();
         Collections.shuffle(usersInterests);
         
-        for (String genre : usersInterests) {
-            bookSnapshots.addAll(getXBooksWithGenre(genre, numberOfBooksOfEachGenre));
-            if(bookSnapshots.size() > 10) {
-                break;
-            }
-        }
+        //List<String> userInterestsList = new ArrayList<String>();
+        // if(usersInterests.size() > 3) {
+        //     userInterestsList = usersInterests.subList(0, 2);
+        // }
+        // else {
+        //     userInterestsList = usersInterests;
+        // }
 
+        usersInterests.parallelStream().forEach(genre -> {
+            try{
+                bookSnapshots.addAll(getXBooksWithGenre(genre, numberOfBooksOfEachGenre));
+            }
+            catch(Exception e) {
+                e.printStackTrace();
+            }
+        });
+    
         if(!bookSnapshots.isEmpty()) {
             for (int i = 0; i < bookSnapshots.size(); i++) {
                 QueryDocumentSnapshot book = bookSnapshots.get(i);
-
+    
                 BookDTO bookDTO = new BookDTO(book);
                 booksToReturn.add(bookDTO);
             }
@@ -84,6 +86,7 @@ public class booksService {
     
         return booksToReturn;
     }
+        
 
 
     public ArrayList<QueryDocumentSnapshot> getXBooksWithGenre(String genre, int X) throws InterruptedException, ExecutionException {
@@ -92,7 +95,7 @@ public class booksService {
         collectionDocumentsQuery = collectionDocumentsQuery
                 .whereEqualTo(BookCollectionFields.GENRE.getFieldName(), genre)
                 .limit(X);
-    
+     
         ArrayList<QueryDocumentSnapshot> resultedBooks = new ArrayList<>(collectionDocumentsQuery.get().get().getDocuments());
         return resultedBooks;
     }
@@ -121,8 +124,10 @@ public class booksService {
     
         for (QueryDocumentSnapshot book : resultedBooks) {
             String bookName = book.getString(BookCollectionFields.NAME.getFieldName());
+            String bookAuthor = book.getString(BookCollectionFields.AUTHOR_USERNAME.getFieldName());
 
-            if (bookName != null && name.toLowerCase().contains(bookName.toLowerCase())) {
+            if ((bookName != null && bookName.toLowerCase().contains(name.toLowerCase())) || 
+            (bookAuthor != null && bookAuthor.toLowerCase().contains(name.toLowerCase()))) {
                 BookDTO bookDTO = new BookDTO(book);
                 booksToReturn.add(bookDTO);
             }

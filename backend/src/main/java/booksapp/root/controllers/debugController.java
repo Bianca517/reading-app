@@ -20,8 +20,7 @@ public class debugController {
 
      @GetMapping(value = "/addbooks")
     public String ADD_BOOK_DEBUG() {
-       // this.debugService.addBook2();
-        //return "added";
-        return this.debugService.getdocasjson();
+        this.debugService.addBook8();
+        return "added";
     }
 }
