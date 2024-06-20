@@ -125,7 +125,7 @@ export async function get_current_readings(userID: string): Promise<bookDTO[]> {
     })
         .then((response) => response.json())
         .then((responseData) => {
-            console.log(responseData);
+            //console.log(responseData);
             responseBooks = responseData.map((book: any) => {
                 return {
                     bookTitle: book.bookTitle,

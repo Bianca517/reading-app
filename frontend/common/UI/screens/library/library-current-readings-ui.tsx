@@ -14,7 +14,7 @@ import { loadCurrentReadingBooks } from '../../components/service-calls-wrapper'
 
 export default function LibraryPageCurrentReadingsUI() {
     const [currentReadingBooks, setCurrentReadingBooks] = useState([]);
-    const [isLibraryEmpty, setIsLibraryEmpty] = useState(true);
+    const [isLibraryEmpty, setIsLibraryEmpty] = useState(false);
 
     const isFocused = useIsFocused();
 
@@ -25,9 +25,9 @@ export default function LibraryPageCurrentReadingsUI() {
             console.log(GlobalBookData.CURRENT_READINGS);
             
             if(GlobalBookData.CURRENT_READINGS.length == 0) {
-                console.log("fetching curent readings");
                 loadCurrentReadingBooks().then((books: bookDTO[]) => {
-                    if(books!=null) {
+                    if(books!=null && books.length > 0) {
+                        GlobalBookData.CURRENT_READINGS = books;
                         setCurrentReadingBooks(books);
                         setIsLibraryEmpty(false);
                     }
@@ -54,12 +54,12 @@ export default function LibraryPageCurrentReadingsUI() {
             <View style={styles.whiteLine}></View>
 
             <View style={styles.booksContainer}>
-                <View style={{flex: 1}}>   
+                <View style={{flex: 1, width: '100%'}}>   
                    
                     {   
                     isLibraryEmpty ? 
                     (
-                        <Text style={[styles.empty_library_info, {alignSelf: 'center'}]}>
+                        <Text style={[styles.empty_library_info, {textAlign: 'center', fontSize: 17}]}>
                             Your library is currently empty :(
                         </Text>
                     )
@@ -101,6 +101,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center', // Align rows to the start
         alignItems: 'flex-start', // Align items to the start within each row
         paddingHorizontal: 7,
+        //backgroundColor: 'yellow',
     },
     whiteLine: {
         backgroundColor: 'white',
