@@ -105,10 +105,11 @@ export default function Book(props: BookProps) {
     function handleNavigation() {
         switch(props.bookNavigationOptions) {
             case Globals.BOOK_NAVIGATION_OPTIONS.TO_READING_SCREEN: {
+                let chapterNumberAux = isNaN(parseInt(GlobalBookData.USER_CURRENT_POSITIONS[bookID])) ? 0 : parseInt(GlobalBookData.USER_CURRENT_POSITIONS[bookID]);
                 navigation.navigate("Reading Screen", 
                 { 
                     "id" : bookID, 
-                    "chapterNumber" : parseInt(GlobalBookData.USER_CURRENT_POSITIONS[bookID]), 
+                    "chapterNumber" : chapterNumberAux, 
                     "bookCoverImage" : bookCover, 
                     "name": bookTitle, 
                     "authorUsername": bookAuthor,

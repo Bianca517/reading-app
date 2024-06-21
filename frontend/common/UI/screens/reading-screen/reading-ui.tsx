@@ -212,6 +212,8 @@ export default function ReadingScreen( {route} ) {
     function loadSoundForCurrentChapter() {
         loadSound(bookID, chapterNumber).then((sound: Playback) => {
             if(sound != null) {
+                console.log("am primit sound");
+                console.log(sound);
                 setSound(sound);
                 setIsLoaded(true);
                 setSongURI(createUriForSong(bookID, chapterNumber.toString()));
