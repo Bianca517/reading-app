@@ -29,11 +29,12 @@ export default function LoginPageUI() {
     'DancingScript': require('../../../assets/fonts/DancingScript-Medium.ttf'),
   });
   const navigation = useNavigation();
-  navigation.setOptions({
-    headerShown: false,
-  })
 
   useEffect(() => {
+    navigation.setOptions({
+      headerShown: false,
+    })
+
     console.log("la inceput");
     showAllAsyncStorage();
 
