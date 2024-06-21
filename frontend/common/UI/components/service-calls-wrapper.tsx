@@ -118,12 +118,19 @@ export async function loadUserCurrentPositions() {
     })
 }
 
-export async function loadFinalizedReadingBooks() {
+export async function loadFinalizedReadingBooks(): Promise<bookDTO[]> {
+    let returnedBooks: bookDTO[] = [];
     get_finalized_readings(GlobalUserData.LOGGED_IN_USER_DATA.uid).then((fetchResponse: bookDTO[]) => {
         if (fetchResponse != null && fetchResponse.length > 0) {
             GlobalBookData.FINALIZED_READINGS = fetchResponse;
+            returnedBooks = fetchResponse;
+        }
+        else {
+            console.log("set finalized readings pe emptu");
+            GlobalBookData.FINALIZED_READINGS = [];
         }
     });
+    return returnedBooks;
 }
 
 export async function loadCurrentReadingBooks(): Promise<bookDTO[]> {

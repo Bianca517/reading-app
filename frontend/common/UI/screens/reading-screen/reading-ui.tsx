@@ -1,5 +1,5 @@
 import React, { ReactElement, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ScrollView, Image, Dimensions, Button, FlatList, Platform } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ScrollView, Image, Dimensions, Button, FlatList, Platform, Alert } from 'react-native';
 import Globals from '../../_globals/Globals';
 import BottomSheet, { BottomSheetView, SCREEN_WIDTH, BottomSheetModalProvider, BottomSheetModal } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -112,6 +112,7 @@ export default function ReadingScreen( {route} ) {
     //this executes at the beginning
     useEffect(() => {
         if (isFocused) {
+            GlobalBookData.CAN_SET_BOOK_TO_FINISHED = false;
             const result = Sentry.startSpan(
                 { name: "Reading screen" },
                 async () => {
@@ -194,6 +195,11 @@ export default function ReadingScreen( {route} ) {
         //console.log("text in page", textInPages);
     }, [textInPages]);
     */
+
+    useEffect(() => {
+        console.log("can set book to finished ", GlobalBookData.CAN_SET_BOOK_TO_FINISHED);
+    }, [GlobalBookData.CAN_SET_BOOK_TO_FINISHED]);
+
     function loadSoundForCurrentChapter() {
         loadSound(bookID, chapterNumber).then((sound: Playback) => {
             if(sound != null) {
@@ -228,6 +234,11 @@ export default function ReadingScreen( {route} ) {
                     setSound(null);
                     setIsPlaying(false);
                 }
+                
+                console.log("chapter number", chapterNumber);
+                console.log("total chapter numbers", totalNumberOfChapters);
+                console.log("total pages: " + totalPageNumbers);
+                console.log("current page: " + currentPage.current);
 
                 // This function will be called when the screen loses focus or unmounts
                 if (typeof chapterNumber !== 'undefined' && isBookInLibrary) {
@@ -235,10 +246,12 @@ export default function ReadingScreen( {route} ) {
                     GlobalBookData.USER_CURRENT_POSITIONS[bookID] = chapterNumber.toString();
                     console.log(GlobalBookData.USER_CURRENT_POSITIONS);
                     updateUserCurrentPositionInBook(GlobalUserData.LOGGED_IN_USER_DATA.uid, bookID, chapterNumber.toString());
-                    if(chapterNumber == (totalNumberOfChapters-1)) {
-                        handleEndOfTheBook();
-                    }
                 }
+
+                if(isBookInLibrary && GlobalBookData.CAN_SET_BOOK_TO_FINISHED) {
+                    handleEndOfTheBook();
+                }
+                GlobalBookData.CAN_SET_BOOK_TO_FINISHED = false;
             };
         }, [chapterNumber, bookID])
     );
@@ -420,6 +433,11 @@ export default function ReadingScreen( {route} ) {
             console.log("total pages: " + totalPageNumbers);
             console.log("current page: " + currentPage.current);
 
+            //start with not setting book to finished, it will be overwritten if it is the case
+            if(false != GlobalBookData.CAN_SET_BOOK_TO_FINISHED) {
+                GlobalBookData.CAN_SET_BOOK_TO_FINISHED = false;
+            }
+
             if (currentPageVisible == 0) {
                 if(chapterNumber != 0) {
                     //console.log("setez prev chapter trigger");
@@ -437,6 +455,7 @@ export default function ReadingScreen( {route} ) {
                     }
                     else {
                         //user reached end of the book
+                        GlobalBookData.CAN_SET_BOOK_TO_FINISHED = true;
                         setNavigateToNextChapterTrigger(false);
                     }
                 }
@@ -474,6 +493,8 @@ export default function ReadingScreen( {route} ) {
                                 GlobalBookData.FINALIZED_READINGS = fetchResponse;
                             }
                             console.log("AM ADAUGAT LA FINISHED");
+                            navigation.navigate('Finalized Books' as never);
+                            Alert.alert("You just finished this book!");
                         });
 
                         //remove from current readings
