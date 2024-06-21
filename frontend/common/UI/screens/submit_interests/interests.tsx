@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
-import { StyleSheet, Text, View, ScrollView, SafeAreaView, TouchableOpacity} from 'react-native';
+import { StyleSheet, Text, View, ScrollView, SafeAreaView, TouchableOpacity, FlatList} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Globals from "../../_globals/Globals";
 import InterestContainer from "../../components/interest-container";
@@ -26,7 +26,17 @@ function SubmitInterests() {
 
   useEffect(() => {
     //console.log("chosenInterests are ", chosenInterests);
-  },chosenInterests)
+  }, [chosenInterests]);
+
+  const renderItem = ({ item }: { item: string }) => {
+    return (
+        <InterestContainer 
+            genreName={item}  
+            onChosenInterest={onInterestChosen}
+            onRemovedInterest={onRemovedInterest} 
+            interestWithCheckbox={true}/>
+    );
+}
 
   return (
     <SafeAreaView style={styles.backgroundViewContainer}> 
@@ -45,11 +55,13 @@ function SubmitInterests() {
             <ScrollView style={styles.contentContainer}>
                 <View style={styles.gridInterestsContainer}>
                     {
-                        Globals.INTERESTS_LIST.map((genre, index) => {
-                            return (
-                                <InterestContainer key={index} genreName={genre} onChosenInterest={onInterestChosen} onRemovedInterest={onRemovedInterest} interestWithCheckbox={true}/>
-                            );
-                        })
+                    <FlatList
+                        data={Globals.INTERESTS_LIST}
+                        renderItem={renderItem}
+                        keyExtractor={item => item}
+                        numColumns={2} 
+                        initialNumToRender={15}
+                    />
                     }
                 </View>
             </ScrollView>

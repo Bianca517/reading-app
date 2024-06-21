@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, SafeAreaView, TextInput , ScrollView, Alert} from 'react-native';
+import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, SafeAreaView, TextInput , ScrollView, Alert, FlatList} from 'react-native';
 import Globals from '../../_globals/Globals';
 import { useNavigation } from '@react-navigation/native';
 import { ResponseType } from '../../../types';
@@ -33,6 +33,17 @@ export default function SearchBookUI() {
         }
     }
 
+    const renderItem = ({ item }: { item: string }) => {
+        return (
+            <InterestContainer 
+                genreName={item} 
+                onChosenInterest={onChosenGenre} 
+                onRemovedInterest={onRemovedGenre} 
+                interestWithCheckbox={false}
+            />
+        );
+    }
+
     return(
         <SafeAreaView style={styles.fullscreen_container}>
             <View style={styles.search_by_name_container}>
@@ -63,15 +74,14 @@ export default function SearchBookUI() {
             </View>
 
             <View style={styles.genres_container}>
-                <ScrollView contentContainerStyle={styles.genres_scrollview}>
-                {
-                    Globals.INTERESTS_LIST.map((genre, index) => {
-                        return (
-                            <InterestContainer key={index} genreName={genre} onChosenInterest={onChosenGenre} onRemovedInterest={onRemovedGenre} interestWithCheckbox={false}/>
-                        );
-                    })
-                }
-                </ScrollView>
+
+                <FlatList
+                    data={Globals.INTERESTS_LIST}
+                    renderItem={renderItem}
+                    keyExtractor={item => item}
+                    numColumns={2} 
+                    initialNumToRender={12}
+                />
             </View>
         </SafeAreaView>
     );
@@ -103,6 +113,7 @@ const styles = StyleSheet.create({
         flex: 8,
         //backgroundColor: 'yellow',
         paddingTop: 2,
+        paddingLeft: 15
     },
     right_line_through: {
         flex: 4,
