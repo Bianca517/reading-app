@@ -98,24 +98,28 @@ export default function ReadingScreen( {route} ) {
     const snapPoints = isAndroid ? ["60%"] : ["45%"];
 
     const navigation = useNavigation<NavigationProp<NavigationParameters>>();
-    navigation.setOptions({
-        headerRight: () => (
-                <Button
-                  onPress={() => handleSnapPress(0)}
-                  title="Settings"
-                  color="gray"
-                />
-        ),
-        headerLeft: () => (
-            <TouchableOpacity
-              onPress={() => handleBack()}
-              style={{paddingRight: 10}}
-            >
-                <AntDesign name="arrowleft" size={24} color={Globals.COLORS.PURPLE} />    
-            </TouchableOpacity>
-    ),});
 
-    
+    //set navigation options in use effect because otherwise a warning will occur
+    //in react, you cant set state directly while rendering so it has to be wrapped in useEffect
+    useEffect(() => {
+        navigation.setOptions({
+            headerRight: () => (
+                    <Button
+                      onPress={() => handleSnapPress(0)}
+                      title="Settings"
+                      color="gray"
+                    />
+            ),
+            headerLeft: () => (
+                <TouchableOpacity
+                  onPress={() => handleBack()}
+                  style={{paddingRight: 10}}
+                >
+                    <AntDesign name="arrowleft" size={24} color={Globals.COLORS.PURPLE} />    
+                </TouchableOpacity>
+        ),});
+    }, []);
+
     //this executes at the beginning
     useEffect(() => {
         if (isFocused) {
