@@ -1,5 +1,5 @@
 import React, { ReactElement, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ScrollView, Image, Dimensions, Button, FlatList, Platform, Alert } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ScrollView, Image, Dimensions, Button, FlatList, Platform, Alert, BackHandler } from 'react-native';
 import Globals from '../../_globals/Globals';
 import BottomSheet, { BottomSheetView, SCREEN_WIDTH, BottomSheetModalProvider, BottomSheetModal } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -106,12 +106,20 @@ export default function ReadingScreen( {route} ) {
                   color="gray"
                 />
         ),
-    })
+        headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => handleBack()}
+              style={{paddingRight: 10}}
+            >
+                <AntDesign name="arrowleft" size={24} color={Globals.COLORS.PURPLE} />    
+            </TouchableOpacity>
+    ),});
 
     
     //this executes at the beginning
     useEffect(() => {
         if (isFocused) {
+
             GlobalBookData.CAN_SET_BOOK_TO_FINISHED = false;
             const result = Sentry.startSpan(
                 { name: "Reading screen" },
@@ -130,9 +138,10 @@ export default function ReadingScreen( {route} ) {
                         })
                     )
                 },
-    );
+            );
         }
     }, [isFocused]);
+
 
     useEffect(() => {
         function loadBookChapterTitleAndContent() {
@@ -208,6 +217,7 @@ export default function ReadingScreen( {route} ) {
                 setSongURI(createUriForSong(bookID, chapterNumber.toString()));
             }
             else {
+                console.log("unload song");
                 setSound(null);
                 setIsLoaded(false);
                 setSongURI("");
@@ -224,21 +234,30 @@ export default function ReadingScreen( {route} ) {
         //console.log("gesture scroll active ", isGestureScrollingActive);
     }, [isGestureScrollingActive]);
     
+    function handleBack() {
+        console.log("back");
+        console.log(sound);
+        console.log(isPlaying);
+        if(sound && (isPlaying == true)) {
+            console.log("clear song");
+            stopSound(sound);
+            unloadAsync(sound);
+            setSound(null);
+            setIsPlaying(false);
+        }
+        
+        navigation.goBack();
+    }
+
     useFocusEffect(
         React.useCallback(() => {
             // This function will be called when the screen is focused
             return () => {
-                if(sound && (isPlaying == false)) {
-                    console.log("clear song");
-                    unloadAsync(sound);
-                    setSound(null);
-                    setIsPlaying(false);
-                }
-                
                 console.log("chapter number", chapterNumber);
                 console.log("total chapter numbers", totalNumberOfChapters);
                 console.log("total pages: " + totalPageNumbers);
                 console.log("current page: " + currentPage.current);
+                console.log("isbookinlib " + isBookInLibrary);
 
                 // This function will be called when the screen loses focus or unmounts
                 if (typeof chapterNumber !== 'undefined' && isBookInLibrary) {
@@ -351,6 +370,7 @@ export default function ReadingScreen( {route} ) {
 
         //song was paused inside other chapter => load new song
         if(chapterNumber.toString() != songURI.split("_")[1]) {
+            console.log("song was paused inside other chapter => load new song");
             loadSoundForCurrentChapter();
         }
     }
