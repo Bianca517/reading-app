@@ -29,6 +29,7 @@ export default function Book(props: BookProps) {
     let bookCover = "";
     const [userCurrentChapterInBook, setUserCurrentChapterInBook] = useState<number>(); 
     const [isBookInLibrary, setIsBookInLibrary] = useState<boolean>(false);
+    const [isBookInFinalizedBooks, setIsBookInFinalizedBooks] = useState<boolean>(false);
     const [readPercentageOfBook, setReadPercentageOfBook] = useState<number>(0);
     const [totalNumberOfChapters, setTotalNumberOfChapters] = useState<number>(0);
 
@@ -52,6 +53,7 @@ export default function Book(props: BookProps) {
 
     function checkIfBookIsInLibrary() {
         setIsBookInLibrary(false);
+        setIsBookInFinalizedBooks(false);
 
         if(GlobalBookData.CURRENT_READINGS.length > 0) {
             GlobalBookData.CURRENT_READINGS.forEach((book: bookDTO) => {
@@ -66,7 +68,7 @@ export default function Book(props: BookProps) {
             if(GlobalBookData.FINALIZED_READINGS.length > 0) {
                 GlobalBookData.FINALIZED_READINGS.forEach(book => {
                     if(bookID == book.bookID) {
-                        setIsBookInLibrary(true);
+                        setIsBookInFinalizedBooks(true);
                     }
                 });
             }
@@ -103,10 +105,11 @@ export default function Book(props: BookProps) {
     function handleNavigation() {
         switch(props.bookNavigationOptions) {
             case Globals.BOOK_NAVIGATION_OPTIONS.TO_READING_SCREEN: {
+                let chapterNumberAux = isNaN(parseInt(GlobalBookData.USER_CURRENT_POSITIONS[bookID])) ? 0 : parseInt(GlobalBookData.USER_CURRENT_POSITIONS[bookID]);
                 navigation.navigate("Reading Screen", 
                 { 
                     "id" : bookID, 
-                    "chapterNumber" : parseInt(GlobalBookData.USER_CURRENT_POSITIONS[bookID]), 
+                    "chapterNumber" : chapterNumberAux, 
                     "bookCoverImage" : bookCover, 
                     "name": bookTitle, 
                     "authorUsername": bookAuthor,
@@ -139,7 +142,7 @@ export default function Book(props: BookProps) {
             case Globals.BOOK_NAVIGATION_OPTIONS.ADDITIONAL_CHECK: {
                 checkIfBookIsInLibrary();
                 console.log("podoososd ", isBookInLibrary);
-                if(!isBookInLibrary) {
+                if(!(isBookInLibrary || isBookInFinalizedBooks)) {
                     navigation.navigate("Prologue", 
                     { 
                         "id" : bookID, 
