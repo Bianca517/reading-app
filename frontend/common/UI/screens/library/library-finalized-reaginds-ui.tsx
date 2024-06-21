@@ -8,28 +8,51 @@ import { get_finalized_readings } from '../../../services/retrieve-books-service
 import GlobalBookData from '../../_globals/GlobalBookData';
 import GlobalUserData from '../../_globals/GlobalUserData';
 import { bookDTO } from '../../../types';
+import { loadFinalizedReadingBooks } from '../../components/service-calls-wrapper';
+import { useIsFocused } from '@react-navigation/native';
 
 export default function LibraryPageFinalizedReadingsUI() {
-    const [finalizedBooks, setFinalizedBooks] = useState(GlobalBookData.FINALIZED_READINGS);
-
-    async function loadFinalizedReadingBooks() {
-        get_finalized_readings(GlobalUserData.LOGGED_IN_USER_DATA.uid).then((fetchResponse: bookDTO[]) => {
-            if (fetchResponse != null && fetchResponse.length > 0) {
-                setFinalizedBooks(fetchResponse);
-                GlobalBookData.FINALIZED_READINGS = fetchResponse;
-            }
-        });
-    }
+    const [finalizedBooks, setFinalizedBooks] = useState<bookDTO[]>([]);
+    const isFocused = useIsFocused();
 
     //this executes on page load
     useEffect(() => {
-        if(!GlobalBookData.FINALIZED_READINGS) {
-            loadFinalizedReadingBooks();
+        if(isFocused) {
+            if(!GlobalBookData.FINALIZED_READINGS || GlobalBookData.FINALIZED_READINGS.length == 0) {
+                loadFinalizedReadingBooks().then((books: bookDTO[]) => {
+                        setFinalizedBooks(books);
+                        console.log(books);
+                });
+            }
+            else {
+                console.log("aici");
+                console.log(GlobalBookData.FINALIZED_READINGS);
+                setFinalizedBooks(GlobalBookData.FINALIZED_READINGS);
+            }
         }
-        else {
-            setFinalizedBooks(GlobalBookData.FINALIZED_READINGS);
-        }
-    }, []);
+    }, [isFocused]);
+
+    const renderItem = ({ item }: { item: bookDTO }) => {
+        return (
+            <Book 
+                key={item.bookID} 
+                bookDTO={item} 
+                bookCoverWidth={95} 
+                bookCoverHeight={180} 
+                bookWithDetails = {false} 
+                bookNavigationOptions={Globals.BOOK_NAVIGATION_OPTIONS.TO_READING_SCREEN}
+            />
+        );
+    }
+
+    function renderWhenEmpty() {
+        return (
+            <View style={styles.view_when_empty}>
+                <Text style={styles.text_when_empty}> You currently do not have any finished books...</Text>
+                <Text style={styles.text_when_empty}> Keep reading :) </Text>
+            </View>
+        )
+    }
 
     return (
         <SafeAreaView style={styles.fullscreen_view}>
@@ -41,14 +64,16 @@ export default function LibraryPageFinalizedReadingsUI() {
             <View style={styles.whiteLine}></View>
 
             <View style={styles.booksContainer}>
-                <ScrollView contentContainerStyle={styles.booksContainerScrollView}>
-                {
-                    /*Warning: Each child in a list should have a unique "key" prop.*/
-                    finalizedBooks.map((book, index) => (
-                        <Book key={index} bookDTO={book} bookCoverWidth={95} bookCoverHeight={180} bookWithDetails = {false} bookNavigationOptions={Globals.BOOK_NAVIGATION_OPTIONS.TO_READING_SCREEN}/>
-                    ))
-                }
-                </ScrollView>
+
+                <FlatList
+                    data={finalizedBooks}
+                    renderItem={renderItem}
+                    keyExtractor={item => item.bookID}
+                    numColumns={3} 
+                    initialNumToRender={9}
+                    ListEmptyComponent={() => renderWhenEmpty()}
+                    //contentContainerStyle={styles.display_books_scroll}
+                />
             </View>
 
             <Footer />
@@ -96,6 +121,17 @@ const styles = StyleSheet.create({
         width: '100%',
         justifyContent: 'flex-start', // Align rows to the start
         alignItems: 'flex-start', // Align items to the start within each row
+    },
+    view_when_empty: {
+        //backgroundColor: 'pink',
+        width: "100%",
+        justifyContent: 'center',
+        marginTop: 250,
+    },
+    text_when_empty: {
+        textAlign: 'center',
+        color: 'white',
+        fontSize: 17,
     }
 })
 
