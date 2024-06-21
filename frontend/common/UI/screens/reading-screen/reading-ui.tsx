@@ -328,6 +328,7 @@ export default function ReadingScreen( {route} ) {
     }
 
     function updateFontFamily (fontFamily: string): void{
+        console.log("am primit ", fontFamily);
         setSelectedFont(fontFamily)
     }
 
@@ -622,6 +623,9 @@ export default function ReadingScreen( {route} ) {
                                   isBookInLibrary={isBookInLibrary} 
                                   isSongLoaded={isLoaded}
                                   isSongPlaying={isPlaying}
+                                  initialBackgroundColor={selectedBackgroundColor}
+                                  initialFont={selectedFont}
+                                  initialGestureScrollingActive={isGestureScrollingActive}
                                   updateFontFamily = {updateFontFamily} 
                                   updateFontSize = {updateFontSize} 
                                   updateBackgroundColor = {updateBackgroundColor} 
