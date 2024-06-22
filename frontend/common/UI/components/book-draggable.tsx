@@ -57,8 +57,8 @@ export default function BookDraggable({ bookFields, bookCoverWidth, bookCoverHei
             else {
                 runOnJS(bookAddedCallback)(bookID, bookTitle, bookAuthor, numberOfChapters); //run on JS needed because otherwise the app would crash  
                 //By using runOnJS, you ensure that the function is executed on the JavaScript thread rather than the UI thread
-                translateX.value = withSpring(0);
-                translateY.value = withSpring(0);
+                //translateX.value = withSpring(0);
+                //translateY.value = withSpring(0);
             }
 
             isPressed.value = false;

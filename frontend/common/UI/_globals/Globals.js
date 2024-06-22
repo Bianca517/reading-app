@@ -65,7 +65,7 @@ export default {
         "Drama",
         "Fan-Fiction"
     ],
-    DEFAULT_FONT_FAMILY: 'System',
+    DEFAULT_FONT_FAMILY: 'normal',
     DEFAULT_FONT_SIZE: 15,
     MIN_FONT_SIZE: 12,
     MAX_FONT_SIZE: 23,
