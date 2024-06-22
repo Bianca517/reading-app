@@ -15,7 +15,7 @@ import { ResponseType, UserAuthenticationResponseType } from '../../../types';
 import { Section } from '../../components/section-login-or-register';
 import GlobalBookData from '../../_globals/GlobalBookData';
 import GlobalUserData from '../../_globals/GlobalUserData';
-import { getUserFromStorage, showAllAsyncStorage } from '../../components/persistent-login';
+import { getUserFromStorage, showAllAsyncStorage, storeUserToAsyncStorage } from '../../components/persistent-login';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 WebBrowser.maybeCompleteAuthSession();
@@ -94,9 +94,10 @@ export default function LoginPageUI() {
       
       if(Globals.STATUS_CODES.USER_CREATED === statusCode) {
         navigation.navigate('Submit Interests' as never);
+        storeUserToAsyncStorage(fetchResponse.Data.user_id, fetchResponse.Data.username);
       }
       else if(Globals.STATUS_CODES.USER_LOGGED_IN === statusCode) {
-
+        storeUserToAsyncStorage(fetchResponse.Data.user_id, fetchResponse.Data.username);
         navigation.navigate('Home' as never)
       }
     }
