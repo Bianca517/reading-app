@@ -4,6 +4,7 @@ import * as Sentry from "@sentry/react-native";
 import { LogBox } from 'react-native';
 
 LogBox.ignoreLogs(['Warning', 'ExpoFaceDetector']);
+LogBox.ignoreAllLogs();
 
 Sentry.init({
   dsn: "https://bff5a74ac1918c1dc8f5b6a83d3bc66a@o4507443188400128.ingest.de.sentry.io/4507443202555984",
