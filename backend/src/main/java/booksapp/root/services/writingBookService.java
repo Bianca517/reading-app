@@ -62,7 +62,7 @@ public class writingBookService {
         /* initialize firebase storage */
         FirebaseStorage = StorageClient.getInstance().bucket();
         try {
-            googleCredentials = GoogleCredentials.fromStream(new FileInputStream("./backend/src/main/resources/serviceAccountKey.json"));
+            googleCredentials = GoogleCredentials.fromStream(new FileInputStream("./src/main/resources/serviceAccountKey.json"));
             storage = StorageOptions.newBuilder().setCredentials(googleCredentials).build().getService();
             topLevelBucket = storage.get(bucketName);
         } catch (Exception e) {

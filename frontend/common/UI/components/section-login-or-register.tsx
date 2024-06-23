@@ -7,7 +7,7 @@ import Globals from '../_globals/Globals';
 import { register_user_service } from '../../services/register-service';
 import GlobalUserData from '../_globals/GlobalUserData';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { generateJWTToken, showAllAsyncStorage, storeUserToAsyncStorage } from './persistent-login';
+import { showAllAsyncStorage, storeUserToAsyncStorage } from './persistent-login';
 
 const PAGE_SECTIONS: string[] = ["Login", "Register"]
 
